@@ -1,6 +1,8 @@
 " LineJuggler.vim: Duplicate and move around lines.
 "
 " DEPENDENCIES:
+"   - repeat.vim (vimscript #2136) autoload script (optional)
+"   - visualrepeat.vim (vimscript #3848) autoload script (optional)
 "
 " Copyright: (C) 2012 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
@@ -15,6 +17,55 @@ if exists('g:loaded_LineJuggler') || (v:version < 700)
     finish
 endif
 let g:loaded_LineJuggler = 1
+
+function! s:BlankUp(count) abort
+    put! =repeat(nr2char(10), a:count)
+    ']+1
+    silent! call repeat#set("\<Plug>LineJugglerBlankUp", a:count)
+endfunction
+function! s:BlankDown(count) abort
+    put =repeat(nr2char(10), a:count)
+    '[-1
+    silent! call repeat#set("\<Plug>LineJugglerBlankDown", a:count)
+endfunction
+
+nnoremap <silent> <Plug>LineJugglerBlankUp   :<C-U>call <SID>BlankUp(v:count1)<CR>
+nnoremap <silent> <Plug>LineJugglerBlankDown :<C-U>call <SID>BlankDown(v:count1)<CR>
+if ! hasmapto('<Plug>LineJugglerBlankUp', 'n')
+    nmap [<Space> <Plug>LineJugglerBlankUp
+endif
+if ! hasmapto('<Plug>LineJugglerBlankDown', 'n')
+    nmap ]<Space> <Plug>LineJugglerBlankDown
+endif
+
+
+
+function! s:Move(cmd, count, map) abort
+    normal! m`
+    execute 'move' a:cmd . a:count
+    normal! g``
+    silent! call repeat#set("\<Plug>LineJugglerMove" . a:map, a:count)
+    silent! call visualrepeat#set("\<Plug>LineJugglerMove" . a:map, a:count)
+endfunction
+
+nnoremap <silent> <Plug>LineJugglerMoveUp   :<C-U>call <SID>Move('--',v:count1,'Up')<CR>
+nnoremap <silent> <Plug>LineJugglerMoveDown :<C-U>call <SID>Move('+',v:count1,'Down')<CR>
+xnoremap <silent> <Plug>LineJugglerMoveUp   :<C-U>execute 'normal! m`'<Bar>execute '''<,''>move --' . v:count1<CR>g``
+xnoremap <silent> <Plug>LineJugglerMoveDown :<C-U>execute 'normal! m`'<Bar>execute '''<,''>move ''>+' . v:count1<CR>g``
+if ! hasmapto('<Plug>LineJugglerMoveUp', 'n')
+    nmap [e <Plug>LineJugglerMoveUp
+endif
+if ! hasmapto('<Plug>LineJugglerMoveDown', 'n')
+    nmap ]e <Plug>LineJugglerMoveDown
+endif
+if ! hasmapto('<Plug>LineJugglerMoveUp', 'x')
+    xmap [e <Plug>LineJugglerMoveUp
+endif
+if ! hasmapto('<Plug>LineJugglerMoveDown', 'x')
+    xmap ]e <Plug>LineJugglerMoveDown
+endif
+
+
 
 function! s:Dup(insLnum, lines, isUp, count, map) abort
     if a:isUp
