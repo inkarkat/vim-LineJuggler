@@ -10,6 +10,15 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"	003	10-Jul-2012	BUG: Move up and down cause "E134: Move lines
+"				into themselves" when using inside a closed
+"				fold. Calculate the target address from the
+"				fold's border instead of simple relative line
+"				addressing.
+"				FIX: Beep instead of causing error when moving
+"				up / down at the first / last line.
+"				FIX: Correct use of repeat mapping in move up
+"				and down mappings.
 "	002	21-Jun-2012	Rename all mappings to include the mapping name
 "				in (...), as recommended by my style guide.
 "				Add LineJugglerDupRangeDown / ]D alternative
@@ -26,12 +35,12 @@ if exists('g:loaded_LineJuggler') || (v:version < 700)
 endif
 let g:loaded_LineJuggler = 1
 
-function! s:BlankUp(count) abort
+function! s:BlankUp( count ) abort
     put! =repeat(nr2char(10), a:count)
     ']+1
     silent! call repeat#set("\<Plug>(LineJugglerBlankUp)", a:count)
 endfunction
-function! s:BlankDown(count) abort
+function! s:BlankDown( count ) abort
     put =repeat(nr2char(10), a:count)
     '[-1
     silent! call repeat#set("\<Plug>(LineJugglerBlankDown)", a:count)
@@ -48,18 +57,24 @@ endif
 
 
 
-function! s:Move(cmd, count, map) abort
+function! s:Move( range, address, count, mapSuffix ) abort
+    if a:address < 0 || a:address > line('$')
+	execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
+	return
+    endif
+
     normal! m`
-    execute 'move' a:cmd . a:count
+    execute a:range . 'move' a:address
     normal! g``
-    silent! call repeat#set("\<Plug>(LineJugglerMove)" . a:map, a:count)
-    silent! call visualrepeat#set("\<Plug>(LineJugglerMove)" . a:map, a:count)
+
+    silent! call       repeat#set("\<Plug>(LineJugglerMove" . a:mapSuffix . ')', a:count)
+    silent! call visualrepeat#set("\<Plug>(LineJugglerMove" . a:mapSuffix . ')', a:count)
 endfunction
 
-nnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-U>call <SID>Move('--',v:count1,'Up')<CR>
-nnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-U>call <SID>Move('+',v:count1,'Down')<CR>
-xnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-U>execute 'normal! m`'<Bar>execute '''<,''>move --' . v:count1<CR>g``
-xnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-U>execute 'normal! m`'<Bar>execute '''<,''>move ''>+' . v:count1<CR>g``
+nnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-U>call <SID>Move((foldclosed   ('.') == -1 ? line('.') : foldclosed('.')   ), (foldclosed   ('.') == -1 ? line('.') : foldclosed('.')   ) - 1 - v:count1, v:count1, 'Up'  )<CR>
+nnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-U>call <SID>Move((foldclosedend('.') == -1 ? line('.') : foldclosedend('.')), (foldclosedend('.') == -1 ? line('.') : foldclosedend('.'))     + v:count1, v:count1, 'Down')<CR>
+xnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-U>call <SID>Move("'<,'>", line("'<") - 1 - v:count1, v:count1, 'Up')<CR>
+xnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-U>call <SID>Move("'<,'>", line("'>")     + v:count1, v:count1, 'Down')<CR>
 if ! hasmapto('<Plug>(LineJugglerMoveUp)', 'n')
     nmap [e <Plug>(LineJugglerMoveUp)
 endif
@@ -75,7 +90,7 @@ endif
 
 
 
-function! s:Dup(insLnum, lines, isUp, count, mapSuffix) abort
+function! s:Dup( insLnum, lines, isUp, count, mapSuffix ) abort
     if type(a:lines) == type([]) && len(a:lines) > 1 && empty(a:lines[-1])
 	" XXX: Vim omits an empty last element when :put'ting a List of lines.
 	" We can work around that by putting a newline character instead.
@@ -84,10 +99,10 @@ function! s:Dup(insLnum, lines, isUp, count, mapSuffix) abort
 
     if a:isUp
 	let l:lnum = max([0, a:insLnum - a:count + 1])
-	execute l:lnum.'put!' '=a:lines'
+	execute l:lnum . 'put! =a:lines'
     else
 	let l:lnum = min([line('$'), a:insLnum + a:count - 1])
-	execute l:lnum.'put' '=a:lines'
+	execute l:lnum . 'put =a:lines'
     endif
 
     silent! call       repeat#set("\<Plug>(LineJugglerDup" . a:mapSuffix . ')', a:count)
