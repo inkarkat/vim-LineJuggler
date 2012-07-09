@@ -57,6 +57,12 @@ endif
 
 
 
+function! s:FoldClosed()
+    return foldclosed('.') == -1 ? line('.') : foldclosed('.')
+endfunction
+function! s:FoldClosedEnd()
+    return foldclosedend('.') == -1 ? line('.') : foldclosedend('.')
+endfunction
 function! s:Move( range, address, count, mapSuffix ) abort
     if a:address < 0 || a:address > line('$')
 	execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
@@ -71,8 +77,8 @@ function! s:Move( range, address, count, mapSuffix ) abort
     silent! call visualrepeat#set("\<Plug>(LineJugglerMove" . a:mapSuffix . ')', a:count)
 endfunction
 
-nnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-U>call <SID>Move((foldclosed   ('.') == -1 ? line('.') : foldclosed('.')   ), (foldclosed   ('.') == -1 ? line('.') : foldclosed('.')   ) - 1 - v:count1, v:count1, 'Up'  )<CR>
-nnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-U>call <SID>Move((foldclosedend('.') == -1 ? line('.') : foldclosedend('.')), (foldclosedend('.') == -1 ? line('.') : foldclosedend('.'))     + v:count1, v:count1, 'Down')<CR>
+nnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-U>call <SID>Move(<SID>FoldClosed()   , <SID>FoldClosed() - 1 - v:count1, v:count1, 'Up'  )<CR>
+nnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-U>call <SID>Move(<SID>FoldClosedEnd(), <SID>FoldClosedEnd()  + v:count1, v:count1, 'Down')<CR>
 xnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-U>call <SID>Move("'<,'>", line("'<") - 1 - v:count1, v:count1, 'Up')<CR>
 xnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-U>call <SID>Move("'<,'>", line("'>")     + v:count1, v:count1, 'Down')<CR>
 if ! hasmapto('<Plug>(LineJugglerMoveUp)', 'n')
