@@ -10,6 +10,14 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"	002	21-Jun-2012	Rename all mappings to include the mapping name
+"				in (...), as recommended by my style guide.
+"				Add LineJugglerDupRangeDown / ]D alternative
+"				mappings that interpret [count] as the range /
+"				multiplier of the visual selection rather than
+"				the number of lines to skip.
+"				FIX: Work around Vim :put behavior to duplicate
+"				line ranges ending with an empty line correctly.
 "	001	12-Mar-2012	file creation
 
 " Avoid installing twice or when in unsupported Vim version.
@@ -21,21 +29,21 @@ let g:loaded_LineJuggler = 1
 function! s:BlankUp(count) abort
     put! =repeat(nr2char(10), a:count)
     ']+1
-    silent! call repeat#set("\<Plug>LineJugglerBlankUp", a:count)
+    silent! call repeat#set("\<Plug>(LineJugglerBlankUp)", a:count)
 endfunction
 function! s:BlankDown(count) abort
     put =repeat(nr2char(10), a:count)
     '[-1
-    silent! call repeat#set("\<Plug>LineJugglerBlankDown", a:count)
+    silent! call repeat#set("\<Plug>(LineJugglerBlankDown)", a:count)
 endfunction
 
-nnoremap <silent> <Plug>LineJugglerBlankUp   :<C-U>call <SID>BlankUp(v:count1)<CR>
-nnoremap <silent> <Plug>LineJugglerBlankDown :<C-U>call <SID>BlankDown(v:count1)<CR>
-if ! hasmapto('<Plug>LineJugglerBlankUp', 'n')
-    nmap [<Space> <Plug>LineJugglerBlankUp
+nnoremap <silent> <Plug>(LineJugglerBlankUp)   :<C-U>call <SID>BlankUp(v:count1)<CR>
+nnoremap <silent> <Plug>(LineJugglerBlankDown) :<C-U>call <SID>BlankDown(v:count1)<CR>
+if ! hasmapto('<Plug>(LineJugglerBlankUp)', 'n')
+    nmap [<Space> <Plug>(LineJugglerBlankUp)
 endif
-if ! hasmapto('<Plug>LineJugglerBlankDown', 'n')
-    nmap ]<Space> <Plug>LineJugglerBlankDown
+if ! hasmapto('<Plug>(LineJugglerBlankDown)', 'n')
+    nmap ]<Space> <Plug>(LineJugglerBlankDown)
 endif
 
 
@@ -44,30 +52,36 @@ function! s:Move(cmd, count, map) abort
     normal! m`
     execute 'move' a:cmd . a:count
     normal! g``
-    silent! call repeat#set("\<Plug>LineJugglerMove" . a:map, a:count)
-    silent! call visualrepeat#set("\<Plug>LineJugglerMove" . a:map, a:count)
+    silent! call repeat#set("\<Plug>(LineJugglerMove)" . a:map, a:count)
+    silent! call visualrepeat#set("\<Plug>(LineJugglerMove)" . a:map, a:count)
 endfunction
 
-nnoremap <silent> <Plug>LineJugglerMoveUp   :<C-U>call <SID>Move('--',v:count1,'Up')<CR>
-nnoremap <silent> <Plug>LineJugglerMoveDown :<C-U>call <SID>Move('+',v:count1,'Down')<CR>
-xnoremap <silent> <Plug>LineJugglerMoveUp   :<C-U>execute 'normal! m`'<Bar>execute '''<,''>move --' . v:count1<CR>g``
-xnoremap <silent> <Plug>LineJugglerMoveDown :<C-U>execute 'normal! m`'<Bar>execute '''<,''>move ''>+' . v:count1<CR>g``
-if ! hasmapto('<Plug>LineJugglerMoveUp', 'n')
-    nmap [e <Plug>LineJugglerMoveUp
+nnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-U>call <SID>Move('--',v:count1,'Up')<CR>
+nnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-U>call <SID>Move('+',v:count1,'Down')<CR>
+xnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-U>execute 'normal! m`'<Bar>execute '''<,''>move --' . v:count1<CR>g``
+xnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-U>execute 'normal! m`'<Bar>execute '''<,''>move ''>+' . v:count1<CR>g``
+if ! hasmapto('<Plug>(LineJugglerMoveUp)', 'n')
+    nmap [e <Plug>(LineJugglerMoveUp)
 endif
-if ! hasmapto('<Plug>LineJugglerMoveDown', 'n')
-    nmap ]e <Plug>LineJugglerMoveDown
+if ! hasmapto('<Plug>(LineJugglerMoveDown)', 'n')
+    nmap ]e <Plug>(LineJugglerMoveDown)
 endif
-if ! hasmapto('<Plug>LineJugglerMoveUp', 'x')
-    xmap [e <Plug>LineJugglerMoveUp
+if ! hasmapto('<Plug>(LineJugglerMoveUp)', 'x')
+    xmap [e <Plug>(LineJugglerMoveUp)
 endif
-if ! hasmapto('<Plug>LineJugglerMoveDown', 'x')
-    xmap ]e <Plug>LineJugglerMoveDown
+if ! hasmapto('<Plug>(LineJugglerMoveDown)', 'x')
+    xmap ]e <Plug>(LineJugglerMoveDown)
 endif
 
 
 
-function! s:Dup(insLnum, lines, isUp, count, map) abort
+function! s:Dup(insLnum, lines, isUp, count, mapSuffix) abort
+    if type(a:lines) == type([]) && len(a:lines) > 1 && empty(a:lines[-1])
+	" XXX: Vim omits an empty last element when :put'ting a List of lines.
+	" We can work around that by putting a newline character instead.
+	let a:lines[-1] = "\n"
+    endif
+
     if a:isUp
 	let l:lnum = max([0, a:insLnum - a:count + 1])
 	execute l:lnum.'put!' '=a:lines'
@@ -76,25 +90,42 @@ function! s:Dup(insLnum, lines, isUp, count, map) abort
 	execute l:lnum.'put' '=a:lines'
     endif
 
-    silent! call repeat#set("\<Plug>LineJugglerDup".a:map, a:count)
-    silent! call visualrepeat#set("\<Plug>LineJugglerDup".a:map, a:count)
+    silent! call       repeat#set("\<Plug>(LineJugglerDup" . a:mapSuffix . ')', a:count)
+    silent! call visualrepeat#set("\<Plug>(LineJugglerDup" . a:mapSuffix . ')', a:count)
 endfunction
 
-nnoremap <silent> <Plug>LineJugglerDupUp   :<C-U>call <SID>Dup(line('.'),  getline('.'),        1, v:count1, 'Up'  )<CR>
-nnoremap <silent> <Plug>LineJugglerDupDown :<C-U>call <SID>Dup(line('.'),  getline('.'),        0, v:count1, 'Down')<CR>
-vnoremap <silent> <Plug>LineJugglerDupUp   :<C-U>call <SID>Dup(line("'<"), getline("'<", "'>"), 1, v:count1, 'Up'  )<CR>
-vnoremap <silent> <Plug>LineJugglerDupDown :<C-U>call <SID>Dup(line("'>"), getline("'<", "'>"), 0, v:count1, 'Down')<CR>
-if ! hasmapto('<Plug>LineJugglerDupUp', 'n')
-    nmap [d <Plug>LineJugglerDupUp
+nnoremap <silent> <Plug>(LineJugglerDupOverUp)   :<C-U>call <SID>Dup(line('.'),  getline('.'),        1, v:count1, 'OverUp'  )<CR>
+nnoremap <silent> <Plug>(LineJugglerDupOverDown) :<C-U>call <SID>Dup(line('.'),  getline('.'),        0, v:count1, 'OverDown')<CR>
+vnoremap <silent> <Plug>(LineJugglerDupOverUp)   :<C-U>call <SID>Dup(line("'<"), getline("'<", "'>"), 1, v:count1, 'OverUp'  )<CR>
+vnoremap <silent> <Plug>(LineJugglerDupOverDown) :<C-U>call <SID>Dup(line("'>"), getline("'<", "'>"), 0, v:count1, 'OverDown')<CR>
+if ! hasmapto('<Plug>(LineJugglerDupOverUp)', 'n')
+    nmap [d <Plug>(LineJugglerDupOverUp)
 endif
-if ! hasmapto('<Plug>LineJugglerDupDown', 'n')
-    nmap ]d <Plug>LineJugglerDupDown
+if ! hasmapto('<Plug>(LineJugglerDupOverDown)', 'n')
+    nmap ]d <Plug>(LineJugglerDupOverDown)
 endif
-if ! hasmapto('<Plug>LineJugglerDupUp', 'x')
-    xmap [d <Plug>LineJugglerDupUp
+if ! hasmapto('<Plug>(LineJugglerDupOverUp)', 'x')
+    xmap [d <Plug>(LineJugglerDupOverUp)
 endif
-if ! hasmapto('<Plug>LineJugglerDupDown', 'x')
-    xmap ]d <Plug>LineJugglerDupDown
+if ! hasmapto('<Plug>(LineJugglerDupOverDown)', 'x')
+    xmap ]d <Plug>(LineJugglerDupOverDown)
+endif
+
+nnoremap <silent> <Plug>(LineJugglerDupRangeUp)   :<C-U>call <SID>Dup(line('.'),                 getline('.', line('.') + v:count1 - 1), 1, 1, 'RangeUp'  )<CR>
+nnoremap <silent> <Plug>(LineJugglerDupRangeDown) :<C-U>call <SID>Dup(line('.') + v:count1 - 1,  getline('.', line('.') + v:count1 - 1), 0, 1, 'RangeDown')<CR>
+vnoremap <silent> <Plug>(LineJugglerDupRangeUp)   :<C-U>call <SID>Dup(line("'<"),                repeat(getline("'<", "'>"), v:count1) , 1, 1, 'RangeUp'  )<CR>
+vnoremap <silent> <Plug>(LineJugglerDupRangeDown) :<C-U>call <SID>Dup(line("'>"),                repeat(getline("'<", "'>"), v:count1) , 0, 1, 'RangeDown')<CR>
+if ! hasmapto('<Plug>(LineJugglerDupRangeUp)', 'n')
+    nmap [D <Plug>(LineJugglerDupRangeUp)
+endif
+if ! hasmapto('<Plug>(LineJugglerDupRangeDown)', 'n')
+    nmap ]D <Plug>(LineJugglerDupRangeDown)
+endif
+if ! hasmapto('<Plug>(LineJugglerDupRangeUp)', 'x')
+    xmap [D <Plug>(LineJugglerDupRangeUp)
+endif
+if ! hasmapto('<Plug>(LineJugglerDupRangeDown)', 'x')
+    xmap ]D <Plug>(LineJugglerDupRangeDown)
 endif
 
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
