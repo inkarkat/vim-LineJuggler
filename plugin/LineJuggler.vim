@@ -104,19 +104,19 @@ nnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-U>call <SID>Move(
 \)<CR>
 nnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-U>call <SID>Move(
 \   <SID>FoldClosedEnd(),
-\   ingowindow#RelativeWindowLine(line('.'), v:count1,  1)
-\   , v:count1,
+\   ingowindow#RelativeWindowLine(line('.'), v:count1,  1),
+\   v:count1,
 \   'Down'
 \)<CR>
 xnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-U>call <SID>Move(
 \   "'<,'>",
-\   line("'<") - 1 - v:count1,
+\   ingowindow#RelativeWindowLine(line("'<"), v:count1, -1) - 1,
 \   v:count1,
 \   'Up'
 \)<CR>
 xnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-U>call <SID>Move(
 \   "'<,'>",
-\   line("'>") + v:count1,
+\   ingowindow#RelativeWindowLine(line("'>"), v:count1,  1),
 \   v:count1,
 \   'Down'
 \)<CR>
