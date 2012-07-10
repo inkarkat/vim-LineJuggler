@@ -1,19 +1,17 @@
-*LineJuggler.txt*          Summary sentence.
-			^ Start here. v Center this.
-		       LINE JUGGLER    by Ingo Karkat
-								*LineJuggler.vim*
+*LineJuggler.txt*       Duplicate and move around lines.
+
+			LINE JUGGLER    by Ingo Karkat
+							     *LineJuggler.vim*
 description			|LineJuggler-description|
 usage				|LineJuggler-usage|
 installation			|LineJuggler-installation|
-configuration			|LineJuggler-configuration|
-integration			|LineJuggler-integration|
 limitations			|LineJuggler-limitations|
 known problems			|LineJuggler-known-problems|
 todo				|LineJuggler-todo|
 history				|LineJuggler-history|
 
 ==============================================================================
-DESCRIPTION				       *LineJuggler-description*
+DESCRIPTION					     *LineJuggler-description*
 
 This plugin ...
 
@@ -22,7 +20,7 @@ HOW IT WORKS								     *
 RELATED WORKS								     *
 
 ==============================================================================
-USAGE						     *LineJuggler-usage*
+USAGE							   *LineJuggler-usage*
 
 								    *[<Space>*
 [<Space>                Add [count] blank lines above the cursor.
@@ -45,8 +43,19 @@ USAGE						     *LineJuggler-usage*
 ]d			Duplicate current line / selection [count] lines
 			below.
 
+									  *[D*
+[D			Duplicate current  / [count] lines above the current
+			line.						*v_[D*
+{Visual}[D		Duplicate the selection [count] times above the
+			selection.
+									  *]D*
+]D			Duplicate current  / [count] lines below that range.
+									*v_]D*
+{Visual}]D		Duplicate the selection [count] times below the
+			selection.
+
 ==============================================================================
-INSTALLATION				      *LineJuggler-installation*
+INSTALLATION					    *LineJuggler-installation*
 
 This script is packaged as a |vimball|. If you have the "gunzip" decompressor
 in your PATH, simply edit the *.vba.gz package in Vim; otherwise, decompress
@@ -56,36 +65,24 @@ vimball or via the |:UseVimball| command. >
     :so %
 To uninstall, use the |:RmVimball| command.
 
-DEPENDENCIES				      *LineJuggler-dependencies*
+DEPENDENCIES					    *LineJuggler-dependencies*
 
 - Requires Vim 7.0 or higher.
 
 ==============================================================================
-CONFIGURATION				     *LineJuggler-configuration*
+LIMITATIONS					     *LineJuggler-limitations*
 
-For a permanent configuration, put the following commands into your |vimrc|:
+KNOWN PROBLEMS					  *LineJuggler-known-problems*
 
-						*g:LineJuggler_MyOption*
-To change the default TODO from FOO to BAR, use: >
-    let g:LineJuggler_MyOption = 'BAR'
-<
-==============================================================================
-INTEGRATION				       *LineJuggler-integration*
+TODO							    *LineJuggler-todo*
+
+IDEAS							   *LineJuggler-ideas*
 
 ==============================================================================
-LIMITATIONS				       *LineJuggler-limitations*
-
-KNOWN PROBLEMS				    *LineJuggler-known-problems*
-
-TODO						      *LineJuggler-todo*
-
-IDEAS						     *LineJuggler-ideas*
-
-==============================================================================
-HISTORY						   *LineJuggler-history*
+HISTORY							 *LineJuggler-history*
 
 1.00	12-Mar-2012
-First published version.
+GOAL: Release
 
 0.01	12-Mar-2012
 Started development.
