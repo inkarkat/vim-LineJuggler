@@ -1,6 +1,7 @@
 " LineJuggler.vim: Duplicate and move around lines.
 "
 " DEPENDENCIES:
+"   - ingowindow.vim autoload script
 "   - repeat.vim (vimscript #2136) autoload script (optional)
 "   - visualrepeat.vim (vimscript #3848) autoload script (optional)
 "
@@ -93,8 +94,8 @@ function! s:Move( range, address, count, mapSuffix ) abort
     silent! call visualrepeat#set("\<Plug>(LineJugglerMove" . a:mapSuffix . ')', a:count)
 endfunction
 
-nnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-U>call <SID>Move(<SID>FoldClosed()   , <SID>FoldClosed() - 1 - v:count1, v:count1, 'Up'  )<CR>
-nnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-U>call <SID>Move(<SID>FoldClosedEnd(), <SID>FoldClosedEnd()  + v:count1, v:count1, 'Down')<CR>
+nnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-U>call <SID>Move(<SID>FoldClosed()   , ingowindow#RelativeWindowLine(line('.'), v:count1, -1) - 1, v:count1, 'Up'  )<CR>
+nnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-U>call <SID>Move(<SID>FoldClosedEnd(), ingowindow#RelativeWindowLine(line('.'), v:count1,  1), v:count1, 'Down')<CR>
 xnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-U>call <SID>Move("'<,'>", line("'<") - 1 - v:count1, v:count1, 'Up')<CR>
 xnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-U>call <SID>Move("'<,'>", line("'>")     + v:count1, v:count1, 'Down')<CR>
 if ! hasmapto('<Plug>(LineJugglerMoveUp)', 'n')
