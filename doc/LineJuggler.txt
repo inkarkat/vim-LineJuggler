@@ -19,6 +19,11 @@ HOW IT WORKS								     *
 
 RELATED WORKS								     *
 
+- Idea, design and implementation of the [<Space> mapping are based on Tim
+  Pope's unimpaired.vim plugin (vimscript #1590). It provides other, unrelated
+  functionality mapped to [... and ]... mappings, and doesn't offer
+  customization of the mappings.
+
 ==============================================================================
 USAGE							   *LineJuggler-usage*
 
@@ -53,6 +58,16 @@ USAGE							   *LineJuggler-usage*
 									*v_]D*
 {Visual}]D		Duplicate the selection [count] times below the
 			selection.
+
+
+			When the cursor is on / the selection contains a
+			closed fold, the entire set of folded lines is used.
+			All mappings treat closed folds as a fixed entity, so
+			they will never move / duplicate into a closed fold,
+			always over it.
+			A [count] specifies visible lines, closed folds are
+			counted as one line, so you can use the
+			'relativenumber' column to easily reach a target.
 
 ==============================================================================
 INSTALLATION					    *LineJuggler-installation*
