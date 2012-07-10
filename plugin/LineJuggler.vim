@@ -148,8 +148,8 @@ if ! hasmapto('<Plug>(LineJugglerDupOverDown)', 'x')
     xmap ]d <Plug>(LineJugglerDupOverDown)
 endif
 
-nnoremap <silent> <Plug>(LineJugglerDupRangeUp)   :<C-U>call <SID>Dup(<SID>FoldClosed(),                             getline(<SID>FoldClosed(), <SID>FoldClosedEnd(line('.') + v:count1 - 1)), 1, 1, 'RangeUp'  )<CR>
-nnoremap <silent> <Plug>(LineJugglerDupRangeDown) :<C-U>call <SID>Dup(<SID>FoldClosedEnd(line('.') + v:count1 - 1),  getline(<SID>FoldClosed(), <SID>FoldClosedEnd(line('.') + v:count1 - 1)), 0, 1, 'RangeDown')<CR>
+nnoremap <silent> <Plug>(LineJugglerDupRangeUp)   :<C-U>call <SID>Dup(<SID>FoldClosed(),                                          getline(<SID>FoldClosed(), ingowindow#RelativeWindowLine(line('.'), v:count1 - 1, 1)), 1, 1, 'RangeUp'  )<CR>
+nnoremap <silent> <Plug>(LineJugglerDupRangeDown) :<C-U>call <SID>Dup(ingowindow#RelativeWindowLine(line('.'), v:count1 - 1, 1),  getline(<SID>FoldClosed(), ingowindow#RelativeWindowLine(line('.'), v:count1 - 1, 1)), 0, 1, 'RangeDown')<CR>
 vnoremap <silent> <Plug>(LineJugglerDupRangeUp)   :<C-U>call <SID>Dup(line("'<"), repeat(getline("'<", "'>"), v:count1) , 1, 1, 'RangeUp'  )<CR>
 vnoremap <silent> <Plug>(LineJugglerDupRangeDown) :<C-U>call <SID>Dup(line("'>"), repeat(getline("'<", "'>"), v:count1) , 0, 1, 'RangeDown')<CR>
 if ! hasmapto('<Plug>(LineJugglerDupRangeUp)', 'n')
