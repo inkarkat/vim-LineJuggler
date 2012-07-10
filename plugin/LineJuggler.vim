@@ -15,8 +15,8 @@
 "				fold. Calculate the target address from the
 "				fold's border instead of simple relative line
 "				addressing.
-"				FIX: Beep instead of causing error when moving
-"				up / down at the first / last line.
+"				FIX: Beep / truncate instead of causing error
+"				when moving up / down at the first / last line.
 "				FIX: Correct use of repeat mapping in move up
 "				and down mappings.
 "	002	21-Jun-2012	Rename all mappings to include the mapping name
@@ -64,13 +64,27 @@ function! s:FoldClosedEnd()
     return foldclosedend('.') == -1 ? line('.') : foldclosedend('.')
 endfunction
 function! s:Move( range, address, count, mapSuffix ) abort
-    if a:address < 0 || a:address > line('$')
-	execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
-	return
+    " Beep when already on the first / last line, but allow an arbitrary large
+    " count to move to the first / last line.
+    let l:address = a:address
+    if l:address < 0
+	if line('.') == 1
+	    execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
+	    return
+	else
+	    let l:address = 0
+	endif
+    elseif a:address > line('$')
+	if line('.') == line('$')
+	    execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
+	    return
+	else
+	    let l:address = line('$')
+	endif
     endif
 
     normal! m`
-    execute a:range . 'move' a:address
+    execute a:range . 'move' l:address
     normal! g``
 
     silent! call       repeat#set("\<Plug>(LineJugglerMove" . a:mapSuffix . ')', a:count)
@@ -115,8 +129,8 @@ function! s:Dup( insLnum, lines, isUp, count, mapSuffix ) abort
     silent! call visualrepeat#set("\<Plug>(LineJugglerDup" . a:mapSuffix . ')', a:count)
 endfunction
 
-nnoremap <silent> <Plug>(LineJugglerDupOverUp)   :<C-U>call <SID>Dup(line('.'),  getline('.'),        1, v:count1, 'OverUp'  )<CR>
-nnoremap <silent> <Plug>(LineJugglerDupOverDown) :<C-U>call <SID>Dup(line('.'),  getline('.'),        0, v:count1, 'OverDown')<CR>
+nnoremap <silent> <Plug>(LineJugglerDupOverUp)   :<C-U>call <SID>Dup(<SID>FoldClosed()   , getline(<SID>FoldClosed(), <SID>FoldClosedEnd()), 1, v:count1, 'OverUp'  )<CR>
+nnoremap <silent> <Plug>(LineJugglerDupOverDown) :<C-U>call <SID>Dup(<SID>FoldClosedEnd(), getline(<SID>FoldClosed(), <SID>FoldClosedEnd()), 0, v:count1, 'OverDown')<CR>
 vnoremap <silent> <Plug>(LineJugglerDupOverUp)   :<C-U>call <SID>Dup(line("'<"), getline("'<", "'>"), 1, v:count1, 'OverUp'  )<CR>
 vnoremap <silent> <Plug>(LineJugglerDupOverDown) :<C-U>call <SID>Dup(line("'>"), getline("'<", "'>"), 0, v:count1, 'OverDown')<CR>
 if ! hasmapto('<Plug>(LineJugglerDupOverUp)', 'n')
