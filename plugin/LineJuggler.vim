@@ -57,11 +57,13 @@ endif
 
 
 
-function! s:FoldClosed()
-    return foldclosed('.') == -1 ? line('.') : foldclosed('.')
+function! s:FoldClosed( ... )
+    let l:lnum = (a:0 ? a:1 : '.')
+    return foldclosed(l:lnum) == -1 ? line(l:lnum) : foldclosed(l:lnum)
 endfunction
-function! s:FoldClosedEnd()
-    return foldclosedend('.') == -1 ? line('.') : foldclosedend('.')
+function! s:FoldClosedEnd( ... )
+    let l:lnum = (a:0 ? a:1 : '.')
+    return foldclosedend(l:lnum) == -1 ? line(l:lnum) : foldclosedend(l:lnum)
 endfunction
 function! s:Move( range, address, count, mapSuffix ) abort
     " Beep when already on the first / last line, but allow an arbitrary large
@@ -146,10 +148,10 @@ if ! hasmapto('<Plug>(LineJugglerDupOverDown)', 'x')
     xmap ]d <Plug>(LineJugglerDupOverDown)
 endif
 
-nnoremap <silent> <Plug>(LineJugglerDupRangeUp)   :<C-U>call <SID>Dup(line('.'),                 getline('.', line('.') + v:count1 - 1), 1, 1, 'RangeUp'  )<CR>
-nnoremap <silent> <Plug>(LineJugglerDupRangeDown) :<C-U>call <SID>Dup(line('.') + v:count1 - 1,  getline('.', line('.') + v:count1 - 1), 0, 1, 'RangeDown')<CR>
-vnoremap <silent> <Plug>(LineJugglerDupRangeUp)   :<C-U>call <SID>Dup(line("'<"),                repeat(getline("'<", "'>"), v:count1) , 1, 1, 'RangeUp'  )<CR>
-vnoremap <silent> <Plug>(LineJugglerDupRangeDown) :<C-U>call <SID>Dup(line("'>"),                repeat(getline("'<", "'>"), v:count1) , 0, 1, 'RangeDown')<CR>
+nnoremap <silent> <Plug>(LineJugglerDupRangeUp)   :<C-U>call <SID>Dup(<SID>FoldClosed(),                             getline(<SID>FoldClosed(), <SID>FoldClosedEnd(line('.') + v:count1 - 1)), 1, 1, 'RangeUp'  )<CR>
+nnoremap <silent> <Plug>(LineJugglerDupRangeDown) :<C-U>call <SID>Dup(<SID>FoldClosedEnd(line('.') + v:count1 - 1),  getline(<SID>FoldClosed(), <SID>FoldClosedEnd(line('.') + v:count1 - 1)), 0, 1, 'RangeDown')<CR>
+vnoremap <silent> <Plug>(LineJugglerDupRangeUp)   :<C-U>call <SID>Dup(line("'<"), repeat(getline("'<", "'>"), v:count1) , 1, 1, 'RangeUp'  )<CR>
+vnoremap <silent> <Plug>(LineJugglerDupRangeDown) :<C-U>call <SID>Dup(line("'>"), repeat(getline("'<", "'>"), v:count1) , 0, 1, 'RangeDown')<CR>
 if ! hasmapto('<Plug>(LineJugglerDupRangeUp)', 'n')
     nmap [D <Plug>(LineJugglerDupRangeUp)
 endif
