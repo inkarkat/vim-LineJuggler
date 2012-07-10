@@ -11,6 +11,15 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"	004	11-Jul-2012	FIX: Handle readonly / nomodifiable buffer
+"				warning / error.
+"				ENH: In all mappings, include all lines of
+"				closed folds and interpret [count] as the number
+"				of visible lines, i.e. count closed folds as one
+"				count. With this, moves and duplications are
+"				always done "over", never "into" closed folds,
+"				and the 'relativenumber' column can be used to
+"				determine the [count] to reach a target.
 "	003	10-Jul-2012	BUG: Move up and down cause "E134: Move lines
 "				into themselves" when using inside a closed
 "				fold. Calculate the target address from the
@@ -49,8 +58,8 @@ function! s:BlankDown( count ) abort
     silent! call repeat#set("\<Plug>(LineJugglerBlankDown)", a:count)
 endfunction
 
-nnoremap <silent> <Plug>(LineJugglerBlankUp)   :<C-U>call <SID>BlankUp(v:count1)<CR>
-nnoremap <silent> <Plug>(LineJugglerBlankDown) :<C-U>call <SID>BlankDown(v:count1)<CR>
+nnoremap <silent> <Plug>(LineJugglerBlankUp)   :<C-U>call setline(1, getline(1))<Bar>call <SID>BlankUp(v:count1)<CR>
+nnoremap <silent> <Plug>(LineJugglerBlankDown) :<C-U>call setline(1, getline(1))<Bar>call <SID>BlankDown(v:count1)<CR>
 if ! hasmapto('<Plug>(LineJugglerBlankUp)', 'n')
     nmap [<Space> <Plug>(LineJugglerBlankUp)
 endif
@@ -96,25 +105,29 @@ function! s:Move( range, address, count, mapSuffix ) abort
     silent! call visualrepeat#set("\<Plug>(LineJugglerMove" . a:mapSuffix . ')', a:count)
 endfunction
 
-nnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-U>call <SID>Move(
+nnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-U>call setline(1, getline(1))<Bar>
+\call <SID>Move(
 \   <SID>FoldClosed(),
 \   ingowindow#RelativeWindowLine(line('.'), v:count1, -1) - 1,
 \   v:count1,
 \   'Up'
 \)<CR>
-nnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-U>call <SID>Move(
+nnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-U>call setline(1, getline(1))<Bar>
+\call <SID>Move(
 \   <SID>FoldClosedEnd(),
 \   ingowindow#RelativeWindowLine(line('.'), v:count1,  1),
 \   v:count1,
 \   'Down'
 \)<CR>
-xnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-U>call <SID>Move(
+xnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-U>call setline(1, getline(1))<Bar>
+\call <SID>Move(
 \   "'<,'>",
 \   ingowindow#RelativeWindowLine(line("'<"), v:count1, -1) - 1,
 \   v:count1,
 \   'Up'
 \)<CR>
-xnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-U>call <SID>Move(
+xnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-U>call setline(1, getline(1))<Bar>
+\call <SID>Move(
 \   "'<,'>",
 \   ingowindow#RelativeWindowLine(line("'>"), v:count1,  1),
 \   v:count1,
@@ -154,28 +167,32 @@ function! s:Dup( insLnum, lines, isUp, count, mapSuffix ) abort
     silent! call visualrepeat#set("\<Plug>(LineJugglerDup" . a:mapSuffix . ')', a:count)
 endfunction
 
-nnoremap <silent> <Plug>(LineJugglerDupOverUp)   :<C-U>call <SID>Dup(
+nnoremap <silent> <Plug>(LineJugglerDupOverUp)   :<C-U>call setline(1, getline(1))<Bar>
+\call <SID>Dup(
 \   <SID>FoldClosed(),
 \   getline(<SID>FoldClosed(), <SID>FoldClosedEnd()),
 \   1,
 \   v:count1,
 \   'OverUp'
 \)<CR>
-nnoremap <silent> <Plug>(LineJugglerDupOverDown) :<C-U>call <SID>Dup(
+nnoremap <silent> <Plug>(LineJugglerDupOverDown) :<C-U>call setline(1, getline(1))<Bar>
+\call <SID>Dup(
 \   <SID>FoldClosedEnd(),
 \   getline(<SID>FoldClosed(), <SID>FoldClosedEnd()),
 \   0,
 \   v:count1,
 \   'OverDown'
 \)<CR>
-vnoremap <silent> <Plug>(LineJugglerDupOverUp)   :<C-U>call <SID>Dup(
+vnoremap <silent> <Plug>(LineJugglerDupOverUp)   :<C-U>call setline(1, getline(1))<Bar>
+\call <SID>Dup(
 \   line("'<"),
 \   getline("'<", "'>"),
 \   1,
 \   v:count1,
 \   'OverUp'
 \)<CR>
-vnoremap <silent> <Plug>(LineJugglerDupOverDown) :<C-U>call <SID>Dup(
+vnoremap <silent> <Plug>(LineJugglerDupOverDown) :<C-U>call setline(1, getline(1))<Bar>
+\call <SID>Dup(
 \   line("'>"),
 \   getline("'<", "'>"),
 \   0,
@@ -195,25 +212,29 @@ if ! hasmapto('<Plug>(LineJugglerDupOverDown)', 'x')
     xmap ]d <Plug>(LineJugglerDupOverDown)
 endif
 
-nnoremap <silent> <Plug>(LineJugglerDupRangeUp)   :<C-U>call <SID>Dup(
+nnoremap <silent> <Plug>(LineJugglerDupRangeUp)   :<C-U>call setline(1, getline(1))<Bar>
+\call <SID>Dup(
 \   <SID>FoldClosed(),
 \   getline(<SID>FoldClosed(), ingowindow#RelativeWindowLine(line('.'), v:count1 - 1, 1)),
 \   1, 1,
 \   'RangeUp'
 \)<CR>
-nnoremap <silent> <Plug>(LineJugglerDupRangeDown) :<C-U>call <SID>Dup(
+nnoremap <silent> <Plug>(LineJugglerDupRangeDown) :<C-U>call setline(1, getline(1))<Bar>
+\call <SID>Dup(
 \   ingowindow#RelativeWindowLine(line('.'), v:count1 - 1, 1),
 \   getline(<SID>FoldClosed(), ingowindow#RelativeWindowLine(line('.'), v:count1 - 1, 1)),
 \   0, 1,
 \   'RangeDown'
 \)<CR>
-vnoremap <silent> <Plug>(LineJugglerDupRangeUp)   :<C-U>call <SID>Dup(
+vnoremap <silent> <Plug>(LineJugglerDupRangeUp)   :<C-U>call setline(1, getline(1))<Bar>
+\call <SID>Dup(
 \   line("'<"),
 \   repeat(getline("'<", "'>"), v:count1),
 \   1, 1,
 \   'RangeUp'
 \)<CR>
-vnoremap <silent> <Plug>(LineJugglerDupRangeDown) :<C-U>call <SID>Dup(
+vnoremap <silent> <Plug>(LineJugglerDupRangeDown) :<C-U>call setline(1, getline(1))<Bar>
+\call <SID>Dup(
 \   line("'>"),
 \   repeat(getline("'<", "'>"), v:count1),
 \   0, 1,
