@@ -11,6 +11,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"	005	12-Jul-2012	ENH: Add visual [f / ]f mappings.
 "	004	11-Jul-2012	FIX: Handle readonly / nomodifiable buffer
 "				warning / error.
 "				ENH: In all mappings, include all lines of
@@ -262,14 +263,14 @@ endif
 nnoremap <silent> <Plug>(LineJugglerDupFetchAbove)   :<C-U>call setline(1, getline(1))<Bar>
 \call <SID>Dup(
 \   <SID>FoldClosedEnd(),
-\   getline(ingowindow#RelativeWindowLine(line('.'), v:count1, -1), <SID>FoldClosedEnd(ingowindow#RelativeWindowLine(line('.'), v:count1, -1))),
+\   getline(ingowindow#RelativeWindowLine(line('.'), v:count1, -1), ingowindow#RelativeWindowLine(line('.'), v:count1, -1, 1)),
 \   0, 1, v:count1,
 \   'FetchAbove'
 \)<CR>
 nnoremap <silent> <Plug>(LineJugglerDupFetchBelow) :<C-U>call setline(1, getline(1))<Bar>
 \call <SID>Dup(
 \   <SID>FoldClosedEnd(),
-\   getline(<SID>FoldClosed(ingowindow#RelativeWindowLine(line('.'), v:count1, 1)), ingowindow#RelativeWindowLine(line('.'), v:count1, 1)),
+\   getline(ingowindow#RelativeWindowLine(line('.'), v:count1, 1, -1), ingowindow#RelativeWindowLine(line('.'), v:count1, 1)),
 \   0, 1, v:count1 + 1,
 \   'FetchBelow'
 \)<CR>
@@ -293,7 +294,7 @@ function! s:VisualDupFetch( direction, mapSuffix ) abort
     let l:targetStartLnum = ingowindow#RelativeWindowLine(line('.'), l:count, a:direction, -1)
     let l:lines = getline(l:targetStartLnum, l:targetStartLnum + line("'>") - line("'<"))
 
-    execute "'<,'>delete" v:register
+    silent execute "'<,'>delete" v:register
 
     call s:Dup(
     \   line("'<"),
