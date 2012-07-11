@@ -20,6 +20,8 @@
 "				always done "over", never "into" closed folds,
 "				and the 'relativenumber' column can be used to
 "				determine the [count] to reach a target.
+"				ENH: Add [f / ]f mappings to fetch adjacent line
+"				and duplicate it below the current one.
 "	003	10-Jul-2012	BUG: Move up and down cause "E134: Move lines
 "				into themselves" when using inside a closed
 "				fold. Calculate the target address from the
@@ -70,12 +72,12 @@ endif
 
 
 function! s:FoldClosed( ... )
-    let l:lnum = (a:0 ? a:1 : '.')
-    return foldclosed(l:lnum) == -1 ? line(l:lnum) : foldclosed(l:lnum)
+    let l:lnum = (a:0 ? a:1 : line('.'))
+    return foldclosed(l:lnum) == -1 ? l:lnum : foldclosed(l:lnum)
 endfunction
 function! s:FoldClosedEnd( ... )
-    let l:lnum = (a:0 ? a:1 : '.')
-    return foldclosedend(l:lnum) == -1 ? line(l:lnum) : foldclosedend(l:lnum)
+    let l:lnum = (a:0 ? a:1 : line('.'))
+    return foldclosedend(l:lnum) == -1 ? l:lnum : foldclosedend(l:lnum)
 endfunction
 function! s:Move( range, address, count, mapSuffix ) abort
     " Beep when already on the first / last line, but allow an arbitrary large
@@ -148,7 +150,7 @@ endif
 
 
 
-function! s:Dup( insLnum, lines, isUp, count, mapSuffix ) abort
+function! s:Dup( insLnum, lines, isUp, offset, count, mapSuffix ) abort
     if type(a:lines) == type([]) && len(a:lines) > 1 && empty(a:lines[-1])
 	" XXX: Vim omits an empty last element when :put'ting a List of lines.
 	" We can work around that by putting a newline character instead.
@@ -156,10 +158,10 @@ function! s:Dup( insLnum, lines, isUp, count, mapSuffix ) abort
     endif
 
     if a:isUp
-	let l:lnum = max([0, a:insLnum - a:count + 1])
+	let l:lnum = max([0, a:insLnum - a:offset + 1])
 	execute l:lnum . 'put! =a:lines'
     else
-	let l:lnum = min([line('$'), a:insLnum + a:count - 1])
+	let l:lnum = min([line('$'), a:insLnum + a:offset - 1])
 	execute l:lnum . 'put =a:lines'
     endif
 
@@ -173,6 +175,7 @@ nnoremap <silent> <Plug>(LineJugglerDupOverUp)   :<C-U>call setline(1, getline(1
 \   getline(<SID>FoldClosed(), <SID>FoldClosedEnd()),
 \   1,
 \   v:count1,
+\   v:count1,
 \   'OverUp'
 \)<CR>
 nnoremap <silent> <Plug>(LineJugglerDupOverDown) :<C-U>call setline(1, getline(1))<Bar>
@@ -180,6 +183,7 @@ nnoremap <silent> <Plug>(LineJugglerDupOverDown) :<C-U>call setline(1, getline(1
 \   <SID>FoldClosedEnd(),
 \   getline(<SID>FoldClosed(), <SID>FoldClosedEnd()),
 \   0,
+\   v:count1,
 \   v:count1,
 \   'OverDown'
 \)<CR>
@@ -189,6 +193,7 @@ vnoremap <silent> <Plug>(LineJugglerDupOverUp)   :<C-U>call setline(1, getline(1
 \   getline("'<", "'>"),
 \   1,
 \   v:count1,
+\   v:count1,
 \   'OverUp'
 \)<CR>
 vnoremap <silent> <Plug>(LineJugglerDupOverDown) :<C-U>call setline(1, getline(1))<Bar>
@@ -196,6 +201,7 @@ vnoremap <silent> <Plug>(LineJugglerDupOverDown) :<C-U>call setline(1, getline(1
 \   line("'>"),
 \   getline("'<", "'>"),
 \   0,
+\   v:count1,
 \   v:count1,
 \   'OverDown'
 \)<CR>
@@ -216,28 +222,28 @@ nnoremap <silent> <Plug>(LineJugglerDupRangeUp)   :<C-U>call setline(1, getline(
 \call <SID>Dup(
 \   <SID>FoldClosed(),
 \   getline(<SID>FoldClosed(), ingowindow#RelativeWindowLine(line('.'), v:count1 - 1, 1)),
-\   1, 1,
+\   1, 1, v:count1,
 \   'RangeUp'
 \)<CR>
 nnoremap <silent> <Plug>(LineJugglerDupRangeDown) :<C-U>call setline(1, getline(1))<Bar>
 \call <SID>Dup(
 \   ingowindow#RelativeWindowLine(line('.'), v:count1 - 1, 1),
 \   getline(<SID>FoldClosed(), ingowindow#RelativeWindowLine(line('.'), v:count1 - 1, 1)),
-\   0, 1,
+\   0, 1, v:count1,
 \   'RangeDown'
 \)<CR>
 vnoremap <silent> <Plug>(LineJugglerDupRangeUp)   :<C-U>call setline(1, getline(1))<Bar>
 \call <SID>Dup(
 \   line("'<"),
 \   repeat(getline("'<", "'>"), v:count1),
-\   1, 1,
+\   1, 1, v:count1,
 \   'RangeUp'
 \)<CR>
 vnoremap <silent> <Plug>(LineJugglerDupRangeDown) :<C-U>call setline(1, getline(1))<Bar>
 \call <SID>Dup(
 \   line("'>"),
 \   repeat(getline("'<", "'>"), v:count1),
-\   0, 1,
+\   0, 1, v:count1,
 \   'RangeDown'
 \)<CR>
 if ! hasmapto('<Plug>(LineJugglerDupRangeUp)', 'n')
@@ -251,6 +257,28 @@ if ! hasmapto('<Plug>(LineJugglerDupRangeUp)', 'x')
 endif
 if ! hasmapto('<Plug>(LineJugglerDupRangeDown)', 'x')
     xmap ]D <Plug>(LineJugglerDupRangeDown)
+endif
+
+nnoremap <silent> <Plug>(LineJugglerDupFetchAbove)   :<C-U>call setline(1, getline(1))<Bar>
+\call <SID>Dup(
+\   <SID>FoldClosedEnd(),
+\   getline(ingowindow#RelativeWindowLine(line('.'), v:count1, -1), <SID>FoldClosedEnd(ingowindow#RelativeWindowLine(line('.'), v:count1, -1))),
+\   0, 1, v:count1,
+\   'FetchAbove'
+\)<CR>
+nnoremap <silent> <Plug>(LineJugglerDupFetchBelow) :<C-U>call setline(1, getline(1))<Bar>
+\call <SID>Dup(
+\   <SID>FoldClosedEnd(),
+\   getline(<SID>FoldClosed(ingowindow#RelativeWindowLine(line('.'), v:count1, 1)), ingowindow#RelativeWindowLine(line('.'), v:count1, 1)),
+\   0, 1, v:count1 + 1,
+\   'FetchBelow'
+\)<CR>
+" Note: To repeat with the following line, we need to increase v:count by one.
+if ! hasmapto('<Plug>(LineJugglerDupFetchAbove)', 'n')
+    nmap ]f <Plug>(LineJugglerDupFetchAbove)
+endif
+if ! hasmapto('<Plug>(LineJugglerDupFetchBelow)', 'n')
+    nmap [f <Plug>(LineJugglerDupFetchBelow)
 endif
 
 let &cpo = s:save_cpo
