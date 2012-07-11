@@ -281,6 +281,37 @@ if ! hasmapto('<Plug>(LineJugglerDupFetchBelow)', 'n')
     nmap [f <Plug>(LineJugglerDupFetchBelow)
 endif
 
+
+function! s:VisualDupFetch( direction, mapSuffix ) abort
+    let l:count = v:count1
+    " With :<C-u>, we're always in the first line of the selection. To get the
+    " actual line of the cursor, we need to leave the visual selection. We
+    " cannot do that initially before invoking this function, since then the
+    " [count] would be lost. So do this now to get the current line.
+    execute "normal! gv\<C-\>\<C-n>"
+
+    let l:targetStartLnum = ingowindow#RelativeWindowLine(line('.'), l:count, a:direction, -1)
+    let l:lines = getline(l:targetStartLnum, l:targetStartLnum + line("'>") - line("'<"))
+
+    execute "'<,'>delete" v:register
+
+    call s:Dup(
+    \   line("'<"),
+    \   l:lines,
+    \   0, 0,
+    \   l:count,
+    \   a:mapSuffix
+    \)
+endfunction
+xnoremap <silent> <Plug>(LineJugglerDupFetchAbove)   :<C-u>call <SID>VisualDupFetch(-1, 'FetchAbove')<CR>
+xnoremap <silent> <Plug>(LineJugglerDupFetchBelow)   :<C-u>call <SID>VisualDupFetch( 1, 'FetchBelow')<CR>
+if ! hasmapto('<Plug>(LineJugglerDupFetchAbove)', 'x')
+    xmap ]f <Plug>(LineJugglerDupFetchAbove)
+endif
+if ! hasmapto('<Plug>(LineJugglerDupFetchBelow)', 'x')
+    xmap [f <Plug>(LineJugglerDupFetchBelow)
+endif
+
 let &cpo = s:save_cpo
 unlet s:save_cpo
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
