@@ -13,25 +13,31 @@ history				|LineJuggler-history|
 ==============================================================================
 DESCRIPTION					     *LineJuggler-description*
 
-This plugin ...
+This plugin offers mappings to quickly duplicate and move lines to above /
+below the current line. A [count] either specifies the number of lines, or the
+relative visible line, therefore it's especially easy to clone lines when
+'relativenumber' is set.
+
+Oftentimes, duplication in source code is a code smell. Please use this plugin
+responsibly ;-)
 
 HOW IT WORKS								     *
 
 RELATED WORKS								     *
 
 - Idea, design and implementation of the [<Space> mapping are based on Tim
-  Pope's unimpaired.vim plugin (vimscript #1590). It provides other, unrelated
-  functionality mapped to [... and ]... mappings, and doesn't offer
-  customization of the mappings.
+  Pope's unimpaired.vim plugin (vimscript #1590). In addition, it provides
+  other, unrelated functionality (all via [... / ]... mappings), and doesn't
+  offer customization of the mappings.
 
 ==============================================================================
 USAGE							   *LineJuggler-usage*
 
 								    *[<Space>*
-[<Space>                Add [count] blank lines above the cursor.
+[<Space>                Add [count] blank lines above the current line.
 
 								    *]<Space>*
-]<Space>                Add [count] blank lines below the cursor.
+]<Space>                Add [count] blank lines below the current line.
 
 								   *[e* *v_[e*
 [e                      Exchange the current line / selection with [count]
@@ -59,6 +65,13 @@ USAGE							   *LineJuggler-usage*
 {Visual}]D		Duplicate the selection [count] times below the
 			selection.
 
+									  *[f*
+[f			Fetch the line [count] visible lines below the current
+			line and duplicate it below the current line.
+									  *[f*
+]f			Fetch the line [count] visible lines above the current
+			line and duplicate it below the current line.
+
 
 			When the cursor is on / the selection contains a
 			closed fold, the entire set of folded lines is used.
@@ -83,6 +96,8 @@ To uninstall, use the |:RmVimball| command.
 DEPENDENCIES					    *LineJuggler-dependencies*
 
 - Requires Vim 7.0 or higher.
+- repeat.vim (vimscript #2136) plugin (optional)
+- visualrepeat.vim (vimscript #3848) plugin (optional)
 
 ==============================================================================
 LIMITATIONS					     *LineJuggler-limitations*
