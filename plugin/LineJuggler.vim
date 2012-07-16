@@ -19,6 +19,8 @@
 "				FIX: Use current line for the setline()
 "				unmodifiable / readonly check to avoid that undo
 "				of the mapping jumps to line 1.
+"				Avoid reporting "2 changes" when undoing [e /
+"				]e; undojoin doesn't help.
 "   	005	12-Jul-2012	ENH: Add visual [f / ]f mappings.
 "				ENH: Add visual [<Space> / ]<Space> mappings.
 "				Moved functions to separate autoload script.
@@ -81,7 +83,7 @@ endif
 
 
 
-nnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-u>call setline('.', getline('.'))<Bar>
+nnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
 \call LineJuggler#Move(
 \   LineJuggler#FoldClosed(),
 \   ingowindow#RelativeWindowLine(line('.'), v:count1, -1) - 1,
@@ -89,7 +91,7 @@ nnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-u>call setline('.', getline('.
 \   -1,
 \   'Up'
 \)<CR>
-nnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-u>call setline('.', getline('.'))<Bar>
+nnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
 \call LineJuggler#Move(
 \   LineJuggler#FoldClosedEnd(),
 \   ingowindow#RelativeWindowLine(line('.'), v:count1,  1),
@@ -97,9 +99,9 @@ nnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-u>call setline('.', getline('.
 \   1,
 \   'Down'
 \)<CR>
-vnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-u>call setline('.', getline('.'))<Bar>
+vnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
 \call LineJuggler#VisualMove(-1, 'Up')<CR>
-vnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-u>call setline('.', getline('.'))<Bar>
+vnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
 \call LineJuggler#VisualMove( 1, 'Down')<CR>
 if ! hasmapto('<Plug>(LineJugglerMoveUp)', 'n')
     nmap [e <Plug>(LineJugglerMoveUp)
