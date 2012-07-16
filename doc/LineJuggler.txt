@@ -33,11 +33,13 @@ RELATED WORKS								     *
 ==============================================================================
 USAGE							   *LineJuggler-usage*
 
-								    *[<Space>*
-[<Space>                Add [count] blank lines above the current line.
+						       *[<Space>* *v_[<Space>*
+[<Space>                Add [count] blank lines above the current line / above
+			the start of the selection.
 
-								    *]<Space>*
-]<Space>                Add [count] blank lines below the current line.
+						       *]<Space>* *v_]<Space>*
+]<Space>                Add [count] blank lines below the current line / below
+			the end of the selection.
 
 								   *[e* *v_[e*
 [e                      Exchange the current line / selection with [count]
@@ -71,6 +73,16 @@ USAGE							   *LineJuggler-usage*
 									  *[f*
 ]f			Fetch the line [count] visible lines above the current
 			line and duplicate it below the current line.
+									*v_[f*
+{Visual}[f		Replace the selected lines with the same number of
+			(physical, regardless of their folding state) lines
+			fetched starting from the line [count] visible lines
+			below the current line.
+									*v_]f*
+{Visual}]f		Replace the selected lines with the same number of
+			(physical, regardless of their folding state) lines
+			fetched starting from the line [count] visible lines
+			above the current line.
 
 
 			When the cursor is on / the selection contains a
@@ -111,8 +123,8 @@ IDEAS							   *LineJuggler-ideas*
 ==============================================================================
 HISTORY							 *LineJuggler-history*
 
-1.00	12-Mar-2012
-GOAL: Release
+1.00	12-Jul-2012
+Initial release.
 
 0.01	12-Mar-2012
 Started development.
