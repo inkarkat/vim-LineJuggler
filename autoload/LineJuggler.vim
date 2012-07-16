@@ -11,7 +11,11 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
-"   1.00.001	12-Jul-2012	file creation
+"   1.00.002	17-Jul-2012	Add more LineJuggler#Visual...() functions to
+"				handle the distance in a visual selection in a
+"				uniform way.
+"				Implement line swap.
+"	001	12-Jul-2012	file creation
 let s:save_cpo = &cpo
 set cpo&vim
 
@@ -63,6 +67,93 @@ function! LineJuggler#Move( range, address, count, mapSuffix ) abort
 
     silent! call       repeat#set("\<Plug>(LineJugglerMove" . a:mapSuffix . ')', a:count)
     silent! call visualrepeat#set("\<Plug>(LineJugglerMove" . a:mapSuffix . ')', a:count)
+endfunction
+function! LineJuggler#VisualMove( direction, mapSuffix ) abort
+    let l:count = v:count1
+    " With :<C-u>, we're always in the first line of the selection. To get the
+    " actual line of the cursor, we need to leave the visual selection. We
+    " cannot do that initially before invoking this function, since then the
+    " [count] would be lost. So do this now to get the current line.
+    execute "normal! gv\<C-\>\<C-n>"
+
+    let l:targetLnum = ingowindow#RelativeWindowLine(line('.'), l:count, a:direction) - (a:direction == -1 ? 1 : 0)
+    call LineJuggler#Move(
+    \   "'<,'>",
+    \   l:targetLnum,
+    \   l:count,
+    \   a:mapSuffix
+    \)
+endfunction
+
+function! s:DoSwap( sourceStartLnum, sourceEndLnum, targetStartLnum, targetEndLnum )
+    if  a:sourceStartLnum <= a:targetStartLnum && a:sourceEndLnum >= a:targetStartLnum ||
+    \   a:targetStartLnum <= a:sourceStartLnum && a:targetEndLnum >= a:sourceStartLnum
+	throw 'LineJuggler: overlap in the ranges to swap'
+    endif
+
+    let l:sourceLines = getline(a:sourceStartLnum, a:sourceEndLnum)
+    let l:targetLines = getline(a:targetStartLnum, a:targetEndLnum)
+
+    silent execute printf('%s,%sdelete _', a:sourceStartLnum, a:sourceEndLnum)
+    silent execute a:sourceStartLnum 'put! =l:targetLines'
+
+    let l:offset = (a:sourceEndLnum <= a:targetStartLnum ? len(l:targetLines) - len(l:sourceLines) : 0)
+    silent execute printf('%s,%sdelete _', a:targetStartLnum + l:offset, a:targetEndLnum + l:offset)
+    silent execute (a:targetStartLnum + l:offset) 'put! =l:sourceLines'
+endfunction
+
+function! LineJuggler#Swap( startLnum, endLnum, address, count, mapSuffix ) abort
+    " Beep when already on the first / last line, but allow an arbitrary large
+    " count to move to the first / last line.
+    let l:address = a:address
+    if l:address < 0
+	if line('.') == 1
+	    execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
+	    return
+	else
+	    let l:address = 0
+	endif
+    elseif a:address > line('$')
+	if line('.') == line('$')
+	    execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
+	    return
+	else
+	    let l:address = line('$')
+	endif
+    endif
+
+    let [l:targetStartLnum, l:targetEndLnum] = (foldclosed(a:address) == -1 ?
+    \   [a:address, a:address + a:endLnum - a:startLnum] :
+    \   [foldclosed(a:address), foldclosedend(a:address)]
+    \)
+
+    try
+	call s:DoSwap(a:startLnum, a:endLnum, l:targetStartLnum, l:targetEndLnum)
+    catch /^LineJuggler:/
+	let v:errmsg = substitute(v:exception, '^LineJuggler:\s*', '', '')
+	echohl ErrorMsg
+	echomsg v:errmsg
+	echohl None
+    endtry
+
+    silent! call       repeat#set("\<Plug>(LineJugglerSwap" . a:mapSuffix . ')', a:count)
+    silent! call visualrepeat#set("\<Plug>(LineJugglerSwap" . a:mapSuffix . ')', a:count)
+endfunction
+function! LineJuggler#VisualSwap( direction, mapSuffix ) abort
+    let l:count = v:count1
+    " With :<C-u>, we're always in the first line of the selection. To get the
+    " actual line of the cursor, we need to leave the visual selection. We
+    " cannot do that initially before invoking this function, since then the
+    " [count] would be lost. So do this now to get the current line.
+    execute "normal! gv\<C-\>\<C-n>"
+
+    let l:targetLnum = ingowindow#RelativeWindowLine(line('.'), l:count, a:direction)
+    call LineJuggler#Swap(
+    \   line("'<"), line("'>"),
+    \   l:targetLnum,
+    \   l:count,
+    \   a:mapSuffix
+    \)
 endfunction
 
 function! LineJuggler#Dup( insLnum, lines, isUp, offset, count, mapSuffix ) abort
