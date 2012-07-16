@@ -59,10 +59,10 @@ set cpo&vim
 
 "- mappings --------------------------------------------------------------------
 
-nnoremap <silent> <Plug>(LineJugglerBlankUp)   :<C-U>call setline(1, getline(1))<Bar>call LineJuggler#BlankUp('', v:count1)<CR>
-nnoremap <silent> <Plug>(LineJugglerBlankDown) :<C-U>call setline(1, getline(1))<Bar>call LineJuggler#BlankDown('', v:count1)<CR>
-vnoremap <silent> <Plug>(LineJugglerBlankUp)   :<C-U>call setline(1, getline(1))<Bar>call LineJuggler#BlankUp("'<", v:count1)<CR>
-vnoremap <silent> <Plug>(LineJugglerBlankDown) :<C-U>call setline(1, getline(1))<Bar>call LineJuggler#BlankDown("'>", v:count1)<CR>
+nnoremap <silent> <Plug>(LineJugglerBlankUp)   :<C-u>call setline('.', getline('.'))<Bar>call LineJuggler#BlankUp('', v:count1)<CR>
+nnoremap <silent> <Plug>(LineJugglerBlankDown) :<C-u>call setline('.', getline('.'))<Bar>call LineJuggler#BlankDown('', v:count1)<CR>
+vnoremap <silent> <Plug>(LineJugglerBlankUp)   :<C-u>call setline('.', getline('.'))<Bar>call LineJuggler#BlankUp("'<", v:count1)<CR>
+vnoremap <silent> <Plug>(LineJugglerBlankDown) :<C-u>call setline('.', getline('.'))<Bar>call LineJuggler#BlankDown("'>", v:count1)<CR>
 if ! hasmapto('<Plug>(LineJugglerBlankUp)', 'n')
     nmap [<Space> <Plug>(LineJugglerBlankUp)
 endif
@@ -78,23 +78,23 @@ endif
 
 
 
-nnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-U>call setline(1, getline(1))<Bar>
+nnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-u>call setline('.', getline('.'))<Bar>
 \call LineJuggler#Move(
 \   LineJuggler#FoldClosed(),
 \   ingowindow#RelativeWindowLine(line('.'), v:count1, -1) - 1,
 \   v:count1,
 \   'Up'
 \)<CR>
-nnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-U>call setline(1, getline(1))<Bar>
+nnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-u>call setline('.', getline('.'))<Bar>
 \call LineJuggler#Move(
 \   LineJuggler#FoldClosedEnd(),
 \   ingowindow#RelativeWindowLine(line('.'), v:count1,  1),
 \   v:count1,
 \   'Down'
 \)<CR>
-vnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-U>call setline(1, getline(1))<Bar>
+vnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-u>call setline('.', getline('.'))<Bar>
 \call LineJuggler#VisualMove(-1, 'Up')<CR>
-vnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-U>call setline(1, getline(1))<Bar>
+vnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-u>call setline('.', getline('.'))<Bar>
 \call LineJuggler#VisualMove( 1, 'Down')<CR>
 if ! hasmapto('<Plug>(LineJugglerMoveUp)', 'n')
     nmap [e <Plug>(LineJugglerMoveUp)
@@ -111,23 +111,23 @@ endif
 
 
 
-nnoremap <silent> <Plug>(LineJugglerSwapUp)   :<C-U>call setline(1, getline(1))<Bar>
+nnoremap <silent> <Plug>(LineJugglerSwapUp)   :<C-u>call setline('.', getline('.'))<Bar>
 \call LineJuggler#Swap(
 \   LineJuggler#FoldClosed(), LineJuggler#FoldClosedEnd(),
 \   ingowindow#RelativeWindowLine(line('.'), v:count1, -1),
 \   v:count1,
 \   'Up'
 \)<CR>
-nnoremap <silent> <Plug>(LineJugglerSwapDown)   :<C-U>call setline(1, getline(1))<Bar>
+nnoremap <silent> <Plug>(LineJugglerSwapDown)   :<C-u>call setline('.', getline('.'))<Bar>
 \call LineJuggler#Swap(
 \   LineJuggler#FoldClosed(), LineJuggler#FoldClosedEnd(),
 \   ingowindow#RelativeWindowLine(line('.'), v:count1,  1),
 \   v:count1,
 \   'Up'
 \)<CR>
-vnoremap <silent> <Plug>(LineJugglerSwapUp)   :<C-U>call setline(1, getline(1))<Bar>
+vnoremap <silent> <Plug>(LineJugglerSwapUp)   :<C-u>call setline('.', getline('.'))<Bar>
 \call LineJuggler#VisualSwap(-1, 'Up')<CR>
-vnoremap <silent> <Plug>(LineJugglerSwapDown) :<C-U>call setline(1, getline(1))<Bar>
+vnoremap <silent> <Plug>(LineJugglerSwapDown) :<C-u>call setline('.', getline('.'))<Bar>
 \call LineJuggler#VisualSwap( 1, 'Down')<CR>
 if ! hasmapto('<Plug>(LineJugglerSwapUp)', 'n')
     nmap [E <Plug>(LineJugglerSwapUp)
@@ -144,7 +144,7 @@ endif
 
 
 
-nnoremap <silent> <Plug>(LineJugglerDupOverUp)   :<C-U>call setline(1, getline(1))<Bar>
+nnoremap <silent> <Plug>(LineJugglerDupOverUp)   :<C-u>call setline('.', getline('.'))<Bar>
 \call LineJuggler#Dup(
 \   LineJuggler#FoldClosed(),
 \   getline(LineJuggler#FoldClosed(), LineJuggler#FoldClosedEnd()),
@@ -153,7 +153,7 @@ nnoremap <silent> <Plug>(LineJugglerDupOverUp)   :<C-U>call setline(1, getline(1
 \   v:count1,
 \   'OverUp'
 \)<CR>
-nnoremap <silent> <Plug>(LineJugglerDupOverDown) :<C-U>call setline(1, getline(1))<Bar>
+nnoremap <silent> <Plug>(LineJugglerDupOverDown) :<C-u>call setline('.', getline('.'))<Bar>
 \call LineJuggler#Dup(
 \   LineJuggler#FoldClosedEnd(),
 \   getline(LineJuggler#FoldClosed(), LineJuggler#FoldClosedEnd()),
@@ -162,7 +162,7 @@ nnoremap <silent> <Plug>(LineJugglerDupOverDown) :<C-U>call setline(1, getline(1
 \   v:count1,
 \   'OverDown'
 \)<CR>
-vnoremap <silent> <Plug>(LineJugglerDupOverUp)   :<C-U>call setline(1, getline(1))<Bar>
+vnoremap <silent> <Plug>(LineJugglerDupOverUp)   :<C-u>call setline('.', getline('.'))<Bar>
 \call LineJuggler#Dup(
 \   line("'<"),
 \   getline("'<", "'>"),
@@ -171,7 +171,7 @@ vnoremap <silent> <Plug>(LineJugglerDupOverUp)   :<C-U>call setline(1, getline(1
 \   v:count1,
 \   'OverUp'
 \)<CR>
-vnoremap <silent> <Plug>(LineJugglerDupOverDown) :<C-U>call setline(1, getline(1))<Bar>
+vnoremap <silent> <Plug>(LineJugglerDupOverDown) :<C-u>call setline('.', getline('.'))<Bar>
 \call LineJuggler#Dup(
 \   line("'>"),
 \   getline("'<", "'>"),
@@ -195,28 +195,28 @@ endif
 
 
 
-nnoremap <silent> <Plug>(LineJugglerDupRangeUp)   :<C-U>call setline(1, getline(1))<Bar>
+nnoremap <silent> <Plug>(LineJugglerDupRangeUp)   :<C-u>call setline('.', getline('.'))<Bar>
 \call LineJuggler#Dup(
 \   LineJuggler#FoldClosed(),
 \   getline(LineJuggler#FoldClosed(), ingowindow#RelativeWindowLine(line('.'), v:count1 - 1, 1)),
 \   1, 1, v:count1,
 \   'RangeUp'
 \)<CR>
-nnoremap <silent> <Plug>(LineJugglerDupRangeDown) :<C-U>call setline(1, getline(1))<Bar>
+nnoremap <silent> <Plug>(LineJugglerDupRangeDown) :<C-u>call setline('.', getline('.'))<Bar>
 \call LineJuggler#Dup(
 \   ingowindow#RelativeWindowLine(line('.'), v:count1 - 1, 1),
 \   getline(LineJuggler#FoldClosed(), ingowindow#RelativeWindowLine(line('.'), v:count1 - 1, 1)),
 \   0, 1, v:count1,
 \   'RangeDown'
 \)<CR>
-vnoremap <silent> <Plug>(LineJugglerDupRangeUp)   :<C-U>call setline(1, getline(1))<Bar>
+vnoremap <silent> <Plug>(LineJugglerDupRangeUp)   :<C-u>call setline('.', getline('.'))<Bar>
 \call LineJuggler#Dup(
 \   line("'<"),
 \   repeat(getline("'<", "'>"), v:count1),
 \   1, 1, v:count1,
 \   'RangeUp'
 \)<CR>
-vnoremap <silent> <Plug>(LineJugglerDupRangeDown) :<C-U>call setline(1, getline(1))<Bar>
+vnoremap <silent> <Plug>(LineJugglerDupRangeDown) :<C-u>call setline('.', getline('.'))<Bar>
 \call LineJuggler#Dup(
 \   line("'>"),
 \   repeat(getline("'<", "'>"), v:count1),
@@ -238,14 +238,14 @@ endif
 
 
 
-nnoremap <silent> <Plug>(LineJugglerDupFetchAbove)   :<C-U>call setline(1, getline(1))<Bar>
+nnoremap <silent> <Plug>(LineJugglerDupFetchAbove)   :<C-u>call setline('.', getline('.'))<Bar>
 \call LineJuggler#Dup(
 \   LineJuggler#FoldClosedEnd(),
 \   getline(ingowindow#RelativeWindowLine(line('.'), v:count1, -1), ingowindow#RelativeWindowLine(line('.'), v:count1, -1, 1)),
 \   0, 1, v:count1,
 \   'FetchAbove'
 \)<CR>
-nnoremap <silent> <Plug>(LineJugglerDupFetchBelow) :<C-U>call setline(1, getline(1))<Bar>
+nnoremap <silent> <Plug>(LineJugglerDupFetchBelow) :<C-u>call setline('.', getline('.'))<Bar>
 \call LineJuggler#Dup(
 \   LineJuggler#FoldClosedEnd(),
 \   getline(ingowindow#RelativeWindowLine(line('.'), v:count1, 1, -1), ingowindow#RelativeWindowLine(line('.'), v:count1, 1)),
@@ -262,9 +262,9 @@ endif
 
 
 
-vnoremap <silent> <Plug>(LineJugglerDupFetchAbove)   :<C-u>call setline(1, getline(1))<Bar>
+vnoremap <silent> <Plug>(LineJugglerDupFetchAbove)   :<C-u>call setline('.', getline('.'))<Bar>
 \call LineJuggler#VisualDupFetch(-1, 'FetchAbove')<CR>
-vnoremap <silent> <Plug>(LineJugglerDupFetchBelow)   :<C-u>call setline(1, getline(1))<Bar>
+vnoremap <silent> <Plug>(LineJugglerDupFetchBelow)   :<C-u>call setline('.', getline('.'))<Bar>
 \call LineJuggler#VisualDupFetch( 1, 'FetchBelow')<CR>
 if ! hasmapto('<Plug>(LineJugglerDupFetchAbove)', 'x')
     xmap ]f <Plug>(LineJugglerDupFetchAbove)
