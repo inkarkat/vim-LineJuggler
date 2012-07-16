@@ -21,12 +21,10 @@ relative visible line, therefore it's especially easy to clone lines when
 Oftentimes, duplication in source code is a code smell. Please use this plugin
 responsibly ;-)
 
-HOW IT WORKS								     *
-
 RELATED WORKS								     *
 
-- Idea, design and implementation of the [<Space> mapping are based on Tim
-  Pope's unimpaired.vim plugin (vimscript #1590). In addition, it provides
+- Idea, design and implementation of the [<Space> and [e mappings are based on
+  Tim Pope's unimpaired.vim plugin (vimscript #1590). In addition, it provides
   other, unrelated functionality (all via [... / ]... mappings), and doesn't
   offer customization of the mappings.
 
@@ -42,12 +40,10 @@ USAGE							   *LineJuggler-usage*
 			the end of the selection.
 
 								   *[e* *v_[e*
-[e                      Exchange the current line / selection with [count]
-			lines above it.
+[e                      Move the current line / selection [count] lines above.
 
 								   *]e* *v_]e*
-]e                      Exchange the current line / selection with [count]
-			lines below it.
+]e                      Move the current line / selection [count] lines below.
 
 								   *[d* *v_[d*
 [d			Duplicate current line / selection [count] lines
