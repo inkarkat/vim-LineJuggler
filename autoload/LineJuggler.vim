@@ -15,6 +15,14 @@
 "				handle the distance in a visual selection in a
 "				uniform way.
 "				Implement line swap.
+"				FIX: Due to ingowindow#RelativeWindowLine(),
+"				a:address is now -1 when addressing a line
+"				outside the buffer; adapt the beep / move to
+"				border logic.
+"				Extract s:Replace() from s:DoSwap() and properly
+"				handle replacement at the end of the buffer,
+"				when a:startLnum becomes invalid after the
+"				temporary delete.
 "	001	12-Jul-2012	file creation
 let s:save_cpo = &cpo
 set cpo&vim
@@ -41,23 +49,25 @@ function! LineJuggler#BlankDown( address, count ) abort
     silent! call visualrepeat#set("\<Plug>(LineJugglerBlankDown)", a:count)
 endfunction
 
-function! LineJuggler#Move( range, address, count, mapSuffix ) abort
+function! LineJuggler#Move( range, address, count, direction, mapSuffix ) abort
     " Beep when already on the first / last line, but allow an arbitrary large
     " count to move to the first / last line.
     let l:address = a:address
     if l:address < 0
-	if line('.') == 1
-	    execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
-	    return
+	if a:direction == -1
+	    if line('.') == 1
+		execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
+		return
+	    else
+		let l:address = 0
+	    endif
 	else
-	    let l:address = 0
-	endif
-    elseif a:address > line('$')
-	if line('.') == line('$')
-	    execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
-	    return
-	else
-	    let l:address = line('$')
+	    if line('.') == line('$')
+		execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
+		return
+	    else
+		let l:address = line('$')
+	    endif
 	endif
     endif
 
@@ -81,10 +91,19 @@ function! LineJuggler#VisualMove( direction, mapSuffix ) abort
     \   "'<,'>",
     \   l:targetLnum,
     \   l:count,
+    \   a:direction,
     \   a:mapSuffix
     \)
 endfunction
 
+function! s:Replace( startLnum, endLnum, lines )
+    silent execute printf('%s,%sdelete _', a:startLnum, a:endLnum)
+    if a:startLnum == line('$') + 1
+	silent execute (a:startLnum - 1) . 'put =a:lines'
+    else
+	silent execute a:startLnum . 'put! =a:lines'
+    endif
+endfunction
 function! s:DoSwap( sourceStartLnum, sourceEndLnum, targetStartLnum, targetEndLnum )
     if  a:sourceStartLnum <= a:targetStartLnum && a:sourceEndLnum >= a:targetStartLnum ||
     \   a:targetStartLnum <= a:sourceStartLnum && a:targetEndLnum >= a:sourceStartLnum
@@ -94,37 +113,36 @@ function! s:DoSwap( sourceStartLnum, sourceEndLnum, targetStartLnum, targetEndLn
     let l:sourceLines = getline(a:sourceStartLnum, a:sourceEndLnum)
     let l:targetLines = getline(a:targetStartLnum, a:targetEndLnum)
 
-    silent execute printf('%s,%sdelete _', a:sourceStartLnum, a:sourceEndLnum)
-    silent execute a:sourceStartLnum 'put! =l:targetLines'
+    call s:Replace(a:sourceStartLnum, a:sourceEndLnum, l:targetLines)
 
     let l:offset = (a:sourceEndLnum <= a:targetStartLnum ? len(l:targetLines) - len(l:sourceLines) : 0)
-    silent execute printf('%s,%sdelete _', a:targetStartLnum + l:offset, a:targetEndLnum + l:offset)
-    silent execute (a:targetStartLnum + l:offset) 'put! =l:sourceLines'
+    call s:Replace(a:targetStartLnum + l:offset, a:targetEndLnum + l:offset, l:sourceLines)
 endfunction
-
-function! LineJuggler#Swap( startLnum, endLnum, address, count, mapSuffix ) abort
+function! LineJuggler#Swap( startLnum, endLnum, address, count, direction, mapSuffix ) abort
     " Beep when already on the first / last line, but allow an arbitrary large
     " count to move to the first / last line.
     let l:address = a:address
     if l:address < 0
-	if line('.') == 1
-	    execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
-	    return
+	if a:direction == -1
+	    if line('.') == 1
+		execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
+		return
+	    else
+		let l:address = 1
+	    endif
 	else
-	    let l:address = 0
-	endif
-    elseif a:address > line('$')
-	if line('.') == line('$')
-	    execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
-	    return
-	else
-	    let l:address = line('$')
+	    if line('.') == line('$')
+		execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
+		return
+	    else
+		let l:address = line('$')
+	    endif
 	endif
     endif
 
-    let [l:targetStartLnum, l:targetEndLnum] = (foldclosed(a:address) == -1 ?
-    \   [a:address, a:address + a:endLnum - a:startLnum] :
-    \   [foldclosed(a:address), foldclosedend(a:address)]
+    let [l:targetStartLnum, l:targetEndLnum] = (foldclosed(l:address) == -1 ?
+    \   [l:address, l:address + a:endLnum - a:startLnum] :
+    \   [foldclosed(l:address), foldclosedend(l:address)]
     \)
 
     try
@@ -152,6 +170,7 @@ function! LineJuggler#VisualSwap( direction, mapSuffix ) abort
     \   line("'<"), line("'>"),
     \   l:targetLnum,
     \   l:count,
+    \   a:direction,
     \   a:mapSuffix
     \)
 endfunction
