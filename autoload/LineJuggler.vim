@@ -24,15 +24,17 @@ function! LineJuggler#FoldClosedEnd( ... )
     return foldclosedend(l:lnum) == -1 ? l:lnum : foldclosedend(l:lnum)
 endfunction
 
-function! LineJuggler#BlankUp( count ) abort
-    put! =repeat(nr2char(10), a:count)
+function! LineJuggler#BlankUp( address, count ) abort
+    execute a:address . 'put! =repeat(nr2char(10), a:count)'
     ']+1
-    silent! call repeat#set("\<Plug>(LineJugglerBlankUp)", a:count)
+    silent! call       repeat#set("\<Plug>(LineJugglerBlankUp)", a:count)
+    silent! call visualrepeat#set("\<Plug>(LineJugglerBlankUp)", a:count)
 endfunction
-function! LineJuggler#BlankDown( count ) abort
-    put =repeat(nr2char(10), a:count)
+function! LineJuggler#BlankDown( address, count ) abort
+    execute a:address . 'put =repeat(nr2char(10), a:count)'
     '[-1
-    silent! call repeat#set("\<Plug>(LineJugglerBlankDown)", a:count)
+    silent! call       repeat#set("\<Plug>(LineJugglerBlankDown)", a:count)
+    silent! call visualrepeat#set("\<Plug>(LineJugglerBlankDown)", a:count)
 endfunction
 
 function! LineJuggler#Move( range, address, count, mapSuffix ) abort
