@@ -16,6 +16,9 @@
 "				visual selection. This is more consistent and
 "				allows the use of 'relativenumber'.
 "				ENH: Add [E / ]E mappings to exchange lines.
+"				FIX: Use current line for the setline()
+"				unmodifiable / readonly check to avoid that undo
+"				of the mapping jumps to line 1.
 "   	005	12-Jul-2012	ENH: Add visual [f / ]f mappings.
 "				ENH: Add visual [<Space> / ]<Space> mappings.
 "				Moved functions to separate autoload script.
@@ -83,6 +86,7 @@ nnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-u>call setline('.', getline('.
 \   LineJuggler#FoldClosed(),
 \   ingowindow#RelativeWindowLine(line('.'), v:count1, -1) - 1,
 \   v:count1,
+\   -1,
 \   'Up'
 \)<CR>
 nnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-u>call setline('.', getline('.'))<Bar>
@@ -90,6 +94,7 @@ nnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-u>call setline('.', getline('.
 \   LineJuggler#FoldClosedEnd(),
 \   ingowindow#RelativeWindowLine(line('.'), v:count1,  1),
 \   v:count1,
+\   1,
 \   'Down'
 \)<CR>
 vnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-u>call setline('.', getline('.'))<Bar>
@@ -116,6 +121,7 @@ nnoremap <silent> <Plug>(LineJugglerSwapUp)   :<C-u>call setline('.', getline('.
 \   LineJuggler#FoldClosed(), LineJuggler#FoldClosedEnd(),
 \   ingowindow#RelativeWindowLine(line('.'), v:count1, -1),
 \   v:count1,
+\   -1,
 \   'Up'
 \)<CR>
 nnoremap <silent> <Plug>(LineJugglerSwapDown)   :<C-u>call setline('.', getline('.'))<Bar>
@@ -123,6 +129,7 @@ nnoremap <silent> <Plug>(LineJugglerSwapDown)   :<C-u>call setline('.', getline(
 \   LineJuggler#FoldClosed(), LineJuggler#FoldClosedEnd(),
 \   ingowindow#RelativeWindowLine(line('.'), v:count1,  1),
 \   v:count1,
+\   1,
 \   'Up'
 \)<CR>
 vnoremap <silent> <Plug>(LineJugglerSwapUp)   :<C-u>call setline('.', getline('.'))<Bar>
