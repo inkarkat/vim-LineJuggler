@@ -10,7 +10,13 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
-"   1.00.005	12-Jul-2012	ENH: Add visual [f / ]f mappings.
+"   1.00.006	17-Jul-2012	ENH: Add [E / ]E mappings to swap lines.
+"				CHG: Move distance in {Visual}[e / ]e is now
+"				based on the current line, not the border of the
+"				visual selection. This is more consistent and
+"				allows the use of 'relativenumber'.
+"				ENH: Add [E / ]E mappings to exchange lines.
+"   	005	12-Jul-2012	ENH: Add visual [f / ]f mappings.
 "				ENH: Add visual [<Space> / ]<Space> mappings.
 "				Moved functions to separate autoload script.
 "	004	11-Jul-2012	FIX: Handle readonly / nomodifiable buffer
@@ -55,8 +61,8 @@ set cpo&vim
 
 nnoremap <silent> <Plug>(LineJugglerBlankUp)   :<C-U>call setline(1, getline(1))<Bar>call LineJuggler#BlankUp('', v:count1)<CR>
 nnoremap <silent> <Plug>(LineJugglerBlankDown) :<C-U>call setline(1, getline(1))<Bar>call LineJuggler#BlankDown('', v:count1)<CR>
-xnoremap <silent> <Plug>(LineJugglerBlankUp)   :<C-U>call setline(1, getline(1))<Bar>call LineJuggler#BlankUp("'<", v:count1)<CR>
-xnoremap <silent> <Plug>(LineJugglerBlankDown) :<C-U>call setline(1, getline(1))<Bar>call LineJuggler#BlankDown("'>", v:count1)<CR>
+vnoremap <silent> <Plug>(LineJugglerBlankUp)   :<C-U>call setline(1, getline(1))<Bar>call LineJuggler#BlankUp("'<", v:count1)<CR>
+vnoremap <silent> <Plug>(LineJugglerBlankDown) :<C-U>call setline(1, getline(1))<Bar>call LineJuggler#BlankDown("'>", v:count1)<CR>
 if ! hasmapto('<Plug>(LineJugglerBlankUp)', 'n')
     nmap [<Space> <Plug>(LineJugglerBlankUp)
 endif
@@ -86,20 +92,10 @@ nnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-U>call setline(1, getline(1))<
 \   v:count1,
 \   'Down'
 \)<CR>
-xnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-U>call setline(1, getline(1))<Bar>
-\call LineJuggler#Move(
-\   "'<,'>",
-\   ingowindow#RelativeWindowLine(line("'<"), v:count1, -1) - 1,
-\   v:count1,
-\   'Up'
-\)<CR>
-xnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-U>call setline(1, getline(1))<Bar>
-\call LineJuggler#Move(
-\   "'<,'>",
-\   ingowindow#RelativeWindowLine(line("'>"), v:count1,  1),
-\   v:count1,
-\   'Down'
-\)<CR>
+vnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-U>call setline(1, getline(1))<Bar>
+\call LineJuggler#VisualMove(-1, 'Up')<CR>
+vnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-U>call setline(1, getline(1))<Bar>
+\call LineJuggler#VisualMove( 1, 'Down')<CR>
 if ! hasmapto('<Plug>(LineJugglerMoveUp)', 'n')
     nmap [e <Plug>(LineJugglerMoveUp)
 endif
@@ -111,6 +107,39 @@ if ! hasmapto('<Plug>(LineJugglerMoveUp)', 'x')
 endif
 if ! hasmapto('<Plug>(LineJugglerMoveDown)', 'x')
     xmap ]e <Plug>(LineJugglerMoveDown)
+endif
+
+
+
+nnoremap <silent> <Plug>(LineJugglerSwapUp)   :<C-U>call setline(1, getline(1))<Bar>
+\call LineJuggler#Swap(
+\   LineJuggler#FoldClosed(), LineJuggler#FoldClosedEnd(),
+\   ingowindow#RelativeWindowLine(line('.'), v:count1, -1),
+\   v:count1,
+\   'Up'
+\)<CR>
+nnoremap <silent> <Plug>(LineJugglerSwapDown)   :<C-U>call setline(1, getline(1))<Bar>
+\call LineJuggler#Swap(
+\   LineJuggler#FoldClosed(), LineJuggler#FoldClosedEnd(),
+\   ingowindow#RelativeWindowLine(line('.'), v:count1,  1),
+\   v:count1,
+\   'Up'
+\)<CR>
+vnoremap <silent> <Plug>(LineJugglerSwapUp)   :<C-U>call setline(1, getline(1))<Bar>
+\call LineJuggler#VisualSwap(-1, 'Up')<CR>
+vnoremap <silent> <Plug>(LineJugglerSwapDown) :<C-U>call setline(1, getline(1))<Bar>
+\call LineJuggler#VisualSwap( 1, 'Down')<CR>
+if ! hasmapto('<Plug>(LineJugglerSwapUp)', 'n')
+    nmap [E <Plug>(LineJugglerSwapUp)
+endif
+if ! hasmapto('<Plug>(LineJugglerSwapDown)', 'n')
+    nmap ]E <Plug>(LineJugglerSwapDown)
+endif
+if ! hasmapto('<Plug>(LineJugglerSwapUp)', 'x')
+    xmap [E <Plug>(LineJugglerSwapUp)
+endif
+if ! hasmapto('<Plug>(LineJugglerSwapDown)', 'x')
+    xmap ]E <Plug>(LineJugglerSwapDown)
 endif
 
 
@@ -233,8 +262,10 @@ endif
 
 
 
-xnoremap <silent> <Plug>(LineJugglerDupFetchAbove)   :<C-u>call LineJuggler#VisualDupFetch(-1, 'FetchAbove')<CR>
-xnoremap <silent> <Plug>(LineJugglerDupFetchBelow)   :<C-u>call LineJuggler#VisualDupFetch( 1, 'FetchBelow')<CR>
+vnoremap <silent> <Plug>(LineJugglerDupFetchAbove)   :<C-u>call setline(1, getline(1))<Bar>
+\call LineJuggler#VisualDupFetch(-1, 'FetchAbove')<CR>
+vnoremap <silent> <Plug>(LineJugglerDupFetchBelow)   :<C-u>call setline(1, getline(1))<Bar>
+\call LineJuggler#VisualDupFetch( 1, 'FetchBelow')<CR>
 if ! hasmapto('<Plug>(LineJugglerDupFetchAbove)', 'x')
     xmap ]f <Plug>(LineJugglerDupFetchAbove)
 endif
