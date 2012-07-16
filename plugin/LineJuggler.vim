@@ -11,6 +11,7 @@
 "
 " REVISION	DATE		REMARKS
 "   1.00.005	12-Jul-2012	ENH: Add visual [f / ]f mappings.
+"				ENH: Add visual [<Space> / ]<Space> mappings.
 "				Moved functions to separate autoload script.
 "	004	11-Jul-2012	FIX: Handle readonly / nomodifiable buffer
 "				warning / error.
@@ -52,13 +53,21 @@ set cpo&vim
 
 "- mappings --------------------------------------------------------------------
 
-nnoremap <silent> <Plug>(LineJugglerBlankUp)   :<C-U>call setline(1, getline(1))<Bar>call LineJuggler#BlankUp(v:count1)<CR>
-nnoremap <silent> <Plug>(LineJugglerBlankDown) :<C-U>call setline(1, getline(1))<Bar>call LineJuggler#BlankDown(v:count1)<CR>
+nnoremap <silent> <Plug>(LineJugglerBlankUp)   :<C-U>call setline(1, getline(1))<Bar>call LineJuggler#BlankUp('', v:count1)<CR>
+nnoremap <silent> <Plug>(LineJugglerBlankDown) :<C-U>call setline(1, getline(1))<Bar>call LineJuggler#BlankDown('', v:count1)<CR>
+xnoremap <silent> <Plug>(LineJugglerBlankUp)   :<C-U>call setline(1, getline(1))<Bar>call LineJuggler#BlankUp("'<", v:count1)<CR>
+xnoremap <silent> <Plug>(LineJugglerBlankDown) :<C-U>call setline(1, getline(1))<Bar>call LineJuggler#BlankDown("'>", v:count1)<CR>
 if ! hasmapto('<Plug>(LineJugglerBlankUp)', 'n')
     nmap [<Space> <Plug>(LineJugglerBlankUp)
 endif
 if ! hasmapto('<Plug>(LineJugglerBlankDown)', 'n')
     nmap ]<Space> <Plug>(LineJugglerBlankDown)
+endif
+if ! hasmapto('<Plug>(LineJugglerBlankUp)', 'x')
+    xmap [<Space> <Plug>(LineJugglerBlankUp)
+endif
+if ! hasmapto('<Plug>(LineJugglerBlankDown)', 'x')
+    xmap ]<Space> <Plug>(LineJugglerBlankDown)
 endif
 
 
