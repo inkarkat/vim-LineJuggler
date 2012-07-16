@@ -18,7 +18,8 @@
 "				FIX: Due to ingowindow#RelativeWindowLine(),
 "				a:address is now -1 when addressing a line
 "				outside the buffer; adapt the beep / move to
-"				border logic.
+"				border logic, and make it handle current folded
+"				line, too.
 "				Extract s:Replace() from s:DoSwap() and properly
 "				handle replacement at the end of the buffer,
 "				when a:startLnum becomes invalid after the
@@ -55,14 +56,14 @@ function! LineJuggler#Move( range, address, count, direction, mapSuffix ) abort
     let l:address = a:address
     if l:address < 0
 	if a:direction == -1
-	    if line('.') == 1
+	    if LineJuggler#FoldClosed() == 1
 		execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
 		return
 	    else
 		let l:address = 0
 	    endif
 	else
-	    if line('.') == line('$')
+	    if LineJuggler#FoldClosedEnd() == line('$')
 		execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
 		return
 	    else
@@ -124,14 +125,14 @@ function! LineJuggler#Swap( startLnum, endLnum, address, count, direction, mapSu
     let l:address = a:address
     if l:address < 0
 	if a:direction == -1
-	    if line('.') == 1
+	    if LineJuggler#FoldClosed() == 1
 		execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
 		return
 	    else
 		let l:address = 1
 	    endif
 	else
-	    if line('.') == line('$')
+	    if LineJuggler#FoldClosedEnd() == line('$')
 		execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
 		return
 	    else
