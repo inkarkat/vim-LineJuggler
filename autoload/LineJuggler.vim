@@ -14,6 +14,8 @@
 "   1.00.003	18-Jul-2012	Factor out LineJuggler#ClipAddress().
 "				Make [<Space> / ]<Space> keep the current line
 "				also when inside a fold.
+"   			    	Consolidate the separate LineJuggler#BlankUp() /
+"				LineJuggler#BlankDown() functions.
 "   1.00.002	17-Jul-2012	Add more LineJuggler#Visual...() functions to
 "				handle the distance in a visual selection in a
 "				uniform way.
@@ -65,21 +67,13 @@ endfunction
 
 
 
-function! LineJuggler#BlankUp( address, count )
+function! LineJuggler#Blank( address, count, direction, mapSuffix )
     let l:original_lnum = line('.')
-	execute a:address . 'put! =repeat(nr2char(10), a:count)'
-    execute (l:original_lnum + a:count)
+	execute a:address . 'put' . (a:direction == -1 ? '!' : '') '=repeat(nr2char(10), a:count)'
+    execute (l:original_lnum + (a:direction == -1 ? a:count : 0))
 
-    silent! call       repeat#set("\<Plug>(LineJugglerBlankUp)", a:count)
-    silent! call visualrepeat#set("\<Plug>(LineJugglerBlankUp)", a:count)
-endfunction
-function! LineJuggler#BlankDown( address, count )
-    let l:original_lnum = line('.')
-	execute a:address . 'put =repeat(nr2char(10), a:count)'
-    execute l:original_lnum
-
-    silent! call       repeat#set("\<Plug>(LineJugglerBlankDown)", a:count)
-    silent! call visualrepeat#set("\<Plug>(LineJugglerBlankDown)", a:count)
+    silent! call       repeat#set("\<Plug>(LineJugglerBlank" . a:mapSuffix . ')', a:count)
+    silent! call visualrepeat#set("\<Plug>(LineJugglerBlank" . a:mapSuffix . ')', a:count)
 endfunction
 
 function! LineJuggler#Move( range, address, count, direction, mapSuffix )
@@ -88,7 +82,7 @@ function! LineJuggler#Move( range, address, count, direction, mapSuffix )
 
     normal! m`
 	execute a:range . 'move' l:address
-    normal! g``
+    execute line("'`")
 
     silent! call       repeat#set("\<Plug>(LineJugglerMove" . a:mapSuffix . ')', a:count)
     silent! call visualrepeat#set("\<Plug>(LineJugglerMove" . a:mapSuffix . ')', a:count)
