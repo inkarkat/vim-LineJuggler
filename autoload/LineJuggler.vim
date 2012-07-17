@@ -16,6 +16,7 @@
 "				also when inside a fold.
 "   			    	Consolidate the separate LineJuggler#BlankUp() /
 "				LineJuggler#BlankDown() functions.
+"				Keep current line for {Visual}[<Space>.
 "   1.00.002	17-Jul-2012	Add more LineJuggler#Visual...() functions to
 "				handle the distance in a visual selection in a
 "				uniform way.
@@ -74,6 +75,16 @@ function! LineJuggler#Blank( address, count, direction, mapSuffix )
 
     silent! call       repeat#set("\<Plug>(LineJugglerBlank" . a:mapSuffix . ')', a:count)
     silent! call visualrepeat#set("\<Plug>(LineJugglerBlank" . a:mapSuffix . ')', a:count)
+endfunction
+function! LineJuggler#VisualBlank( address, direction, mapSuffix )
+    let l:count = v:count1
+    " With :<C-u>, we're always in the first line of the selection. To get the
+    " actual line of the cursor, we need to leave the visual selection. We
+    " cannot do that initially before invoking this function, since then the
+    " [count] would be lost. So do this now to get the current line.
+    execute "normal! gv\<C-\>\<C-n>"
+
+    call LineJuggler#Blank(a:address, l:count, a:direction, a:mapSuffix)
 endfunction
 
 function! LineJuggler#Move( range, address, count, direction, mapSuffix )
