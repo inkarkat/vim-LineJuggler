@@ -11,6 +11,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.00.003	18-Jul-2012	Factor out LineJuggler#ClipAddress().
 "   1.00.002	17-Jul-2012	Add more LineJuggler#Visual...() functions to
 "				handle the distance in a visual selection in a
 "				uniform way.
@@ -37,6 +38,31 @@ function! LineJuggler#FoldClosedEnd( ... )
     return foldclosedend(l:lnum) == -1 ? l:lnum : foldclosedend(l:lnum)
 endfunction
 
+function! LineJuggler#ClipAddress( address, direction, firstLineDefault )
+    " Beep when already on the first / last line, but allow an arbitrary large
+    " count to move to the first / last line.
+    if a:address < 0
+	if a:direction == -1
+	    if LineJuggler#FoldClosed() == 1
+		execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
+		return -1
+	    else
+		return a:firstLineDefault
+	    endif
+	else
+	    if LineJuggler#FoldClosedEnd() == line('$')
+		execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
+		return -1
+	    else
+		return line('$')
+	    endif
+	endif
+    endif
+    return a:address
+endfunction
+
+
+
 function! LineJuggler#BlankUp( address, count ) abort
     execute a:address . 'put! =repeat(nr2char(10), a:count)'
     ']+1
@@ -51,26 +77,8 @@ function! LineJuggler#BlankDown( address, count ) abort
 endfunction
 
 function! LineJuggler#Move( range, address, count, direction, mapSuffix ) abort
-    " Beep when already on the first / last line, but allow an arbitrary large
-    " count to move to the first / last line.
-    let l:address = a:address
-    if l:address < 0
-	if a:direction == -1
-	    if LineJuggler#FoldClosed() == 1
-		execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
-		return
-	    else
-		let l:address = 0
-	    endif
-	else
-	    if LineJuggler#FoldClosedEnd() == line('$')
-		execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
-		return
-	    else
-		let l:address = line('$')
-	    endif
-	endif
-    endif
+    let l:address = LineJuggler#ClipAddress(a:address, a:direction, 0)
+    if l:address == -1 | return | endif
 
     normal! m`
     execute a:range . 'move' l:address
@@ -120,26 +128,8 @@ function! s:DoSwap( sourceStartLnum, sourceEndLnum, targetStartLnum, targetEndLn
     call s:Replace(a:targetStartLnum + l:offset, a:targetEndLnum + l:offset, l:sourceLines)
 endfunction
 function! LineJuggler#Swap( startLnum, endLnum, address, count, direction, mapSuffix ) abort
-    " Beep when already on the first / last line, but allow an arbitrary large
-    " count to move to the first / last line.
-    let l:address = a:address
-    if l:address < 0
-	if a:direction == -1
-	    if LineJuggler#FoldClosed() == 1
-		execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
-		return
-	    else
-		let l:address = 1
-	    endif
-	else
-	    if LineJuggler#FoldClosedEnd() == line('$')
-		execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
-		return
-	    else
-		let l:address = line('$')
-	    endif
-	endif
-    endif
+    let l:address = LineJuggler#ClipAddress(a:address, a:direction, 1)
+    if l:address == -1 | return | endif
 
     let [l:targetStartLnum, l:targetEndLnum] = (foldclosed(l:address) == -1 ?
     \   [l:address, l:address + a:endLnum - a:startLnum] :
