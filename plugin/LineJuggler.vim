@@ -10,6 +10,8 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.00.007	18-Jul-2012	Consolidate the separate LineJuggler#BlankUp() /
+"				LineJuggler#BlankDown() functions.
 "   1.00.006	17-Jul-2012	ENH: Add [E / ]E mappings to swap lines.
 "				CHG: Move distance in {Visual}[e / ]e is now
 "				based on the current line, not the border of the
@@ -68,10 +70,10 @@ set cpo&vim
 
 "- mappings --------------------------------------------------------------------
 
-nnoremap <silent> <Plug>(LineJugglerBlankUp)   :<C-u>call setline('.', getline('.'))<Bar>call LineJuggler#BlankUp('', v:count1)<CR>
-nnoremap <silent> <Plug>(LineJugglerBlankDown) :<C-u>call setline('.', getline('.'))<Bar>call LineJuggler#BlankDown('', v:count1)<CR>
-vnoremap <silent> <Plug>(LineJugglerBlankUp)   :<C-u>call setline('.', getline('.'))<Bar>call LineJuggler#BlankUp("'<", v:count1)<CR>
-vnoremap <silent> <Plug>(LineJugglerBlankDown) :<C-u>call setline('.', getline('.'))<Bar>call LineJuggler#BlankDown("'>", v:count1)<CR>
+nnoremap <silent> <Plug>(LineJugglerBlankUp)   :<C-u>call setline('.', getline('.'))<Bar>call LineJuggler#Blank('', v:count1, -1, 'Up')<CR>
+nnoremap <silent> <Plug>(LineJugglerBlankDown) :<C-u>call setline('.', getline('.'))<Bar>call LineJuggler#Blank('', v:count1,  1, 'Down')<CR>
+vnoremap <silent> <Plug>(LineJugglerBlankUp)   :<C-u>call setline('.', getline('.'))<Bar>call LineJuggler#Blank("'<", v:count1, -1, 'Up')<CR>
+vnoremap <silent> <Plug>(LineJugglerBlankDown) :<C-u>call setline('.', getline('.'))<Bar>call LineJuggler#Blank("'>", v:count1,  1, 'Down')<CR>
 if ! hasmapto('<Plug>(LineJugglerBlankUp)', 'n')
     nmap [<Space> <Plug>(LineJugglerBlankUp)
 endif
