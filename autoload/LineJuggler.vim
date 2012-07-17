@@ -64,8 +64,9 @@ endfunction
 
 
 function! LineJuggler#BlankUp( address, count ) abort
+    let l:original_lnum = line('.')
     execute a:address . 'put! =repeat(nr2char(10), a:count)'
-    ']+1
+    execute (l:original_lnum + a:count)
     silent! call       repeat#set("\<Plug>(LineJugglerBlankUp)", a:count)
     silent! call visualrepeat#set("\<Plug>(LineJugglerBlankUp)", a:count)
 endfunction
