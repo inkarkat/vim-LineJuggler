@@ -20,7 +20,11 @@
 "				unmodifiable / readonly check to avoid that undo
 "				of the mapping jumps to line 1.
 "				Avoid reporting "2 changes" when undoing [e,
-"				{Visual}[f; undojoin doesn't help.
+"				{Visual}[f by making the line modification only
+"				when necessary to force the warning / error.
+"				Because of the use of :move / :put, there's no
+"				way to make a modification while having Vim not
+"				count the line as changed.
 "   	005	12-Jul-2012	ENH: Add visual [f / ]f mappings.
 "				ENH: Add visual [<Space> / ]<Space> mappings.
 "				Moved functions to separate autoload script.
