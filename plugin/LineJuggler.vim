@@ -19,8 +19,8 @@
 "				FIX: Use current line for the setline()
 "				unmodifiable / readonly check to avoid that undo
 "				of the mapping jumps to line 1.
-"				Avoid reporting "2 changes" when undoing [e /
-"				]e; undojoin doesn't help.
+"				Avoid reporting "2 changes" when undoing [e,
+"				{Visual}[f; undojoin doesn't help.
 "   	005	12-Jul-2012	ENH: Add visual [f / ]f mappings.
 "				ENH: Add visual [<Space> / ]<Space> mappings.
 "				Moved functions to separate autoload script.
@@ -271,9 +271,9 @@ endif
 
 
 
-vnoremap <silent> <Plug>(LineJugglerDupFetchAbove)   :<C-u>call setline('.', getline('.'))<Bar>
+vnoremap <silent> <Plug>(LineJugglerDupFetchAbove)   :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
 \call LineJuggler#VisualDupFetch(-1, 'FetchAbove')<CR>
-vnoremap <silent> <Plug>(LineJugglerDupFetchBelow)   :<C-u>call setline('.', getline('.'))<Bar>
+vnoremap <silent> <Plug>(LineJugglerDupFetchBelow)   :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
 \call LineJuggler#VisualDupFetch( 1, 'FetchBelow')<CR>
 if ! hasmapto('<Plug>(LineJugglerDupFetchAbove)', 'x')
     xmap ]f <Plug>(LineJugglerDupFetchAbove)
