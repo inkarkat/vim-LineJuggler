@@ -12,6 +12,8 @@
 "
 " REVISION	DATE		REMARKS
 "   1.00.003	18-Jul-2012	Factor out LineJuggler#ClipAddress().
+"				Make [<Space> / ]<Space> keep the current line
+"				also when inside a fold.
 "   1.00.002	17-Jul-2012	Add more LineJuggler#Visual...() functions to
 "				handle the distance in a visual selection in a
 "				uniform way.
@@ -63,32 +65,35 @@ endfunction
 
 
 
-function! LineJuggler#BlankUp( address, count ) abort
+function! LineJuggler#BlankUp( address, count )
     let l:original_lnum = line('.')
-    execute a:address . 'put! =repeat(nr2char(10), a:count)'
+	execute a:address . 'put! =repeat(nr2char(10), a:count)'
     execute (l:original_lnum + a:count)
+
     silent! call       repeat#set("\<Plug>(LineJugglerBlankUp)", a:count)
     silent! call visualrepeat#set("\<Plug>(LineJugglerBlankUp)", a:count)
 endfunction
-function! LineJuggler#BlankDown( address, count ) abort
-    execute a:address . 'put =repeat(nr2char(10), a:count)'
-    '[-1
+function! LineJuggler#BlankDown( address, count )
+    let l:original_lnum = line('.')
+	execute a:address . 'put =repeat(nr2char(10), a:count)'
+    execute l:original_lnum
+
     silent! call       repeat#set("\<Plug>(LineJugglerBlankDown)", a:count)
     silent! call visualrepeat#set("\<Plug>(LineJugglerBlankDown)", a:count)
 endfunction
 
-function! LineJuggler#Move( range, address, count, direction, mapSuffix ) abort
+function! LineJuggler#Move( range, address, count, direction, mapSuffix )
     let l:address = LineJuggler#ClipAddress(a:address, a:direction, 0)
     if l:address == -1 | return | endif
 
     normal! m`
-    execute a:range . 'move' l:address
+	execute a:range . 'move' l:address
     normal! g``
 
     silent! call       repeat#set("\<Plug>(LineJugglerMove" . a:mapSuffix . ')', a:count)
     silent! call visualrepeat#set("\<Plug>(LineJugglerMove" . a:mapSuffix . ')', a:count)
 endfunction
-function! LineJuggler#VisualMove( direction, mapSuffix ) abort
+function! LineJuggler#VisualMove( direction, mapSuffix )
     let l:count = v:count1
     " With :<C-u>, we're always in the first line of the selection. To get the
     " actual line of the cursor, we need to leave the visual selection. We
@@ -128,7 +133,7 @@ function! s:DoSwap( sourceStartLnum, sourceEndLnum, targetStartLnum, targetEndLn
     let l:offset = (a:sourceEndLnum <= a:targetStartLnum ? len(l:targetLines) - len(l:sourceLines) : 0)
     call s:Replace(a:targetStartLnum + l:offset, a:targetEndLnum + l:offset, l:sourceLines)
 endfunction
-function! LineJuggler#Swap( startLnum, endLnum, address, count, direction, mapSuffix ) abort
+function! LineJuggler#Swap( startLnum, endLnum, address, count, direction, mapSuffix )
     let l:address = LineJuggler#ClipAddress(a:address, a:direction, 1)
     if l:address == -1 | return | endif
 
@@ -149,7 +154,7 @@ function! LineJuggler#Swap( startLnum, endLnum, address, count, direction, mapSu
     silent! call       repeat#set("\<Plug>(LineJugglerSwap" . a:mapSuffix . ')', a:count)
     silent! call visualrepeat#set("\<Plug>(LineJugglerSwap" . a:mapSuffix . ')', a:count)
 endfunction
-function! LineJuggler#VisualSwap( direction, mapSuffix ) abort
+function! LineJuggler#VisualSwap( direction, mapSuffix )
     let l:count = v:count1
     " With :<C-u>, we're always in the first line of the selection. To get the
     " actual line of the cursor, we need to leave the visual selection. We
@@ -167,7 +172,7 @@ function! LineJuggler#VisualSwap( direction, mapSuffix ) abort
     \)
 endfunction
 
-function! LineJuggler#Dup( insLnum, lines, isUp, offset, count, mapSuffix ) abort
+function! LineJuggler#Dup( insLnum, lines, isUp, offset, count, mapSuffix )
     if type(a:lines) == type([]) && len(a:lines) > 1 && empty(a:lines[-1])
 	" XXX: Vim omits an empty last element when :put'ting a List of lines.
 	" We can work around that by putting a newline character instead.
@@ -186,7 +191,7 @@ function! LineJuggler#Dup( insLnum, lines, isUp, offset, count, mapSuffix ) abor
     silent! call visualrepeat#set("\<Plug>(LineJugglerDup" . a:mapSuffix . ')', a:count)
 endfunction
 
-function! LineJuggler#VisualDupFetch( direction, mapSuffix ) abort
+function! LineJuggler#VisualDupFetch( direction, mapSuffix )
     let l:count = v:count1
     " With :<C-u>, we're always in the first line of the selection. To get the
     " actual line of the cursor, we need to leave the visual selection. We
