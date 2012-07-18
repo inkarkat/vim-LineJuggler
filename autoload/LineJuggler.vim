@@ -16,6 +16,9 @@
 "				the last available line number. Add optional
 "				lastLineDefault argument to
 "				LineJuggler#ClipAddress().
+"				Use visible, not physical target lines when
+"				swapping with [E / ]E (also in visual mode) and
+"				the target starts on a non-folded line.
 "   1.00.003	18-Jul-2012	Factor out LineJuggler#ClipAddress().
 "				Make [<Space> / ]<Space> keep the current line
 "				also when inside a fold.
@@ -150,7 +153,7 @@ function! LineJuggler#Swap( startLnum, endLnum, address, count, direction, mapSu
     if l:address == -1 | return | endif
 
     let [l:targetStartLnum, l:targetEndLnum] = (foldclosed(l:address) == -1 ?
-    \   [l:address, l:address + a:endLnum - a:startLnum] :
+    \   [l:address, ingowindow#RelativeWindowLine(l:address, a:endLnum - a:startLnum, 1)] :
     \   [foldclosed(l:address), foldclosedend(l:address)]
     \)
 
