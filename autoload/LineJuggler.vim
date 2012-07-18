@@ -91,9 +91,11 @@ function! LineJuggler#Move( range, address, count, direction, mapSuffix )
     let l:address = LineJuggler#ClipAddress(a:address, a:direction, 0)
     if l:address == -1 | return | endif
 
-    normal! m`
-	execute a:range . 'move' l:address
-    execute line("'`")
+    let l:save_mark = getpos("''")
+	call setpos("''", getpos('.'))
+	    execute a:range . 'move' l:address
+	execute line("'`")
+    call setpos("''", l:save_mark)
 
     silent! call       repeat#set("\<Plug>(LineJugglerMove" . a:mapSuffix . ')', a:count)
     silent! call visualrepeat#set("\<Plug>(LineJugglerMove" . a:mapSuffix . ')', a:count)
