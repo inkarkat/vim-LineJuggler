@@ -139,7 +139,7 @@ endfunction
 function! s:DoSwap( sourceStartLnum, sourceEndLnum, targetStartLnum, targetEndLnum )
     if  a:sourceStartLnum <= a:targetStartLnum && a:sourceEndLnum >= a:targetStartLnum ||
     \   a:targetStartLnum <= a:sourceStartLnum && a:targetEndLnum >= a:sourceStartLnum
-	throw 'LineJuggler: overlap in the ranges to swap'
+	throw 'LineJuggler: Overlap in the ranges to swap'
     endif
 
     let l:sourceLines = getline(a:sourceStartLnum, a:sourceEndLnum)
@@ -206,6 +206,29 @@ function! LineJuggler#Dup( insLnum, lines, isUp, offset, count, mapSuffix )
 
     silent! call       repeat#set("\<Plug>(LineJugglerDup" . a:mapSuffix . ')', a:count)
     silent! call visualrepeat#set("\<Plug>(LineJugglerDup" . a:mapSuffix . ')', a:count)
+endfunction
+
+function! LineJuggler#DupFetch( count, direction, mapSuffix )
+    if a:direction == -1
+	let l:address = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), a:count, -1), a:direction, 1)
+	if l:address == -1 | return | endif
+	let l:endAddress = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), a:count, -1, 1), a:direction, 1)
+	let l:lines = getline(l:address, l:endAddress)
+	let l:count = a:count
+    else
+	let l:address = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), a:count, 1, -1), a:direction, 1)
+	if l:address == -1 | return | endif
+	let l:endAddress = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), a:count, 1), a:direction, 1)
+	let l:lines = getline(l:address, l:endAddress)
+	" Note: To repeat with the following line, we need to increase v:count by one.
+	let l:count = a:count + 1
+    endif
+    call LineJuggler#Dup(
+    \   LineJuggler#FoldClosedEnd(),
+    \   l:lines,
+    \   0, 1, l:count,
+    \   a:mapSuffix
+    \)
 endfunction
 
 function! LineJuggler#VisualDupFetch( direction, mapSuffix )
