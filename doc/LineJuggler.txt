@@ -45,6 +45,14 @@ USAGE							   *LineJuggler-usage*
 								   *]e* *v_]e*
 ]e                      Move the current line / selection [count] lines below.
 
+								   *[E* *v_[E*
+[E                      Exchange the current line / selection with the closed
+			fold / same amount of lines located [count] lines
+			above.
+								   *]E* *v_]E*
+]E                      Exchange the current line / selection with the closed
+			fold / same amount of lines located [count] lines
+			below.
 								   *[d* *v_[d*
 [d			Duplicate current line / selection [count] lines
 			above.
