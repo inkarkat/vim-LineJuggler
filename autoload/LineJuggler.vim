@@ -11,6 +11,11 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.00.004	19-Jul-2012	FIX: Clipping for ]E must consider the amount of
+"				lines of the source fold and subtract them from
+"				the last available line number. Add optional
+"				lastLineDefault argument to
+"				LineJuggler#ClipAddress().
 "   1.00.003	18-Jul-2012	Factor out LineJuggler#ClipAddress().
 "				Make [<Space> / ]<Space> keep the current line
 "				also when inside a fold.
@@ -43,7 +48,7 @@ function! LineJuggler#FoldClosedEnd( ... )
     return foldclosedend(l:lnum) == -1 ? l:lnum : foldclosedend(l:lnum)
 endfunction
 
-function! LineJuggler#ClipAddress( address, direction, firstLineDefault )
+function! LineJuggler#ClipAddress( address, direction, firstLineDefault, ... )
     " Beep when already on the first / last line, but allow an arbitrary large
     " count to move to the first / last line.
     if a:address < 0
@@ -59,7 +64,7 @@ function! LineJuggler#ClipAddress( address, direction, firstLineDefault )
 		execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
 		return -1
 	    else
-		return line('$')
+		return a:0 ? a:1 : line('$')
 	    endif
 	endif
     endif
@@ -141,7 +146,7 @@ function! s:DoSwap( sourceStartLnum, sourceEndLnum, targetStartLnum, targetEndLn
     call s:Replace(a:targetStartLnum + l:offset, a:targetEndLnum + l:offset, l:sourceLines)
 endfunction
 function! LineJuggler#Swap( startLnum, endLnum, address, count, direction, mapSuffix )
-    let l:address = LineJuggler#ClipAddress(a:address, a:direction, 1)
+    let l:address = LineJuggler#ClipAddress(a:address, a:direction, 1, line('$') + a:startLnum - a:endLnum)
     if l:address == -1 | return | endif
 
     let [l:targetStartLnum, l:targetEndLnum] = (foldclosed(l:address) == -1 ?
