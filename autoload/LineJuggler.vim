@@ -21,6 +21,8 @@
 "				the target starts on a non-folded line.
 "				Change {Visual}[f / ]f to use visible, not
 "				physical target lines, too.
+"				FIX: Handle "E134: Move lines into themselves"
+"				:move error.
 "   1.00.003	18-Jul-2012	Factor out LineJuggler#ClipAddress().
 "				Make [<Space> / ]<Space> keep the current line
 "				also when inside a fold.
@@ -101,14 +103,26 @@ function! LineJuggler#Move( range, address, count, direction, mapSuffix )
     let l:address = LineJuggler#ClipAddress(a:address, a:direction, 0)
     if l:address == -1 | return | endif
 
-    let l:save_mark = getpos("''")
-	call setpos("''", getpos('.'))
-	    execute a:range . 'move' l:address
-	execute line("'`")
-    call setpos("''", l:save_mark)
+    try
+	let l:save_mark = getpos("''")
+	    call setpos("''", getpos('.'))
+		execute a:range . 'move' l:address
+	    execute line("'`")
+    catch /^Vim\%((\a\+)\)\=:E/
+	execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
 
-    silent! call       repeat#set("\<Plug>(LineJugglerMove" . a:mapSuffix . ')', a:count)
-    silent! call visualrepeat#set("\<Plug>(LineJugglerMove" . a:mapSuffix . ')', a:count)
+	" v:exception contains what is normally in v:errmsg, but with extra
+	" exception source info prepended, which we cut away.
+	let v:errmsg = substitute(v:exception, '^Vim\%((\a\+)\)\=:', '', '')
+	echohl ErrorMsg
+	echomsg v:errmsg
+	echohl None
+    finally
+	call setpos("''", l:save_mark)
+
+	silent! call       repeat#set("\<Plug>(LineJugglerMove" . a:mapSuffix . ')', a:count)
+	silent! call visualrepeat#set("\<Plug>(LineJugglerMove" . a:mapSuffix . ')', a:count)
+    endtry
 endfunction
 function! LineJuggler#VisualMove( direction, mapSuffix )
     let l:count = v:count1
@@ -162,6 +176,8 @@ function! LineJuggler#Swap( startLnum, endLnum, address, count, direction, mapSu
     try
 	call s:DoSwap(a:startLnum, a:endLnum, l:targetStartLnum, l:targetEndLnum)
     catch /^LineJuggler:/
+	execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
+
 	let v:errmsg = substitute(v:exception, '^LineJuggler:\s*', '', '')
 	echohl ErrorMsg
 	echomsg v:errmsg
