@@ -255,17 +255,15 @@ endif
 
 
 nnoremap <silent> <Plug>(LineJugglerDupFetchAbove)   :<C-u>call setline('.', getline('.'))<Bar>
-\call LineJuggler#Dup(
-\   LineJuggler#FoldClosedEnd(),
-\   getline(ingowindow#RelativeWindowLine(line('.'), v:count1, -1), ingowindow#RelativeWindowLine(line('.'), v:count1, -1, 1)),
-\   0, 1, v:count1,
+\call LineJuggler#DupFetch(
+\   v:count1,
+\   -1,
 \   'FetchAbove'
 \)<CR>
 nnoremap <silent> <Plug>(LineJugglerDupFetchBelow) :<C-u>call setline('.', getline('.'))<Bar>
-\call LineJuggler#Dup(
-\   LineJuggler#FoldClosedEnd(),
-\   getline(ingowindow#RelativeWindowLine(line('.'), v:count1, 1, -1), ingowindow#RelativeWindowLine(line('.'), v:count1, 1)),
-\   0, 1, v:count1 + 1,
+\call LineJuggler#DupFetch(
+\   v:count1,
+\   1,
 \   'FetchBelow'
 \)<CR>
 " Note: To repeat with the following line, we need to increase v:count by one.
