@@ -79,14 +79,12 @@ USAGE							   *LineJuggler-usage*
 			line and duplicate it below the current line.
 									*v_[f*
 {Visual}[f		Replace the selected lines with the same number of
-			(physical, regardless of their folding state) lines
-			fetched starting from the line [count] visible lines
-			below the current line.
+			lines fetched starting from the line [count] visible
+			lines below the current line.
 									*v_]f*
 {Visual}]f		Replace the selected lines with the same number of
-			(physical, regardless of their folding state) lines
-			fetched starting from the line [count] visible lines
-			above the current line.
+			lines fetched starting from the line [count] visible
+			lines above the current line.
 
 
 			When the cursor is on / the selection contains a
