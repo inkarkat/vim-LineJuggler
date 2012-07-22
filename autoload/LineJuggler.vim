@@ -143,8 +143,8 @@ function! LineJuggler#VisualMove( direction, mapSuffix )
     \)
 endfunction
 
-function! s:Replace( startLnum, endLnum, lines )
-    silent execute printf('%s,%sdelete _', a:startLnum, a:endLnum)
+function! s:Replace( startLnum, endLnum, lines, ... )
+    silent execute printf('%s,%sdelete %s', a:startLnum, a:endLnum, (a:0 ? a:1 : '_'))
     if a:startLnum == line('$') + 1
 	silent execute (a:startLnum - 1) . 'put =a:lines'
     else
@@ -251,22 +251,38 @@ function! LineJuggler#DupFetch( count, direction, mapSuffix )
 	let l:address = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), a:count, -1), a:direction, 1)
 	if l:address == -1 | return | endif
 	let l:endAddress = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), a:count, -1, 1), a:direction, 1)
-	let l:lines = getline(l:address, l:endAddress)
 	let l:count = a:count
     else
 	let l:address = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), a:count, 1, -1), a:direction, 1)
 	if l:address == -1 | return | endif
 	let l:endAddress = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), a:count, 1), a:direction, 1)
-	let l:lines = getline(l:address, l:endAddress)
 	" Note: To repeat with the following line, we need to increase v:count by one.
 	let l:count = a:count + 1
     endif
     call LineJuggler#Dup(
     \   LineJuggler#FoldClosedEnd(),
-    \   l:lines,
+    \   getline(l:address, l:endAddress),
     \   0, 1, l:count,
     \   a:mapSuffix
     \)
+endfunction
+
+function! LineJuggler#RepFetch( count, direction, mapSuffix )
+    if a:direction == -1
+	let l:address = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), a:count, -1), a:direction, 1)
+	if l:address == -1 | return | endif
+	let l:endAddress = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), a:count, -1, 1), a:direction, 1)
+    else
+	let l:address = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), a:count, 1, -1), a:direction, 1)
+	if l:address == -1 | return | endif
+	let l:endAddress = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), a:count, 1), a:direction, 1)
+    endif
+    let l:sourceLines = getline(l:address, l:endAddress)
+
+    call s:Replace(LineJuggler#FoldClosed(), LineJuggler#FoldClosedEnd(), l:sourceLines, v:register)
+
+    silent! call       repeat#set("\<Plug>(LineJugglerRep" . a:mapSuffix . ')', a:count)
+    silent! call visualrepeat#set("\<Plug>(LineJugglerRep" . a:mapSuffix . ')', a:count)
 endfunction
 
 function! LineJuggler#VisualRepFetch( direction, mapSuffix )
