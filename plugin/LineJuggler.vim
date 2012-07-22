@@ -10,6 +10,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.00.008	20-Jul-2012	FIX: Implement clipping for ]D.
 "   1.00.007	18-Jul-2012	Consolidate the separate LineJuggler#BlankUp() /
 "				LineJuggler#BlankDown() functions.
 "				Keep current line for {Visual}[<Space>.
@@ -212,17 +213,15 @@ endif
 
 
 nnoremap <silent> <Plug>(LineJugglerDupRangeUp)   :<C-u>call setline('.', getline('.'))<Bar>
-\call LineJuggler#Dup(
-\   LineJuggler#FoldClosed(),
-\   getline(LineJuggler#FoldClosed(), ingowindow#RelativeWindowLine(line('.'), v:count1 - 1, 1)),
-\   1, 1, v:count1,
+\call LineJuggler#DupRange(
+\   v:count1,
+\   -1,
 \   'RangeUp'
 \)<CR>
 nnoremap <silent> <Plug>(LineJugglerDupRangeDown) :<C-u>call setline('.', getline('.'))<Bar>
-\call LineJuggler#Dup(
-\   ingowindow#RelativeWindowLine(line('.'), v:count1 - 1, 1),
-\   getline(LineJuggler#FoldClosed(), ingowindow#RelativeWindowLine(line('.'), v:count1 - 1, 1)),
-\   0, 1, v:count1,
+\call LineJuggler#DupRange(
+\   v:count1,
+\   1,
 \   'RangeDown'
 \)<CR>
 vnoremap <silent> <Plug>(LineJugglerDupRangeUp)   :<C-u>call setline('.', getline('.'))<Bar>
