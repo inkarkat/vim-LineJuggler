@@ -11,6 +11,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.00.005	20-Jul-2012	FIX: Implement clipping for ]D.
 "   1.00.004	19-Jul-2012	FIX: Clipping for ]E must consider the amount of
 "				lines of the source fold and subtract them from
 "				the last available line number. Add optional
@@ -222,6 +223,27 @@ function! LineJuggler#Dup( insLnum, lines, isUp, offset, count, mapSuffix )
 
     silent! call       repeat#set("\<Plug>(LineJugglerDup" . a:mapSuffix . ')', a:count)
     silent! call visualrepeat#set("\<Plug>(LineJugglerDup" . a:mapSuffix . ')', a:count)
+endfunction
+
+function! LineJuggler#DupRange( count, direction, mapSuffix )
+    let l:address = LineJuggler#FoldClosed()
+    let l:endAddress = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), a:count - 1, 1), a:direction, 1)
+    if l:endAddress == -1 | return | endif
+
+    if a:direction == -1
+	let l:insLnum = l:address
+	let l:isUp = 1
+    else
+	let l:insLnum = l:endAddress
+	let l:isUp = 0
+    endif
+
+    call LineJuggler#Dup(
+    \   l:insLnum,
+    \   getline(l:address, l:endAddress),
+    \   l:isUp, 1, a:count,
+    \   a:mapSuffix
+    \)
 endfunction
 
 function! LineJuggler#DupFetch( count, direction, mapSuffix )
