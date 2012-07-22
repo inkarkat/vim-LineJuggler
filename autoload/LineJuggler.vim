@@ -143,13 +143,25 @@ function! LineJuggler#VisualMove( direction, mapSuffix )
     \)
 endfunction
 
+function! s:PutWrapper( lnum, putCommand, lines )
+    if type(a:lines) == type([]) && len(a:lines) > 1 && empty(a:lines[-1])
+	" XXX: Vim omits an empty last element when :put'ting a List of lines.
+	" We can work around that by putting a newline character instead.
+	let a:lines[-1] = "\n"
+    endif
+
+    silent execute a:lnum . a:putCommand '=a:lines'
+endfunction
+function! s:PutBefore( lnum, lines )
+    if a:lnum == line('$') + 1
+	call s:PutWrapper((a:lnum - 1), 'put',  a:lines)
+    else
+	call s:PutWrapper(a:lnum, 'put!',  a:lines)
+    endif
+endfunction
 function! s:Replace( startLnum, endLnum, lines, ... )
     silent execute printf('%s,%sdelete %s', a:startLnum, a:endLnum, (a:0 ? a:1 : '_'))
-    if a:startLnum == line('$') + 1
-	silent execute (a:startLnum - 1) . 'put =a:lines'
-    else
-	silent execute a:startLnum . 'put! =a:lines'
-    endif
+    call s:PutBefore(a:startLnum, a:lines)
 endfunction
 function! s:DoSwap( sourceStartLnum, sourceEndLnum, targetStartLnum, targetEndLnum )
     if  a:sourceStartLnum <= a:targetStartLnum && a:sourceEndLnum >= a:targetStartLnum ||
@@ -207,18 +219,12 @@ function! LineJuggler#VisualSwap( direction, mapSuffix )
 endfunction
 
 function! LineJuggler#Dup( insLnum, lines, isUp, offset, count, mapSuffix )
-    if type(a:lines) == type([]) && len(a:lines) > 1 && empty(a:lines[-1])
-	" XXX: Vim omits an empty last element when :put'ting a List of lines.
-	" We can work around that by putting a newline character instead.
-	let a:lines[-1] = "\n"
-    endif
-
     if a:isUp
 	let l:lnum = max([0, a:insLnum - a:offset + 1])
-	execute l:lnum . 'put! =a:lines'
+	call s:PutWrapper(l:lnum, 'put!', a:lines)
     else
 	let l:lnum = min([line('$'), a:insLnum + a:offset - 1])
-	execute l:lnum . 'put =a:lines'
+	call s:PutWrapper(l:lnum, 'put', a:lines)
     endif
 
     silent! call       repeat#set("\<Plug>(LineJugglerDup" . a:mapSuffix . ')', a:count)
