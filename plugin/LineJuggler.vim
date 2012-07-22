@@ -265,15 +265,12 @@ nnoremap <silent> <Plug>(LineJugglerDupFetchBelow) :<C-u>call setline('.', getli
 \   1,
 \   'FetchBelow'
 \)<CR>
-" Note: To repeat with the following line, we need to increase v:count by one.
 if ! hasmapto('<Plug>(LineJugglerDupFetchAbove)', 'n')
     nmap ]f <Plug>(LineJugglerDupFetchAbove)
 endif
 if ! hasmapto('<Plug>(LineJugglerDupFetchBelow)', 'n')
     nmap [f <Plug>(LineJugglerDupFetchBelow)
 endif
-
-
 
 vnoremap <silent> <Plug>(LineJugglerDupFetchAbove)   :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
 \call LineJuggler#VisualDupFetch(-1, 'FetchAbove')<CR>
@@ -284,6 +281,38 @@ if ! hasmapto('<Plug>(LineJugglerDupFetchAbove)', 'x')
 endif
 if ! hasmapto('<Plug>(LineJugglerDupFetchBelow)', 'x')
     xmap [f <Plug>(LineJugglerDupFetchBelow)
+endif
+
+
+
+nnoremap <silent> <Plug>(LineJugglerRepFetchAbove)   :<C-u>call setline('.', getline('.'))<Bar>
+\call LineJuggler#RepFetch(
+\   v:count1,
+\   -1,
+\   'FetchAbove'
+\)<CR>
+nnoremap <silent> <Plug>(LineJugglerRepFetchBelow) :<C-u>call setline('.', getline('.'))<Bar>
+\call LineJuggler#RepFetch(
+\   v:count1,
+\   1,
+\   'FetchBelow'
+\)<CR>
+if ! hasmapto('<Plug>(LineJugglerRepFetchAbove)', 'n')
+    nmap ]gr <Plug>(LineJugglerRepFetchAbove)
+endif
+if ! hasmapto('<Plug>(LineJugglerRepFetchBelow)', 'n')
+    nmap [gr <Plug>(LineJugglerRepFetchBelow)
+endif
+
+vnoremap <silent> <Plug>(LineJugglerRepFetchAbove)   :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
+\call LineJuggler#VisualRepFetch(-1, 'FetchAbove')<CR>
+vnoremap <silent> <Plug>(LineJugglerRepFetchBelow)   :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
+\call LineJuggler#VisualRepFetch( 1, 'FetchBelow')<CR>
+if ! hasmapto('<Plug>(LineJugglerRepFetchAbove)', 'x')
+    xmap ]gr <Plug>(LineJugglerRepFetchAbove)
+endif
+if ! hasmapto('<Plug>(LineJugglerRepFetchBelow)', 'x')
+    xmap [gr <Plug>(LineJugglerRepFetchBelow)
 endif
 
 let &cpo = s:save_cpo
