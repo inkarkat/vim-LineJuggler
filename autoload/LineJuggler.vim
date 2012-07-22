@@ -11,6 +11,22 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.10.006	23-Jul-2012	Extract s:PutWrapper() to apply the "empty last
+"				element" workaround consistently to all
+"				instances of :put use (which as previously
+"				missed for s:Replace()).
+"				CHG: Split [f and {Visual}[f behaviors into two
+"				families of mappings:
+"				a) [f to fetch below current line and {Visual}[f
+"				to fetch above/below selection
+"				b) [gr to fetch and replace current line /
+"				selection.
+"				The renamed LineJuggler#VisualRepFetch() uses
+"				s:RepFetch() instead of the (similar)
+"				LineJuggler#Dup() function.
+"				s:Replace() takes optional register argument to
+"				store the deleted lines in; defaults to black
+"				hole register.
 "   1.00.005	20-Jul-2012	FIX: Implement clipping for ]D.
 "   1.00.004	19-Jul-2012	FIX: Clipping for ]E must consider the amount of
 "				lines of the source fold and subtract them from
@@ -273,6 +289,12 @@ function! LineJuggler#DupFetch( count, direction, mapSuffix )
     \)
 endfunction
 
+function! s:RepFetch( startLnum, endLnum, lines, count, mapSuffix )
+    call s:Replace(a:startLnum, a:endLnum, a:lines, v:register)
+
+    silent! call       repeat#set("\<Plug>(LineJugglerRepFetch" . a:mapSuffix . ')', a:count)
+    silent! call visualrepeat#set("\<Plug>(LineJugglerRepFetch" . a:mapSuffix . ')', a:count)
+endfunction
 function! LineJuggler#RepFetch( count, direction, mapSuffix )
     if a:direction == -1
 	let l:address = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), a:count, -1), a:direction, 1)
@@ -285,12 +307,8 @@ function! LineJuggler#RepFetch( count, direction, mapSuffix )
     endif
     let l:sourceLines = getline(l:address, l:endAddress)
 
-    call s:Replace(LineJuggler#FoldClosed(), LineJuggler#FoldClosedEnd(), l:sourceLines, v:register)
-
-    silent! call       repeat#set("\<Plug>(LineJugglerRep" . a:mapSuffix . ')', a:count)
-    silent! call visualrepeat#set("\<Plug>(LineJugglerRep" . a:mapSuffix . ')', a:count)
+    call s:RepFetch(LineJuggler#FoldClosed(), LineJuggler#FoldClosedEnd(), l:sourceLines, a:count, a:mapSuffix)
 endfunction
-
 function! LineJuggler#VisualRepFetch( direction, mapSuffix )
     let l:count = v:count1
     " With :<C-u>, we're always in the first line of the selection. To get the
@@ -302,15 +320,7 @@ function! LineJuggler#VisualRepFetch( direction, mapSuffix )
     let l:targetStartLnum = ingowindow#RelativeWindowLine(line('.'), l:count, a:direction, -1)
     let l:lines = getline(l:targetStartLnum, ingowindow#RelativeWindowLine(l:targetStartLnum, line("'>") - line("'<"), 1))
 
-    silent execute "'<,'>delete" v:register
-
-    call LineJuggler#Dup(
-    \   line("'<"),
-    \   l:lines,
-    \   0, 0,
-    \   l:count,
-    \   a:mapSuffix
-    \)
+    call s:RepFetch(line("'<"), line("'>"), l:lines, l:count, a:mapSuffix)
 endfunction
 
 let &cpo = s:save_cpo
