@@ -269,7 +269,7 @@ function! LineJuggler#DupFetch( count, direction, mapSuffix )
     \)
 endfunction
 
-function! LineJuggler#VisualDupFetch( direction, mapSuffix )
+function! LineJuggler#VisualRepFetch( direction, mapSuffix )
     let l:count = v:count1
     " With :<C-u>, we're always in the first line of the selection. To get the
     " actual line of the cursor, we need to leave the visual selection. We
