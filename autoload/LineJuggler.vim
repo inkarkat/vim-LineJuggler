@@ -18,8 +18,9 @@
 "				CHG: Split [f and {Visual}[f behaviors into two
 "				families of mappings:
 "				a) [f to fetch below current line and {Visual}[f
-"				to fetch above/below selection
-"				b) [gr to fetch and replace current line /
+"				to fetch selected number of lines above/below
+"				selection
+"				b) [r to fetch and replace current line /
 "				selection.
 "				The renamed LineJuggler#VisualRepFetch() uses
 "				s:RepFetch() instead of the (similar)
@@ -285,6 +286,33 @@ function! LineJuggler#DupFetch( count, direction, mapSuffix )
     \   LineJuggler#FoldClosedEnd(),
     \   getline(l:address, l:endAddress),
     \   0, 1, l:count,
+    \   a:mapSuffix
+    \)
+endfunction
+function! LineJuggler#VisualDupFetch( direction, mapSuffix )
+    let l:count = v:count1
+    " With :<C-u>, we're always in the first line of the selection. To get the
+    " actual line of the cursor, we need to leave the visual selection. We
+    " cannot do that initially before invoking this function, since then the
+    " [count] would be lost. So do this now to get the current line.
+    execute "normal! gv\<C-\>\<C-n>"
+
+    let l:targetStartLnum = ingowindow#RelativeWindowLine(line('.'), l:count, a:direction, -1)
+    let l:lines = getline(l:targetStartLnum, ingowindow#RelativeWindowLine(l:targetStartLnum, line("'>") - line("'<"), 1))
+
+    if a:direction == -1
+	let l:insLnum = line("'>")
+	let l:isUp = 0
+    else
+	let l:insLnum = line("'<")
+	let l:isUp = 1
+    endif
+
+    call LineJuggler#Dup(
+    \   l:insLnum,
+    \   l:lines,
+    \   l:isUp, 1,
+    \   l:count,
     \   a:mapSuffix
     \)
 endfunction
