@@ -256,23 +256,20 @@ function! LineJuggler#DupToOffset( insLnum, lines, isUp, offset, count, mapSuffi
 endfunction
 function! LineJuggler#Dup( direction, count, mapSuffix )
     if a:count
-	let l:targetStartLnum = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), a:count, a:direction, -1), a:direction, 1)
-	call LineJuggler#DupToOffset(
-	\   l:targetStartLnum,
-	\   getline(LineJuggler#FoldClosed(), LineJuggler#FoldClosedEnd()),
-	\   (a:direction == -1), 1,
-	\   a:count,
-	\   a:mapSuffix
-	\)
+	let l:insLnum = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), a:count, a:direction, -1), a:direction, 1)
+	let l:lines = getline(LineJuggler#FoldClosed(), LineJuggler#FoldClosedEnd())
     else
-	call LineJuggler#DupToOffset(
-	\   (a:direction == -1 ? LineJuggler#FoldClosed() : LineJuggler#FoldClosedEnd()),
-	\   getline(LineJuggler#FoldClosed(), LineJuggler#FoldClosedEnd()),
-	\   (a:direction == -1), 1,
-	\   a:count,
-	\   a:mapSuffix
-	\)
+	let l:insLnum = (a:direction == -1 ? LineJuggler#FoldClosed() : LineJuggler#FoldClosedEnd())
+	let l:lines = getline(LineJuggler#FoldClosed(), LineJuggler#FoldClosedEnd())
     endif
+
+    call LineJuggler#DupToOffset(
+    \   l:insLnum,
+    \   l:lines,
+    \   (a:direction == -1), 1,
+    \   a:count,
+    \   a:mapSuffix
+    \)
 endfunction
 function! LineJuggler#VisualDup( direction, count, mapSuffix )
     let l:count = v:count1
@@ -283,24 +280,18 @@ function! LineJuggler#VisualDup( direction, count, mapSuffix )
     execute "normal! gv\<C-\>\<C-n>"
 
     if l:count
-	let l:targetStartLnum = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine((a:direction == -1 ? line("'<") : line("'>")), a:count, a:direction, -1), a:direction, 1)
-	call LineJuggler#DupToOffset(
-	\   l:targetStartLnum,
-	\   getline("'<", "'>"),
-	\   (a:direction == -1), 1,
-	\   l:count,
-	\   a:mapSuffix
-	\)
+	let l:insLnum = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine((a:direction == -1 ? line("'<") : line("'>")), a:count, a:direction, -1), a:direction, 1)
     else
-	call LineJuggler#DupToOffset(
-	\   (a:direction == -1 ? line("'<") : line("'>")),
-	\   getline("'<", "'>"),
-	\   (a:direction == -1),
-	\   1,
-	\   l:count,
-	\   a:mapSuffix
-	\)
+	let l:insLnum = (a:direction == -1 ? line("'<") : line("'>"))
     endif
+
+    call LineJuggler#DupToOffset(
+    \   l:insLnum,
+    \   getline("'<", "'>"),
+    \   (a:direction == -1), 1,
+    \   l:count,
+    \   a:mapSuffix
+    \)
 
 endfunction
 
@@ -353,8 +344,9 @@ function! LineJuggler#VisualDupFetch( direction, mapSuffix )
     " [count] would be lost. So do this now to get the current line.
     execute "normal! gv\<C-\>\<C-n>"
 
-    let l:targetStartLnum = ingowindow#RelativeWindowLine(line('.'), l:count, a:direction, -1)
-    let l:lines = getline(l:targetStartLnum, ingowindow#RelativeWindowLine(l:targetStartLnum, line("'>") - line("'<"), 1))
+    let l:targetStartLnum = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), l:count, a:direction, -1), a:direction, 1)
+    let l:targetEndLnum   = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(l:targetStartLnum, line("'>") - line("'<"), 1), a:direction, 1)
+    let l:lines = getline(l:targetStartLnum, l:targetEndLnum)
 
     if a:direction == -1
 	let l:insLnum = line("'>")
@@ -401,8 +393,9 @@ function! LineJuggler#VisualRepFetch( direction, mapSuffix )
     " [count] would be lost. So do this now to get the current line.
     execute "normal! gv\<C-\>\<C-n>"
 
-    let l:targetStartLnum = ingowindow#RelativeWindowLine(line('.'), l:count, a:direction, -1)
-    let l:lines = getline(l:targetStartLnum, ingowindow#RelativeWindowLine(l:targetStartLnum, line("'>") - line("'<"), 1))
+    let l:targetStartLnum = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), l:count, a:direction, -1), a:direction, 1)
+    let l:targetEndLnum   = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(l:targetStartLnum, line("'>") - line("'<"), 1), a:direction, 1)
+    let l:lines = getline(l:targetStartLnum, l:targetEndLnum)
 
     call s:RepFetch(line("'<"), line("'>"), l:lines, l:count, a:mapSuffix)
 endfunction
