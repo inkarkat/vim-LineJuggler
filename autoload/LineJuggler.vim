@@ -67,6 +67,14 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+function! s:VisualReselect()
+    " With :<C-u>, we're always in the first line of the selection. To get the
+    " actual line of the cursor, we need to leave the visual selection. We
+    " cannot do that initially before invoking this function, since then the
+    " [count] would be lost. So do this now to get the current line.
+    execute "normal! gv\<C-\>\<C-n>"
+endfunction
+
 function! LineJuggler#FoldClosed( ... )
     let l:lnum = (a:0 ? a:1 : line('.'))
     return foldclosed(l:lnum) == -1 ? l:lnum : foldclosed(l:lnum)
@@ -111,11 +119,7 @@ function! LineJuggler#Blank( address, count, direction, mapSuffix )
 endfunction
 function! LineJuggler#VisualBlank( address, direction, mapSuffix )
     let l:count = v:count1
-    " With :<C-u>, we're always in the first line of the selection. To get the
-    " actual line of the cursor, we need to leave the visual selection. We
-    " cannot do that initially before invoking this function, since then the
-    " [count] would be lost. So do this now to get the current line.
-    execute "normal! gv\<C-\>\<C-n>"
+    call s:VisualReselect()
 
     call LineJuggler#Blank(a:address, l:count, a:direction, a:mapSuffix)
 endfunction
@@ -147,11 +151,7 @@ function! LineJuggler#Move( range, address, count, direction, mapSuffix )
 endfunction
 function! LineJuggler#VisualMove( direction, mapSuffix )
     let l:count = v:count1
-    " With :<C-u>, we're always in the first line of the selection. To get the
-    " actual line of the cursor, we need to leave the visual selection. We
-    " cannot do that initially before invoking this function, since then the
-    " [count] would be lost. So do this now to get the current line.
-    execute "normal! gv\<C-\>\<C-n>"
+    call s:VisualReselect()
 
     let l:targetLnum = ingowindow#RelativeWindowLine(line('.'), l:count, a:direction) - (a:direction == -1 ? 1 : 0)
     call LineJuggler#Move(
@@ -226,11 +226,7 @@ function! LineJuggler#Swap( startLnum, endLnum, address, count, direction, mapSu
 endfunction
 function! LineJuggler#VisualSwap( direction, mapSuffix )
     let l:count = v:count1
-    " With :<C-u>, we're always in the first line of the selection. To get the
-    " actual line of the cursor, we need to leave the visual selection. We
-    " cannot do that initially before invoking this function, since then the
-    " [count] would be lost. So do this now to get the current line.
-    execute "normal! gv\<C-\>\<C-n>"
+    call s:VisualReselect()
 
     let l:targetLnum = ingowindow#RelativeWindowLine(line('.'), l:count, a:direction)
     call LineJuggler#Swap(
@@ -273,11 +269,7 @@ function! LineJuggler#Dup( direction, count, mapSuffix )
 endfunction
 function! LineJuggler#VisualDup( direction, count, mapSuffix )
     let l:count = v:count1
-    " With :<C-u>, we're always in the first line of the selection. To get the
-    " actual line of the cursor, we need to leave the visual selection. We
-    " cannot do that initially before invoking this function, since then the
-    " [count] would be lost. So do this now to get the current line.
-    execute "normal! gv\<C-\>\<C-n>"
+    call s:VisualReselect()
 
     if l:count
 	let l:insLnum = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine((a:direction == -1 ? line("'<") : line("'>")), a:count, a:direction, -1), a:direction, 1)
@@ -338,13 +330,13 @@ function! LineJuggler#DupFetch( count, direction, mapSuffix )
 endfunction
 function! LineJuggler#VisualDupFetch( direction, mapSuffix )
     let l:count = v:count1
-    " With :<C-u>, we're always in the first line of the selection. To get the
-    " actual line of the cursor, we need to leave the visual selection. We
-    " cannot do that initially before invoking this function, since then the
-    " [count] would be lost. So do this now to get the current line.
-    execute "normal! gv\<C-\>\<C-n>"
+    call s:VisualReselect()
 
-    let l:targetStartLnum = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), l:count, a:direction, -1), a:direction, 1)
+    let l:targetStartLnum = LineJuggler#ClipAddress(
+    \   ingowindow#RelativeWindowLine(line('.'), l:count, a:direction, -1),
+    \   a:direction,
+    \   1, (a:direction == -1 ? line('$') : ingowindow#RelativeWindowLine(line('$'), (line("'>") - line("'<")), -1, -1))
+    \)
     let l:targetEndLnum   = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(l:targetStartLnum, line("'>") - line("'<"), 1), a:direction, 1)
     let l:lines = getline(l:targetStartLnum, l:targetEndLnum)
 
@@ -387,13 +379,13 @@ function! LineJuggler#RepFetch( count, direction, mapSuffix )
 endfunction
 function! LineJuggler#VisualRepFetch( direction, mapSuffix )
     let l:count = v:count1
-    " With :<C-u>, we're always in the first line of the selection. To get the
-    " actual line of the cursor, we need to leave the visual selection. We
-    " cannot do that initially before invoking this function, since then the
-    " [count] would be lost. So do this now to get the current line.
-    execute "normal! gv\<C-\>\<C-n>"
+    call s:VisualReselect()
 
-    let l:targetStartLnum = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), l:count, a:direction, -1), a:direction, 1)
+    let l:targetStartLnum = LineJuggler#ClipAddress(
+    \   ingowindow#RelativeWindowLine(line('.'), l:count, a:direction, -1),
+    \   a:direction,
+    \   1, (a:direction == -1 ? line('$') : ingowindow#RelativeWindowLine(line('$'), (line("'>") - line("'<")), -1, -1))
+    \)
     let l:targetEndLnum   = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(l:targetStartLnum, line("'>") - line("'<"), 1), a:direction, 1)
     let l:lines = getline(l:targetStartLnum, l:targetEndLnum)
 
