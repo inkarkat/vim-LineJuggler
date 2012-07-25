@@ -11,6 +11,9 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.11.007	24-Jul-2012	The workaround in s:PutWrapper() is not
+"				necessary after Vim version 7.3.272; add
+"				conditional.
 "   1.10.006	23-Jul-2012	Extract s:PutWrapper() to apply the "empty last
 "				element" workaround consistently to all
 "				instances of :put use (which as previously
@@ -161,10 +164,14 @@ function! LineJuggler#VisualMove( direction, mapSuffix )
 endfunction
 
 function! s:PutWrapper( lnum, putCommand, lines )
-    if type(a:lines) == type([]) && len(a:lines) > 1 && empty(a:lines[-1])
-	" XXX: Vim omits an empty last element when :put'ting a List of lines.
-	" We can work around that by putting a newline character instead.
-	let a:lines[-1] = "\n"
+    if v:version < 703 || v:version == 703 && ! has('patch272')
+	" Fixed by 7.3.272: ":put =list" does not add empty line for trailing
+	" empty item
+	if type(a:lines) == type([]) && len(a:lines) > 1 && empty(a:lines[-1])
+	    " XXX: Vim omits an empty last element when :put'ting a List of lines.
+	    " We can work around that by putting a newline character instead.
+	    let a:lines[-1] = "\n"
+	endif
     endif
 
     silent execute a:lnum . a:putCommand '=a:lines'
