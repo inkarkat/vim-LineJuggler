@@ -5,6 +5,7 @@
 description			|LineJuggler-description|
 usage				|LineJuggler-usage|
 installation			|LineJuggler-installation|
+configuration			|LineJuggler-configuration|
 limitations			|LineJuggler-limitations|
 known problems			|LineJuggler-known-problems|
 todo				|LineJuggler-todo|
@@ -73,14 +74,24 @@ USAGE							   *LineJuggler-usage*
 
 									  *[f*
 [f			Fetch the line [count] visible lines below the current
-			line and duplicate it below the current line.	  *[f*
+			line and duplicate it below the current line.	  *]f*
 ]f			Fetch the line [count] visible lines above the current
-			line and duplicate it below the current line.
-									*v_[f*
-{Visual}[f		Replace the selection with the same number of visible
+			line and duplicate it below the current line.	*v_[f*
+{Visual}[f		Fetch the same number of visible lines starting from
+			the line [count] lines below the current line and
+			duplicate them above the start of the selection.*v_]f*
+{Visual}]f		Fetch the same number of visible lines starting from
+			the line [count] lines above the current line and
+			duplicate them below the end of the selection.
+									  *[r*
+[r			Fetch the line [count] visible lines below the current
+			line and replace the current line with it.	  *]r*
+]r			Fetch the line [count] visible lines above the current
+			line and replace the current line with it.	*v_[r*
+{Visual}[r		Replace the selection with the same number of visible
 			lines fetched starting from the line [count] lines
-			below the current line.				*v_]f*
-{Visual}]f		Replace the selection with the same number of visible
+			below the current line.				*v_]r*
+{Visual}]r		Replace the selection with the same number of visible
 			lines fetched starting from the line [count] lines
 			above the current line.
 
@@ -114,6 +125,17 @@ DEPENDENCIES					    *LineJuggler-dependencies*
 - visualrepeat.vim (vimscript #3848) plugin (optional)
 
 ==============================================================================
+CONFIGURATION					   *LineJuggler-configuration*
+
+If you want to use different mappings, map your keys to the
+<Plug>(LineJuggler...) mapping targets _before_ sourcing this script (e.g. in
+your |vimrc|): >
+    nmap <silent> <C-Up>   <Plug>(LineJugglerBlankUp)
+    nmap <silent> <C-Down> <Plug>(LineJugglerBlankDown)
+    vmap <silent> <C-Up>   <Plug>(LineJugglerBlankUp)
+    vmap <silent> <C-Down> <Plug>(LineJugglerBlankDown)
+<
+==============================================================================
 LIMITATIONS					     *LineJuggler-limitations*
 
 KNOWN PROBLEMS					  *LineJuggler-known-problems*
@@ -124,6 +146,12 @@ IDEAS							   *LineJuggler-ideas*
 
 ==============================================================================
 HISTORY							 *LineJuggler-history*
+
+1.10    23-Jul-2012
+CHG: Split [f and {Visual}[f behaviors into two families of mappings:
+a) [f to fetch below current line and {Visual}[f to fetch selected number of
+   lines above/below selection
+b) [r to fetch and replace current line / selection.
 
 1.00	20-Jul-2012
 Initial release.
