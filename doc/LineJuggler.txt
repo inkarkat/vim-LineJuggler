@@ -96,11 +96,11 @@ USAGE							   *LineJuggler-usage*
 			above the current line.
 
 
-			When the cursor is on / the selection contains a
-			closed fold, the entire set of folded lines is used.
-			All mappings treat closed folds as a fixed entity, so
-			they will never move / duplicate into a closed fold,
-			always over it.
+			When the cursor is on a closed fold or the selection
+			contains a closed fold, the entire set of folded lines
+			is used. All mappings treat closed folds as a fixed
+			entity, so they will never move / duplicate into a
+			closed fold, always over it.
 			A [count] specifies visible lines, closed folds are
 			counted as one line, so you can use the
 			'relativenumber' column to easily reach a target.
