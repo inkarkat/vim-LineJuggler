@@ -170,38 +170,26 @@ endif
 
 nnoremap <silent> <Plug>(LineJugglerDupOverUp)   :<C-u>call setline('.', getline('.'))<Bar>
 \call LineJuggler#Dup(
-\   LineJuggler#FoldClosed(),
-\   getline(LineJuggler#FoldClosed(), LineJuggler#FoldClosedEnd()),
-\   1,
-\   v:count1,
-\   v:count1,
+\   -1,
+\   v:count,
 \   'OverUp'
 \)<CR>
 nnoremap <silent> <Plug>(LineJugglerDupOverDown) :<C-u>call setline('.', getline('.'))<Bar>
 \call LineJuggler#Dup(
-\   LineJuggler#FoldClosedEnd(),
-\   getline(LineJuggler#FoldClosed(), LineJuggler#FoldClosedEnd()),
-\   0,
-\   v:count1,
-\   v:count1,
+\   1,
+\   v:count,
 \   'OverDown'
 \)<CR>
 vnoremap <silent> <Plug>(LineJugglerDupOverUp)   :<C-u>call setline('.', getline('.'))<Bar>
-\call LineJuggler#Dup(
-\   line("'<"),
-\   getline("'<", "'>"),
-\   1,
-\   v:count1,
-\   v:count1,
+\call LineJuggler#VisualDup(
+\   -1,
+\   v:count,
 \   'OverUp'
 \)<CR>
 vnoremap <silent> <Plug>(LineJugglerDupOverDown) :<C-u>call setline('.', getline('.'))<Bar>
-\call LineJuggler#Dup(
-\   line("'>"),
-\   getline("'<", "'>"),
-\   0,
-\   v:count1,
-\   v:count1,
+\call LineJuggler#VisualDup(
+\   1,
+\   v:count,
 \   'OverDown'
 \)<CR>
 if ! hasmapto('<Plug>(LineJugglerDupOverUp)', 'n')
@@ -232,14 +220,14 @@ nnoremap <silent> <Plug>(LineJugglerDupRangeDown) :<C-u>call setline('.', getlin
 \   'RangeDown'
 \)<CR>
 vnoremap <silent> <Plug>(LineJugglerDupRangeUp)   :<C-u>call setline('.', getline('.'))<Bar>
-\call LineJuggler#Dup(
+\call LineJuggler#DupToOffset(
 \   line("'<"),
 \   repeat(getline("'<", "'>"), v:count1),
 \   1, 1, v:count1,
 \   'RangeUp'
 \)<CR>
 vnoremap <silent> <Plug>(LineJugglerDupRangeDown) :<C-u>call setline('.', getline('.'))<Bar>
-\call LineJuggler#Dup(
+\call LineJuggler#DupToOffset(
 \   line("'>"),
 \   repeat(getline("'<", "'>"), v:count1),
 \   0, 1, v:count1,
