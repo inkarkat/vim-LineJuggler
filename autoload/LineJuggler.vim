@@ -201,18 +201,20 @@ function! s:DoSwap( sourceStartLnum, sourceEndLnum, targetStartLnum, targetEndLn
     let l:offset = (a:sourceEndLnum <= a:targetStartLnum ? len(l:targetLines) - len(l:sourceLines) : 0)
     call s:Replace(a:targetStartLnum + l:offset, a:targetEndLnum + l:offset, l:sourceLines)
 endfunction
-function! LineJuggler#Swap( startLnum, endLnum, address, count, direction, mapSuffix )
+function! LineJuggler#Swap( startLnum, endLnum, address, count, direction, mapSuffix, ... )
+    let l:sourceLineCnt = (a:0 ? a:1 : a:endLnum - a:startLnum + 1)
     let l:address = LineJuggler#ClipAddress(a:address, a:direction,
-    \   1, (a:direction == -1 ? line('$') : ingowindow#RelativeWindowLine(line('$'), (a:endLnum - a:startLnum), -1, -1))
+    \   1, (a:direction == -1 ? line('$') : ingowindow#RelativeWindowLine(line('$'), (l:sourceLineCnt - 1), -1, -1))
     \)
     if l:address == -1 | return | endif
 
     " Note: Use a:address instead of l:address here, so that in the clipping
     " case, the unfolded conditional is always used.
-    let [l:targetStartLnum, l:targetEndLnum] = (foldclosed(a:address) == -1 ?
-    \   [l:address, ingowindow#RelativeWindowLine(l:address, a:endLnum - a:startLnum, 1)] :
-    \   [foldclosed(l:address), foldclosedend(l:address)]
-    \)
+    let [l:targetStartLnum, l:targetEndLnum] = (
+    \   foldclosed(a:address) == -1 || a:0 ?
+    \       [l:address, ingowindow#RelativeWindowLine(l:address, (l:sourceLineCnt - 1), 1)] :
+    \       [foldclosed(l:address), foldclosedend(l:address)]
+    \   )
 
     try
 	call s:DoSwap(a:startLnum, a:endLnum, l:targetStartLnum, l:targetEndLnum)
@@ -238,7 +240,8 @@ function! LineJuggler#VisualSwap( direction, mapSuffix )
     \   l:targetLnum,
     \   l:count,
     \   a:direction,
-    \   a:mapSuffix
+    \   a:mapSuffix,
+    \   ingowindow#NetVisibleLines(line("'<"), line("'>"))
     \)
 endfunction
 
