@@ -55,12 +55,12 @@ USAGE							   *LineJuggler-usage*
 			fold / same amount of visible lines located [count]
 			lines below.
 								   *[d* *v_[d*
-[d			Duplicate the current line / selection to [count]
-			lines above the current line / above the start of the
-			selection.				   *]d* *v_]d*
-]d			Duplicate the current line / selection to [count]
-			lines below the current line / below the end of the
-			selection.
+[d			Duplicate the current line / selection directly
+			above / across [count] lines above the current line /
+			above the start of the selection.	   *]d* *v_]d*
+]d			Duplicate the current line / selection directly
+			below / across [count] lines below the current line /
+			below the end of the selection.
 
 									  *[D*
 [D			Duplicate the current  / [count] lines to above the
