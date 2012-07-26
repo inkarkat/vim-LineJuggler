@@ -202,10 +202,14 @@ function! s:DoSwap( sourceStartLnum, sourceEndLnum, targetStartLnum, targetEndLn
     call s:Replace(a:targetStartLnum + l:offset, a:targetEndLnum + l:offset, l:sourceLines)
 endfunction
 function! LineJuggler#Swap( startLnum, endLnum, address, count, direction, mapSuffix )
-    let l:address = LineJuggler#ClipAddress(a:address, a:direction, 1, line('$') + a:startLnum - a:endLnum)
+    let l:address = LineJuggler#ClipAddress(a:address, a:direction,
+    \   1, (a:direction == -1 ? line('$') : ingowindow#RelativeWindowLine(line('$'), (a:endLnum - a:startLnum), -1, -1))
+    \)
     if l:address == -1 | return | endif
 
-    let [l:targetStartLnum, l:targetEndLnum] = (foldclosed(l:address) == -1 ?
+    " Note: Use a:address instead of l:address here, so that in the clipping
+    " case, the unfolded conditional is always used.
+    let [l:targetStartLnum, l:targetEndLnum] = (foldclosed(a:address) == -1 ?
     \   [l:address, ingowindow#RelativeWindowLine(l:address, a:endLnum - a:startLnum, 1)] :
     \   [foldclosed(l:address), foldclosedend(l:address)]
     \)
