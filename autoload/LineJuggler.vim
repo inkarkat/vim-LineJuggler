@@ -1,6 +1,7 @@
 " LineJuggler.vim: Duplicate and move around lines.
 "
 " DEPENDENCIES:
+"   - ingolines.vim autoload script
 "   - ingowindow.vim autoload script
 "   - repeat.vim (vimscript #2136) autoload script (optional)
 "   - visualrepeat.vim (vimscript #3848) autoload script (optional)
@@ -11,6 +12,8 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.21.009	16-Aug-2012	Factor out s:PutWrapper() and s:Replace() into
+"				ingolines.vim autoload script for reuse.
 "   1.20.008	27-Jul-2012	CHG: [d / ]d duplication without [count] still
 "				duplicates to directly adjacent line, but with
 "				[count] now across [count] lines, which aligns
@@ -187,30 +190,6 @@ function! LineJuggler#VisualMove( direction, mapSuffix )
     \)
 endfunction
 
-function! s:PutWrapper( lnum, putCommand, lines )
-    if v:version < 703 || v:version == 703 && ! has('patch272')
-	" Fixed by 7.3.272: ":put =list" does not add empty line for trailing
-	" empty item
-	if type(a:lines) == type([]) && len(a:lines) > 1 && empty(a:lines[-1])
-	    " XXX: Vim omits an empty last element when :put'ting a List of lines.
-	    " We can work around that by putting a newline character instead.
-	    let a:lines[-1] = "\n"
-	endif
-    endif
-
-    silent execute a:lnum . a:putCommand '=a:lines'
-endfunction
-function! s:PutBefore( lnum, lines )
-    if a:lnum == line('$') + 1
-	call s:PutWrapper((a:lnum - 1), 'put',  a:lines)
-    else
-	call s:PutWrapper(a:lnum, 'put!',  a:lines)
-    endif
-endfunction
-function! s:Replace( startLnum, endLnum, lines, ... )
-    silent execute printf('%s,%sdelete %s', a:startLnum, a:endLnum, (a:0 ? a:1 : '_'))
-    call s:PutBefore(a:startLnum, a:lines)
-endfunction
 function! s:DoSwap( sourceStartLnum, sourceEndLnum, targetStartLnum, targetEndLnum )
     if  a:sourceStartLnum <= a:targetStartLnum && a:sourceEndLnum >= a:targetStartLnum ||
     \   a:targetStartLnum <= a:sourceStartLnum && a:targetEndLnum >= a:sourceStartLnum
@@ -220,10 +199,10 @@ function! s:DoSwap( sourceStartLnum, sourceEndLnum, targetStartLnum, targetEndLn
     let l:sourceLines = getline(a:sourceStartLnum, a:sourceEndLnum)
     let l:targetLines = getline(a:targetStartLnum, a:targetEndLnum)
 
-    call s:Replace(a:sourceStartLnum, a:sourceEndLnum, l:targetLines)
+    call ingolines#Replace(a:sourceStartLnum, a:sourceEndLnum, l:targetLines)
 
     let l:offset = (a:sourceEndLnum <= a:targetStartLnum ? len(l:targetLines) - len(l:sourceLines) : 0)
-    call s:Replace(a:targetStartLnum + l:offset, a:targetEndLnum + l:offset, l:sourceLines)
+    call ingolines#Replace(a:targetStartLnum + l:offset, a:targetEndLnum + l:offset, l:sourceLines)
 endfunction
 function! LineJuggler#Swap( startLnum, endLnum, address, count, direction, mapSuffix, ... )
     let l:sourceLineCnt = (a:0 ? a:1 : a:endLnum - a:startLnum + 1)
@@ -276,10 +255,10 @@ endfunction
 function! LineJuggler#DupToOffset( insLnum, lines, isUp, offset, count, mapSuffix )
     if a:isUp
 	let l:lnum = max([0, a:insLnum - a:offset + 1])
-	call s:PutWrapper(l:lnum, 'put!', a:lines)
+	call ingolines#PutWrapper(l:lnum, 'put!', a:lines)
     else
 	let l:lnum = min([line('$'), a:insLnum + a:offset - 1])
-	call s:PutWrapper(l:lnum, 'put', a:lines)
+	call ingolines#PutWrapper(l:lnum, 'put', a:lines)
     endif
 
     silent! call       repeat#set("\<Plug>(LineJugglerDup" . a:mapSuffix . ')', a:count)
@@ -394,7 +373,7 @@ function! LineJuggler#VisualDupFetch( direction, mapSuffix )
 endfunction
 
 function! s:RepFetch( startLnum, endLnum, lines, count, mapSuffix )
-    call s:Replace(a:startLnum, a:endLnum, a:lines, v:register)
+    call ingolines#Replace(a:startLnum, a:endLnum, a:lines, v:register)
 
     silent! call       repeat#set("\<Plug>(LineJugglerRepFetch" . a:mapSuffix . ')', a:count)
     silent! call visualrepeat#set("\<Plug>(LineJugglerRepFetch" . a:mapSuffix . ')', a:count)
