@@ -136,12 +136,12 @@ DEPENDENCIES					    *LineJuggler-dependencies*
 CONFIGURATION					   *LineJuggler-configuration*
 
 If you want to use different mappings, map your keys to the
-<Plug>(LineJuggler...) mapping targets _before_ sourcing this script (e.g. in
+<Plug>(LineJuggler...) mapping targets _before_ sourcing the script (e.g. in
 your |vimrc|): >
-    nmap <silent> <C-Up>   <Plug>(LineJugglerBlankUp)
-    nmap <silent> <C-Down> <Plug>(LineJugglerBlankDown)
-    vmap <silent> <C-Up>   <Plug>(LineJugglerBlankUp)
-    vmap <silent> <C-Down> <Plug>(LineJugglerBlankDown)
+    nmap <C-Up>   <Plug>(LineJugglerBlankUp)
+    nmap <C-Down> <Plug>(LineJugglerBlankDown)
+    vmap <C-Up>   <Plug>(LineJugglerBlankUp)
+    vmap <C-Down> <Plug>(LineJugglerBlankDown)
 <
 ==============================================================================
 LIMITATIONS					     *LineJuggler-limitations*
