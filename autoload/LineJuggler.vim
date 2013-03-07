@@ -12,6 +12,9 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.21.010	02-Sep-2012	Use ingolines#PutWrapper() also for
+"				LineJuggler#Blank() to avoid clobbering the
+"				expression register.
 "   1.21.009	16-Aug-2012	Factor out s:PutWrapper() and s:Replace() into
 "				ingolines.vim autoload script for reuse.
 "   1.20.008	27-Jul-2012	CHG: [d / ]d duplication without [count] still
@@ -138,7 +141,7 @@ endfunction
 
 function! LineJuggler#Blank( address, count, direction, mapSuffix )
     let l:original_lnum = line('.')
-	execute a:address . 'put' . (a:direction == -1 ? '!' : '') '=repeat(nr2char(10), a:count)'
+	call ingolines#PutWrapper(a:address, 'put' . (a:direction == -1 ? '!' : ''), repeat(nr2char(10), a:count))
     execute (l:original_lnum + (a:direction == -1 ? a:count : 0))
 
     silent! call       repeat#set("\<Plug>(LineJugglerBlank" . a:mapSuffix . ')', a:count)
