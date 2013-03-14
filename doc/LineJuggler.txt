@@ -25,6 +25,12 @@ visible in the current window.
 Oftentimes, duplication in source code is a code smell. Please use this plugin
 responsibly ;-)
 
+SEE ALSO								     *
+
+- The swap functionality of the plugin's |[E| / |]E| mappings are also
+  available as an Ex |:Swap| command, provided by the companion
+  |LineJugglerCommands.vim| plugin (vimscript #4465).
+
 RELATED WORKS								     *
 
 - Idea, design and implementation of the [<Space> and [e mappings are based on
@@ -155,6 +161,10 @@ IDEAS							   *LineJuggler-ideas*
 ==============================================================================
 HISTORY							 *LineJuggler-history*
 
+1.22	08-Mar-2013
+- Expose s:DoSwap() as LineJuggler#SwapRanges() for use with the companion
+  LineJugglerCommands.vim plugin.
+
 1.21	03-Sep-2012
 - Avoid clobbering the expression register.
 
@@ -185,7 +195,7 @@ Initial release.
 Started development.
 
 ==============================================================================
-Copyright: (C) 2012 Ingo Karkat
+Copyright: (C) 2012-2013 Ingo Karkat
 The VIM LICENSE applies to this script; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>
