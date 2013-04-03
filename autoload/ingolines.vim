@@ -2,17 +2,32 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2012 Ingo Karkat
+" Copyright: (C) 2012-2013 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.004.003	04-Apr-2013	Drop the :silent in ingolines#PutWrapper().
 "	002	02-Sep-2012	ENH: Avoid clobbering the expression register.
 "	001	16-Aug-2012	file creation from LineJuggler.vim autoload
 "				script.
 
 function! ingolines#PutWrapper( lnum, putCommand, lines )
+"******************************************************************************
+"* PURPOSE:
+"   Insert a:lines into the current buffer at a:lnum without clobbering the
+"   expression register.
+"* ASSUMPTIONS / PRECONDITIONS:
+"   Current buffer is modifiable.
+"* EFFECTS / POSTCONDITIONS:
+"   To suppress a potential message based on 'report', invoke this function with
+"   :silent.
+"* INPUTS:
+"	? Explanation of each argument that isn't obvious.
+"* RETURN VALUES:
+"   None.
+"******************************************************************************
     if v:version < 703 || v:version == 703 && ! has('patch272')
 	" Fixed by 7.3.272: ":put =list" does not add empty line for trailing
 	" empty item
@@ -25,7 +40,7 @@ function! ingolines#PutWrapper( lnum, putCommand, lines )
 
     " Avoid clobbering the expression register.
     let l:save_register = getreg('=', 1)
-	silent execute a:lnum . a:putCommand '=a:lines'
+	execute a:lnum . a:putCommand '=a:lines'
     let @= = l:save_register
 endfunction
 function! ingolines#PutBefore( lnum, lines )
