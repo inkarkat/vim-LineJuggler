@@ -6,12 +6,15 @@
 "   - repeat.vim (vimscript #2136) autoload script (optional)
 "   - visualrepeat.vim (vimscript #3848) autoload script (optional)
 "
-" Copyright: (C) 2012 Ingo Karkat
+" Copyright: (C) 2012-2013 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.22.011	08-Mar-2013	Expose s:DoSwap() as LineJuggler#SwapRanges()
+"				for use with the companion
+"				LineJugglerCommands.vim plugin.
 "   1.21.010	02-Sep-2012	Use ingolines#PutWrapper() also for
 "				LineJuggler#Blank() to avoid clobbering the
 "				expression register.
@@ -193,7 +196,7 @@ function! LineJuggler#VisualMove( direction, mapSuffix )
     \)
 endfunction
 
-function! s:DoSwap( sourceStartLnum, sourceEndLnum, targetStartLnum, targetEndLnum )
+function! LineJuggler#SwapRanges( sourceStartLnum, sourceEndLnum, targetStartLnum, targetEndLnum )
     if  a:sourceStartLnum <= a:targetStartLnum && a:sourceEndLnum >= a:targetStartLnum ||
     \   a:targetStartLnum <= a:sourceStartLnum && a:targetEndLnum >= a:sourceStartLnum
 	throw 'LineJuggler: Overlap in the ranges to swap'
@@ -226,7 +229,7 @@ function! LineJuggler#Swap( startLnum, endLnum, address, count, direction, mapSu
     \   )
 
     try
-	call s:DoSwap(a:startLnum, a:endLnum, l:targetStartLnum, l:targetEndLnum)
+	call LineJuggler#SwapRanges(a:startLnum, a:endLnum, l:targetStartLnum, l:targetEndLnum)
     catch /^LineJuggler:/
 	execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
 
