@@ -8,6 +8,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"	002	02-Sep-2012	ENH: Avoid clobbering the expression register.
 "	001	16-Aug-2012	file creation from LineJuggler.vim autoload
 "				script.
 
@@ -22,7 +23,10 @@ function! ingolines#PutWrapper( lnum, putCommand, lines )
 	endif
     endif
 
-    silent execute a:lnum . a:putCommand '=a:lines'
+    " Avoid clobbering the expression register.
+    let l:save_register = getreg('=', 1)
+	silent execute a:lnum . a:putCommand '=a:lines'
+    let @= = l:save_register
 endfunction
 function! ingolines#PutBefore( lnum, lines )
     if a:lnum == line('$') + 1
