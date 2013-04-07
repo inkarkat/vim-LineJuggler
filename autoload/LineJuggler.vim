@@ -1,7 +1,7 @@
 " LineJuggler.vim: Duplicate and move around lines.
 "
 " DEPENDENCIES:
-"   - ingolines.vim autoload script
+"   - ingo/lines.vim autoload script
 "   - ingowindow.vim autoload script
 "   - repeat.vim (vimscript #2136) autoload script (optional)
 "   - visualrepeat.vim (vimscript #3848) autoload script (optional)
@@ -12,6 +12,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.23.012	04-Apr-2013	Move ingolines.vim into ingo-library.
 "   1.22.011	08-Mar-2013	Expose s:DoSwap() as LineJuggler#SwapRanges()
 "				for use with the companion
 "				LineJugglerCommands.vim plugin.
@@ -144,7 +145,7 @@ endfunction
 
 function! LineJuggler#Blank( address, count, direction, mapSuffix )
     let l:original_lnum = line('.')
-	call ingolines#PutWrapper(a:address, 'put' . (a:direction == -1 ? '!' : ''), repeat(nr2char(10), a:count))
+	call ingo#lines#PutWrapper(a:address, 'put' . (a:direction == -1 ? '!' : ''), repeat(nr2char(10), a:count))
     execute (l:original_lnum + (a:direction == -1 ? a:count : 0))
 
     silent! call       repeat#set("\<Plug>(LineJugglerBlank" . a:mapSuffix . ')', a:count)
@@ -205,10 +206,10 @@ function! LineJuggler#SwapRanges( sourceStartLnum, sourceEndLnum, targetStartLnu
     let l:sourceLines = getline(a:sourceStartLnum, a:sourceEndLnum)
     let l:targetLines = getline(a:targetStartLnum, a:targetEndLnum)
 
-    call ingolines#Replace(a:sourceStartLnum, a:sourceEndLnum, l:targetLines)
+    call ingo#lines#Replace(a:sourceStartLnum, a:sourceEndLnum, l:targetLines)
 
     let l:offset = (a:sourceEndLnum <= a:targetStartLnum ? len(l:targetLines) - len(l:sourceLines) : 0)
-    call ingolines#Replace(a:targetStartLnum + l:offset, a:targetEndLnum + l:offset, l:sourceLines)
+    call ingo#lines#Replace(a:targetStartLnum + l:offset, a:targetEndLnum + l:offset, l:sourceLines)
 endfunction
 function! LineJuggler#Swap( startLnum, endLnum, address, count, direction, mapSuffix, ... )
     let l:sourceLineCnt = (a:0 ? a:1 : a:endLnum - a:startLnum + 1)
@@ -261,10 +262,10 @@ endfunction
 function! LineJuggler#DupToOffset( insLnum, lines, isUp, offset, count, mapSuffix )
     if a:isUp
 	let l:lnum = max([0, a:insLnum - a:offset + 1])
-	call ingolines#PutWrapper(l:lnum, 'put!', a:lines)
+	call ingo#lines#PutWrapper(l:lnum, 'put!', a:lines)
     else
 	let l:lnum = min([line('$'), a:insLnum + a:offset - 1])
-	call ingolines#PutWrapper(l:lnum, 'put', a:lines)
+	call ingo#lines#PutWrapper(l:lnum, 'put', a:lines)
     endif
 
     silent! call       repeat#set("\<Plug>(LineJugglerDup" . a:mapSuffix . ')', a:count)
@@ -379,7 +380,7 @@ function! LineJuggler#VisualDupFetch( direction, mapSuffix )
 endfunction
 
 function! s:RepFetch( startLnum, endLnum, lines, count, mapSuffix )
-    call ingolines#Replace(a:startLnum, a:endLnum, a:lines, v:register)
+    call ingo#lines#Replace(a:startLnum, a:endLnum, a:lines, v:register)
 
     silent! call       repeat#set("\<Plug>(LineJugglerRepFetch" . a:mapSuffix . ')', a:count)
     silent! call visualrepeat#set("\<Plug>(LineJugglerRepFetch" . a:mapSuffix . ')', a:count)
