@@ -10,6 +10,10 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.20.010	27-Jul-2012	Adapt [d and [D mappings to restructured and
+"				changed implementation with
+"				LineJuggler#DupToOffset().
+"				FIX: Correct repeat of ]E.
 "   1.10.009    23-Jul-2012	CHG: Split [f and {Visual}[f behaviors into two
 "				families of mappings:
 "				a) [f to fetch below current line and {Visual}[f
@@ -147,7 +151,7 @@ nnoremap <silent> <Plug>(LineJugglerSwapDown)   :<C-u>call setline('.', getline(
 \   ingowindow#RelativeWindowLine(line('.'), v:count1,  1),
 \   v:count1,
 \   1,
-\   'Up'
+\   'Down'
 \)<CR>
 vnoremap <silent> <Plug>(LineJugglerSwapUp)   :<C-u>call setline('.', getline('.'))<Bar>
 \call LineJuggler#VisualSwap(-1, 'Up')<CR>
