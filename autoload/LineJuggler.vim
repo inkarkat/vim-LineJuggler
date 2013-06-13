@@ -2,7 +2,8 @@
 "
 " DEPENDENCIES:
 "   - ingo/lines.vim autoload script
-"   - ingowindow.vim autoload script
+"   - ingo/folds.vim autoload script
+"   - ingo/window/dimensions.vim autoload script
 "   - repeat.vim (vimscript #2136) autoload script (optional)
 "   - visualrepeat.vim (vimscript #3848) autoload script (optional)
 "
@@ -12,6 +13,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.23.013	08-Apr-2013	Move ingowindow.vim functions into ingo-library.
 "   1.23.012	04-Apr-2013	Move ingolines.vim into ingo-library.
 "   1.22.011	08-Mar-2013	Expose s:DoSwap() as LineJuggler#SwapRanges()
 "				for use with the companion
@@ -187,7 +189,7 @@ function! LineJuggler#VisualMove( direction, mapSuffix )
     let l:count = v:count1
     call s:VisualReselect()
 
-    let l:targetLnum = ingowindow#RelativeWindowLine(line('.'), l:count, a:direction) - (a:direction == -1 ? 1 : 0)
+    let l:targetLnum = ingo#folds#RelativeWindowLine(line('.'), l:count, a:direction) - (a:direction == -1 ? 1 : 0)
     call LineJuggler#Move(
     \   "'<,'>",
     \   l:targetLnum,
@@ -214,7 +216,7 @@ endfunction
 function! LineJuggler#Swap( startLnum, endLnum, address, count, direction, mapSuffix, ... )
     let l:sourceLineCnt = (a:0 ? a:1 : a:endLnum - a:startLnum + 1)
     let l:address = LineJuggler#ClipAddress(a:address, a:direction,
-    \   1, (a:direction == -1 ? line('$') : ingowindow#RelativeWindowLine(line('$'), (l:sourceLineCnt - 1), -1, -1))
+    \   1, (a:direction == -1 ? line('$') : ingo#folds#RelativeWindowLine(line('$'), (l:sourceLineCnt - 1), -1, -1))
     \)
     if l:address == -1 | return | endif
 
@@ -225,7 +227,7 @@ function! LineJuggler#Swap( startLnum, endLnum, address, count, direction, mapSu
     " in the clipping case, the unfolded conditional is always used.
     let [l:targetStartLnum, l:targetEndLnum] = (
     \   a:0 || foldclosed(a:address) == -1 ?
-    \       [l:address, ingowindow#RelativeWindowLine(l:address, (l:sourceLineCnt - 1), 1)] :
+    \       [l:address, ingo#folds#RelativeWindowLine(l:address, (l:sourceLineCnt - 1), 1)] :
     \       [foldclosed(l:address), foldclosedend(l:address)]
     \   )
 
@@ -245,10 +247,10 @@ function! LineJuggler#Swap( startLnum, endLnum, address, count, direction, mapSu
 endfunction
 function! LineJuggler#VisualSwap( direction, mapSuffix )
     let l:count = v:count1
-    let l:visibleSelectedLineCnt = ingowindow#NetVisibleLines(line("'<"), line("'>"))
+    let l:visibleSelectedLineCnt = ingo#window#dimensions#NetVisibleLines(line("'<"), line("'>"))
     call s:VisualReselect()
 
-    let l:targetLnum = ingowindow#RelativeWindowLine(line('.'), l:count, a:direction)
+    let l:targetLnum = ingo#folds#RelativeWindowLine(line('.'), l:count, a:direction)
     call LineJuggler#Swap(
     \   line("'<"), line("'>"),
     \   l:targetLnum,
@@ -273,7 +275,7 @@ function! LineJuggler#DupToOffset( insLnum, lines, isUp, offset, count, mapSuffi
 endfunction
 function! LineJuggler#Dup( direction, count, mapSuffix )
     if a:count
-	let l:insLnum = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), a:count, a:direction, -1), a:direction, 1)
+	let l:insLnum = LineJuggler#ClipAddress(ingo#folds#RelativeWindowLine(line('.'), a:count, a:direction, -1), a:direction, 1)
 	let l:lines = getline(LineJuggler#FoldClosed(), LineJuggler#FoldClosedEnd())
     else
 	let l:insLnum = (a:direction == -1 ? LineJuggler#FoldClosed() : LineJuggler#FoldClosedEnd())
@@ -293,7 +295,7 @@ function! LineJuggler#VisualDup( direction, count, mapSuffix )
     call s:VisualReselect()
 
     if l:count
-	let l:insLnum = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine((a:direction == -1 ? line("'<") : line("'>")), a:count, a:direction, -1), a:direction, 1)
+	let l:insLnum = LineJuggler#ClipAddress(ingo#folds#RelativeWindowLine((a:direction == -1 ? line("'<") : line("'>")), a:count, a:direction, -1), a:direction, 1)
     else
 	let l:insLnum = (a:direction == -1 ? line("'<") : line("'>"))
     endif
@@ -310,7 +312,7 @@ endfunction
 
 function! LineJuggler#DupRange( count, direction, mapSuffix )
     let l:address = LineJuggler#FoldClosed()
-    let l:endAddress = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), a:count - 1, 1), a:direction, 1)
+    let l:endAddress = LineJuggler#ClipAddress(ingo#folds#RelativeWindowLine(line('.'), a:count - 1, 1), a:direction, 1)
     if l:endAddress == -1 | return | endif
 
     if a:direction == -1
@@ -331,14 +333,14 @@ endfunction
 
 function! LineJuggler#DupFetch( count, direction, mapSuffix )
     if a:direction == -1
-	let l:address = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), a:count, -1), a:direction, 1)
+	let l:address = LineJuggler#ClipAddress(ingo#folds#RelativeWindowLine(line('.'), a:count, -1), a:direction, 1)
 	if l:address == -1 | return | endif
-	let l:endAddress = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), a:count, -1, 1), a:direction, 1)
+	let l:endAddress = LineJuggler#ClipAddress(ingo#folds#RelativeWindowLine(line('.'), a:count, -1, 1), a:direction, 1)
 	let l:count = a:count
     else
-	let l:address = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), a:count, 1, -1), a:direction, 1)
+	let l:address = LineJuggler#ClipAddress(ingo#folds#RelativeWindowLine(line('.'), a:count, 1, -1), a:direction, 1)
 	if l:address == -1 | return | endif
-	let l:endAddress = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), a:count, 1), a:direction, 1)
+	let l:endAddress = LineJuggler#ClipAddress(ingo#folds#RelativeWindowLine(line('.'), a:count, 1), a:direction, 1)
 	" Note: To repeat with the following line, we need to increase v:count by one.
 	let l:count = a:count + 1
     endif
@@ -351,15 +353,15 @@ function! LineJuggler#DupFetch( count, direction, mapSuffix )
 endfunction
 function! LineJuggler#VisualDupFetch( direction, mapSuffix )
     let l:count = v:count1
-    let l:visibleSelectedLineCnt = ingowindow#NetVisibleLines(line("'<"), line("'>"))
+    let l:visibleSelectedLineCnt = ingo#window#dimensions#NetVisibleLines(line("'<"), line("'>"))
     call s:VisualReselect()
 
     let l:targetStartLnum = LineJuggler#ClipAddress(
-    \   ingowindow#RelativeWindowLine(line('.'), l:count, a:direction, -1),
+    \   ingo#folds#RelativeWindowLine(line('.'), l:count, a:direction, -1),
     \   a:direction,
-    \   1, (a:direction == -1 ? line('$') : ingowindow#RelativeWindowLine(line('$'), (l:visibleSelectedLineCnt - 1), -1, -1))
+    \   1, (a:direction == -1 ? line('$') : ingo#folds#RelativeWindowLine(line('$'), (l:visibleSelectedLineCnt - 1), -1, -1))
     \)
-    let l:targetEndLnum   = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(l:targetStartLnum, (l:visibleSelectedLineCnt - 1), 1), a:direction, 1)
+    let l:targetEndLnum   = LineJuggler#ClipAddress(ingo#folds#RelativeWindowLine(l:targetStartLnum, (l:visibleSelectedLineCnt - 1), 1), a:direction, 1)
     let l:lines = getline(l:targetStartLnum, l:targetEndLnum)
 
     if a:direction == -1
@@ -387,13 +389,13 @@ function! s:RepFetch( startLnum, endLnum, lines, count, mapSuffix )
 endfunction
 function! LineJuggler#RepFetch( count, direction, mapSuffix )
     if a:direction == -1
-	let l:address = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), a:count, -1), a:direction, 1)
+	let l:address = LineJuggler#ClipAddress(ingo#folds#RelativeWindowLine(line('.'), a:count, -1), a:direction, 1)
 	if l:address == -1 | return | endif
-	let l:endAddress = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), a:count, -1, 1), a:direction, 1)
+	let l:endAddress = LineJuggler#ClipAddress(ingo#folds#RelativeWindowLine(line('.'), a:count, -1, 1), a:direction, 1)
     else
-	let l:address = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), a:count, 1, -1), a:direction, 1)
+	let l:address = LineJuggler#ClipAddress(ingo#folds#RelativeWindowLine(line('.'), a:count, 1, -1), a:direction, 1)
 	if l:address == -1 | return | endif
-	let l:endAddress = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(line('.'), a:count, 1), a:direction, 1)
+	let l:endAddress = LineJuggler#ClipAddress(ingo#folds#RelativeWindowLine(line('.'), a:count, 1), a:direction, 1)
     endif
     let l:sourceLines = getline(l:address, l:endAddress)
 
@@ -401,15 +403,15 @@ function! LineJuggler#RepFetch( count, direction, mapSuffix )
 endfunction
 function! LineJuggler#VisualRepFetch( direction, mapSuffix )
     let l:count = v:count1
-    let l:visibleSelectedLineCnt = ingowindow#NetVisibleLines(line("'<"), line("'>"))
+    let l:visibleSelectedLineCnt = ingo#window#dimensions#NetVisibleLines(line("'<"), line("'>"))
     call s:VisualReselect()
 
     let l:targetStartLnum = LineJuggler#ClipAddress(
-    \   ingowindow#RelativeWindowLine(line('.'), l:count, a:direction, -1),
+    \   ingo#folds#RelativeWindowLine(line('.'), l:count, a:direction, -1),
     \   a:direction,
-    \   1, (a:direction == -1 ? line('$') : ingowindow#RelativeWindowLine(line('$'), (l:visibleSelectedLineCnt - 1), -1, -1))
+    \   1, (a:direction == -1 ? line('$') : ingo#folds#RelativeWindowLine(line('$'), (l:visibleSelectedLineCnt - 1), -1, -1))
     \)
-    let l:targetEndLnum   = LineJuggler#ClipAddress(ingowindow#RelativeWindowLine(l:targetStartLnum, (l:visibleSelectedLineCnt - 1), 1), a:direction, 1)
+    let l:targetEndLnum   = LineJuggler#ClipAddress(ingo#folds#RelativeWindowLine(l:targetStartLnum, (l:visibleSelectedLineCnt - 1), 1), a:direction, 1)
     let l:lines = getline(l:targetStartLnum, l:targetEndLnum)
 
     call s:RepFetch(line("'<"), line("'>"), l:lines, l:count, a:mapSuffix)
