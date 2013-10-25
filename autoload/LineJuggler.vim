@@ -14,6 +14,8 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.23.016	26-Oct-2013	Add message "N lines swapped with M lines" on [E
+"				/ ]E.
 "   1.23.015	12-Jul-2013	Precaution: Use :keepjumps when setting mark '.
 "   1.23.014	14-Jun-2013	Use ingo/msg.vim.
 "   1.23.013	08-Apr-2013	Move ingowindow.vim functions into ingo-library.
@@ -209,6 +211,14 @@ function! LineJuggler#SwapRanges( sourceStartLnum, sourceEndLnum, targetStartLnu
 
     let l:offset = (a:sourceEndLnum <= a:targetStartLnum ? len(l:targetLines) - len(l:sourceLines) : 0)
     call ingo#lines#Replace(a:targetStartLnum + l:offset, a:targetEndLnum + l:offset, l:sourceLines)
+
+    let l:sourceLineNum = a:sourceEndLnum - a:sourceStartLnum + 1
+    let l:targetLineNum = a:targetEndLnum - a:targetStartLnum + 1
+    if l:sourceLineNum > &report || l:targetLineNum > &report
+	echomsg printf('%d line%s swapped with %d line%s',
+	\   l:sourceLineNum, (l:sourceLineNum == 1 ? '' : 's'), l:targetLineNum, (l:targetLineNum == 1 ? '' : 's')
+	\)
+    endif
 endfunction
 function! LineJuggler#Swap( startLnum, endLnum, address, count, direction, mapSuffix, ... )
     let l:sourceLineCnt = (a:0 ? a:1 : a:endLnum - a:startLnum + 1)
