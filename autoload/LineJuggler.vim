@@ -14,6 +14,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.23.015	12-Jul-2013	Precaution: Use :keepjumps when setting mark '.
 "   1.23.014	14-Jun-2013	Use ingo/msg.vim.
 "   1.23.013	08-Apr-2013	Move ingowindow.vim functions into ingo-library.
 "   1.23.012	04-Apr-2013	Move ingolines.vim into ingo-library.
@@ -168,14 +169,14 @@ function! LineJuggler#Move( range, address, count, direction, mapSuffix )
 
     try
 	let l:save_mark = getpos("''")
-	    call setpos("''", getpos('.'))
+	    keepjumps call setpos("''", getpos('.'))
 		execute a:range . 'move' l:address
 	    execute line("'`")
     catch /^Vim\%((\a\+)\)\=:E/
 	execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
 	call ingo#msg#VimExceptionMsg()
     finally
-	call setpos("''", l:save_mark)
+	keepjumps call setpos("''", l:save_mark)
 
 	silent! call       repeat#set("\<Plug>(LineJugglerMove" . a:mapSuffix . ')', a:count)
 	silent! call visualrepeat#set("\<Plug>(LineJugglerMove" . a:mapSuffix . ')', a:count)
