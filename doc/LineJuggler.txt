@@ -37,6 +37,8 @@ RELATED WORKS								     *
   Tim Pope's unimpaired.vim plugin (vimscript #1590). In addition, unimpaired
   provides other, unrelated functionality (all via [... / ]... mappings), but
   doesn't offer customization of the mappings.
+- textmanip.vim (vimscript #3491) provides mappings to move and duplicate
+  (selected / current) line(s).
 
 ==============================================================================
 USAGE							   *LineJuggler-usage*
@@ -93,7 +95,7 @@ USAGE							   *LineJuggler-usage*
 			line and duplicate it below the current line.	*v_[f*
 {Visual}[f		Fetch the same number of visible lines starting from
 			the line [count] lines below the current line and
-			duplicate them above the start of the selection.*v_]f*
+			duplicate them above the start of the selection. *v_]f*
 {Visual}]f		Fetch the same number of visible lines starting from
 			the line [count] lines above the current line and
 			duplicate them below the end of the selection.
@@ -163,8 +165,11 @@ IDEAS							   *LineJuggler-ideas*
 ==============================================================================
 HISTORY							 *LineJuggler-history*
 
-1.23	RELEASEME
-- Add dependency to ingo-library (vimscript #4433).
+1.23	26-Oct-2013
+- Add message "N lines swapped with M lines" on [E / ]E.
+- Add message "Replaced N lines" for [r / ]r.
+- Add dependency to ingo-library (vimscript #4433). *** You need to separately
+  install ingo-library (vimscript #4433) version 1.004 (or higher)! ***
 
 1.22	08-Mar-2013
 - Expose s:DoSwap() as LineJuggler#SwapRanges() for use with the companion
