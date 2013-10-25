@@ -135,6 +135,8 @@ To uninstall, use the |:RmVimball| command.
 DEPENDENCIES					    *LineJuggler-dependencies*
 
 - Requires Vim 7.0 or higher.
+- Requires the |ingo-library.vim| plugin (vimscript #4433), version 1.004 or
+  higher.
 - repeat.vim (vimscript #2136) plugin (optional)
 - visualrepeat.vim (vimscript #3848) plugin (optional)
 
@@ -160,6 +162,9 @@ IDEAS							   *LineJuggler-ideas*
 
 ==============================================================================
 HISTORY							 *LineJuggler-history*
+
+1.23	RELEASEME
+- Add dependency to ingo-library (vimscript #4433).
 
 1.22	08-Mar-2013
 - Expose s:DoSwap() as LineJuggler#SwapRanges() for use with the companion
