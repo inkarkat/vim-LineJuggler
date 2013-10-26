@@ -16,6 +16,7 @@
 " REVISION	DATE		REMARKS
 "   1.23.016	26-Oct-2013	Add message "N lines swapped with M lines" on [E
 "				/ ]E.
+"				Add message "Replaced N lines" for [r / ]r.
 "   1.23.015	12-Jul-2013	Precaution: Use :keepjumps when setting mark '.
 "   1.23.014	14-Jun-2013	Use ingo/msg.vim.
 "   1.23.013	08-Apr-2013	Move ingowindow.vim functions into ingo-library.
@@ -386,6 +387,14 @@ endfunction
 
 function! s:RepFetch( startLnum, endLnum, lines, count, mapSuffix )
     call ingo#lines#Replace(a:startLnum, a:endLnum, a:lines, v:register)
+    let l:lineNum = a:endLnum - a:startLnum + 1
+    if l:lineNum > &report
+	echomsg printf('Replaced %d line%s', l:lineNum, (l:lineNum == 1 ? '' : 's')) .
+	\   (len(a:lines) != l:lineNum ?
+	\       printf(' with %s line%s', len(a:lines), (len(a:lines) == 1 ? '' : 's')) :
+	\       ''
+	\   )
+    endif
 
     silent! call       repeat#set("\<Plug>(LineJugglerRepFetch" . a:mapSuffix . ')', a:count)
     silent! call visualrepeat#set("\<Plug>(LineJugglerRepFetch" . a:mapSuffix . ')', a:count)
