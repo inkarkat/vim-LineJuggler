@@ -2,14 +2,15 @@
 "
 " DEPENDENCIES:
 "   - LineJuggler.vim autoload script
-"   - ingowindow.vim autoload script
+"   - ingo/folds.vim autoload script
 "
-" Copyright: (C) 2012 Ingo Karkat
+" Copyright: (C) 2012-2013 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.23.011	08-Apr-2013	Move ingowindow.vim functions into ingo-library.
 "   1.20.010	27-Jul-2012	Adapt [d and [D mappings to restructured and
 "				changed implementation with
 "				LineJuggler#DupToOffset().
@@ -105,7 +106,7 @@ endif
 nnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
 \call LineJuggler#Move(
 \   LineJuggler#FoldClosed(),
-\   ingowindow#RelativeWindowLine(line('.'), v:count1, -1) - 1,
+\   ingo#folds#RelativeWindowLine(line('.'), v:count1, -1) - 1,
 \   v:count1,
 \   -1,
 \   'Up'
@@ -113,7 +114,7 @@ nnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-u>if !&ma<Bar><Bar>&ro<Bar>cal
 nnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
 \call LineJuggler#Move(
 \   LineJuggler#FoldClosedEnd(),
-\   ingowindow#RelativeWindowLine(line('.'), v:count1,  1),
+\   ingo#folds#RelativeWindowLine(line('.'), v:count1,  1),
 \   v:count1,
 \   1,
 \   'Down'
@@ -140,7 +141,7 @@ endif
 nnoremap <silent> <Plug>(LineJugglerSwapUp)   :<C-u>call setline('.', getline('.'))<Bar>
 \call LineJuggler#Swap(
 \   LineJuggler#FoldClosed(), LineJuggler#FoldClosedEnd(),
-\   ingowindow#RelativeWindowLine(line('.'), v:count1, -1),
+\   ingo#folds#RelativeWindowLine(line('.'), v:count1, -1),
 \   v:count1,
 \   -1,
 \   'Up'
@@ -148,7 +149,7 @@ nnoremap <silent> <Plug>(LineJugglerSwapUp)   :<C-u>call setline('.', getline('.
 nnoremap <silent> <Plug>(LineJugglerSwapDown)   :<C-u>call setline('.', getline('.'))<Bar>
 \call LineJuggler#Swap(
 \   LineJuggler#FoldClosed(), LineJuggler#FoldClosedEnd(),
-\   ingowindow#RelativeWindowLine(line('.'), v:count1,  1),
+\   ingo#folds#RelativeWindowLine(line('.'), v:count1,  1),
 \   v:count1,
 \   1,
 \   'Down'
