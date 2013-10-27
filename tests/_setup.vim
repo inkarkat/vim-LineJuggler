@@ -4,7 +4,13 @@ endif
 
 runtime plugin/LineJuggler.vim
 
-function! Quit()
+function! Quit( ... )
+    if a:0 && a:1
+	normal! my
+	normal! g`]mzg`[r[g`zr]
+	normal! g`<r<g`>r>
+	normal! g`y
+    endif
     normal! r*
     call vimtest#SaveOut()
     call vimtest#Quit()
