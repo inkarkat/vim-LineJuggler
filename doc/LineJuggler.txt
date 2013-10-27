@@ -73,10 +73,16 @@ USAGE							   *LineJuggler-usage*
 								   *[d* *v_[d*
 [d			Duplicate the current line / selection directly
 			above / across [count] lines above the current line /
-			above the start of the selection.	   *]d* *v_]d*
+			above the start of the selection.
+			In a single-line |characterwise-visual| selection:
+			Duplicate before the selection (to [count] characters
+			before the start of the selection).	   *]d* *v_]d*
 ]d			Duplicate the current line / selection directly
 			below / across [count] lines below the current line /
 			below the end of the selection.
+			In a single-line |characterwise-visual| selection:
+			Duplicate after the selection (to [count] characters
+			after the end of the selection).
 
 									  *[D*
 [D			Duplicate the current  / [count] lines to above the
