@@ -88,11 +88,15 @@ USAGE							   *LineJuggler-usage*
 [D			Duplicate the current  / [count] lines to above the
 			current line.					*v_[D*
 {Visual}[D		Duplicate the selection [count] times above the
-			selection.					  *]D*
+			selection.
+			In a single-line |characterwise-visual| selection:
+			Duplicate before the selection [count] times.	  *]D*
 ]D			Duplicate the current  / [count] lines to below that
 			range.						*v_]D*
 {Visual}]D		Duplicate the selection [count] times below the
 			selection.
+			In a single-line |characterwise-visual| selection:
+			Duplicate after the selection [count] times.
 
 									  *[f*
 [f			Fetch the line [count] visible lines below the current
@@ -174,7 +178,8 @@ HISTORY							 *LineJuggler-history*
 1.30	RELEASEME
 - ENH: Implement special DWIM behavior for duplication of characterwise
   single-line selection: Duplicate before / after the selection in the same
-  line. *** You need to update to ingo-library (vimscript #4433) version
+  line, either with [count] as character offset ([d / ]d) or repeat count ([D
+  / ]D). *** You need to update to ingo-library (vimscript #4433) version
   1.014! ***
 
 1.23	26-Oct-2013
