@@ -10,6 +10,8 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.30.012	27-Oct-2013	Explicitly pass v:count1 everywhere, it saves a
+"				variable assignment inside the functions.
 "   1.23.011	08-Apr-2013	Move ingowindow.vim functions into ingo-library.
 "   1.20.010	27-Jul-2012	Adapt [d and [D mappings to restructured and
 "				changed implementation with
@@ -86,8 +88,8 @@ set cpo&vim
 
 nnoremap <silent> <Plug>(LineJugglerBlankUp)   :<C-u>call setline('.', getline('.'))<Bar>call LineJuggler#Blank('', v:count1, -1, 'Up')<CR>
 nnoremap <silent> <Plug>(LineJugglerBlankDown) :<C-u>call setline('.', getline('.'))<Bar>call LineJuggler#Blank('', v:count1,  1, 'Down')<CR>
-vnoremap <silent> <Plug>(LineJugglerBlankUp)   :<C-u>call setline('.', getline('.'))<Bar>call LineJuggler#VisualBlank("'<", -1, 'Up')<CR>
-vnoremap <silent> <Plug>(LineJugglerBlankDown) :<C-u>call setline('.', getline('.'))<Bar>call LineJuggler#VisualBlank("'>",  1, 'Down')<CR>
+vnoremap <silent> <Plug>(LineJugglerBlankUp)   :<C-u>call setline('.', getline('.'))<Bar>call LineJuggler#VisualBlank("'<", -1, v:count1, 'Up')<CR>
+vnoremap <silent> <Plug>(LineJugglerBlankDown) :<C-u>call setline('.', getline('.'))<Bar>call LineJuggler#VisualBlank("'>",  1, v:count1, 'Down')<CR>
 if ! hasmapto('<Plug>(LineJugglerBlankUp)', 'n')
     nmap [<Space> <Plug>(LineJugglerBlankUp)
 endif
@@ -120,9 +122,9 @@ nnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-u>if !&ma<Bar><Bar>&ro<Bar>cal
 \   'Down'
 \)<CR>
 vnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
-\call LineJuggler#VisualMove(-1, 'Up')<CR>
+\call LineJuggler#VisualMove(-1, v:count1, 'Up')<CR>
 vnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
-\call LineJuggler#VisualMove( 1, 'Down')<CR>
+\call LineJuggler#VisualMove( 1, v:count1, 'Down')<CR>
 if ! hasmapto('<Plug>(LineJugglerMoveUp)', 'n')
     nmap [e <Plug>(LineJugglerMoveUp)
 endif
@@ -155,9 +157,9 @@ nnoremap <silent> <Plug>(LineJugglerSwapDown)   :<C-u>call setline('.', getline(
 \   'Down'
 \)<CR>
 vnoremap <silent> <Plug>(LineJugglerSwapUp)   :<C-u>call setline('.', getline('.'))<Bar>
-\call LineJuggler#VisualSwap(-1, 'Up')<CR>
+\call LineJuggler#VisualSwap(-1, v:count1, 'Up')<CR>
 vnoremap <silent> <Plug>(LineJugglerSwapDown) :<C-u>call setline('.', getline('.'))<Bar>
-\call LineJuggler#VisualSwap( 1, 'Down')<CR>
+\call LineJuggler#VisualSwap( 1, v:count1, 'Down')<CR>
 if ! hasmapto('<Plug>(LineJugglerSwapUp)', 'n')
     nmap [E <Plug>(LineJugglerSwapUp)
 endif
@@ -273,9 +275,9 @@ if ! hasmapto('<Plug>(LineJugglerDupFetchBelow)', 'n')
 endif
 
 vnoremap <silent> <Plug>(LineJugglerDupFetchAbove)   :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
-\call LineJuggler#VisualDupFetch(-1, 'FetchAbove')<CR>
+\call LineJuggler#VisualDupFetch(-1, v:count1, 'FetchAbove')<CR>
 vnoremap <silent> <Plug>(LineJugglerDupFetchBelow)   :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
-\call LineJuggler#VisualDupFetch( 1, 'FetchBelow')<CR>
+\call LineJuggler#VisualDupFetch( 1, v:count1, 'FetchBelow')<CR>
 if ! hasmapto('<Plug>(LineJugglerDupFetchAbove)', 'x')
     xmap ]f <Plug>(LineJugglerDupFetchAbove)
 endif
@@ -305,9 +307,9 @@ if ! hasmapto('<Plug>(LineJugglerRepFetchBelow)', 'n')
 endif
 
 vnoremap <silent> <Plug>(LineJugglerRepFetchAbove)   :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
-\call LineJuggler#VisualRepFetch(-1, 'Above')<CR>
+\call LineJuggler#VisualRepFetch(-1, v:count1, 'Above')<CR>
 vnoremap <silent> <Plug>(LineJugglerRepFetchBelow)   :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
-\call LineJuggler#VisualRepFetch( 1, 'Below')<CR>
+\call LineJuggler#VisualRepFetch( 1, v:count1, 'Below')<CR>
 if ! hasmapto('<Plug>(LineJugglerRepFetchAbove)', 'x')
     xmap ]r <Plug>(LineJugglerRepFetchAbove)
 endif
