@@ -10,6 +10,12 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.30.013	29-Oct-2013	Add dedicated LineJuggler#VisualDupRange() for
+"				the special visual intra-line handling for
+"				[D / ]D.
+"				Add special <Plug>(LineJugglerDupIntra...)
+"				mappings for the normal mode repeat of
+"				intra-line duplications.
 "   1.30.012	27-Oct-2013	Explicitly pass v:count1 everywhere, it saves a
 "				variable assignment inside the functions.
 "   1.23.011	08-Apr-2013	Move ingowindow.vim functions into ingo-library.
@@ -211,6 +217,24 @@ endif
 if ! hasmapto('<Plug>(LineJugglerDupOverDown)', 'x')
     xmap ]d <Plug>(LineJugglerDupOverDown)
 endif
+nnoremap <silent> <Plug>(LineJugglerDupIntraOverUp)   :<C-u>call setline('.', getline('.'))<Bar>
+\let g:count = v:count<Bar>
+\execute 'normal! gv'<Bar>
+\call LineJuggler#VisualDup(
+\   -1,
+\   g:count,
+\   'OverUp'
+\)<Bar>
+\unlet g:count<CR>
+nnoremap <silent> <Plug>(LineJugglerDupIntraOverDown) :<C-u>call setline('.', getline('.'))<Bar>
+\let g:count = v:count<Bar>
+\execute 'normal! gv'<Bar>
+\call LineJuggler#VisualDup(
+\   1,
+\   g:count,
+\   'OverDown'
+\)<Bar>
+\unlet g:count<CR>
 
 
 
@@ -250,6 +274,24 @@ endif
 if ! hasmapto('<Plug>(LineJugglerDupRangeDown)', 'x')
     xmap ]D <Plug>(LineJugglerDupRangeDown)
 endif
+nnoremap <silent> <Plug>(LineJugglerDupIntraRangeUp)   :<C-u>call setline('.', getline('.'))<Bar>
+\let g:count = v:count<Bar>
+\execute 'normal! gv'<Bar>
+\call LineJuggler#VisualDupRange(
+\   line("'<"),
+\   1, 1, g:count,
+\   'RangeUp'
+\)<Bar>
+\unlet g:count<CR>
+nnoremap <silent> <Plug>(LineJugglerDupIntraRangeDown) :<C-u>call setline('.', getline('.'))<Bar>
+\let g:count = v:count<Bar>
+\execute 'normal! gv'<Bar>
+\call LineJuggler#VisualDupRange(
+\   line("'<"),
+\   0, 1, g:count,
+\   'RangeDown'
+\)<Bar>
+\unlet g:count<CR>
 
 
 
