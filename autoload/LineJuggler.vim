@@ -17,6 +17,10 @@
 " REVISION	DATE		REMARKS
 "   1.30.017	27-Oct-2013	Explicitly pass v:count1 everywhere, it saves a
 "				variable assignment inside the functions.
+"				ENH: Implement special DWIM behavior for
+"				duplication of characterwise single-line
+"				selection: Duplicate before / after the
+"				selection in the same line.
 "   1.23.016	26-Oct-2013	Add message "N lines swapped with M lines" on [E
 "				/ ]E.
 "				Add message "Replaced N lines" for [r / ]r.
