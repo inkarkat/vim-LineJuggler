@@ -227,16 +227,14 @@ nnoremap <silent> <Plug>(LineJugglerDupRangeDown) :<C-u>call setline('.', getlin
 \   'RangeDown'
 \)<CR>
 vnoremap <silent> <Plug>(LineJugglerDupRangeUp)   :<C-u>call setline('.', getline('.'))<Bar>
-\call LineJuggler#DupToOffset(
+\call LineJuggler#VisualDupRange(
 \   line("'<"),
-\   repeat(getline("'<", "'>"), v:count1),
 \   1, 1, v:count1,
 \   'RangeUp'
 \)<CR>
 vnoremap <silent> <Plug>(LineJugglerDupRangeDown) :<C-u>call setline('.', getline('.'))<Bar>
-\call LineJuggler#DupToOffset(
+\call LineJuggler#VisualDupRange(
 \   line("'>"),
-\   repeat(getline("'<", "'>"), v:count1),
 \   0, 1, v:count1,
 \   'RangeDown'
 \)<CR>
