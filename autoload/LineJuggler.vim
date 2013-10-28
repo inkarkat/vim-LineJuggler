@@ -15,6 +15,9 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.30.018	29-Oct-2013	Add dedicated LineJuggler#VisualDupRange() for
+"				the special visual intra-line handling for
+"				[D / ]D.
 "   1.30.017	27-Oct-2013	Explicitly pass v:count1 everywhere, it saves a
 "				variable assignment inside the functions.
 "				ENH: Implement special DWIM behavior for
@@ -340,6 +343,20 @@ function! LineJuggler#DupRange( count, direction, mapSuffix )
     \   l:insLnum,
     \   getline(l:address, l:endAddress),
     \   l:isUp, 1, a:count,
+    \   a:mapSuffix
+    \)
+endfunction
+function! LineJuggler#VisualDupRange( insLnum, isUp, offset, count, mapSuffix )
+    if s:IsSingleLineCharacterwiseSelection()
+	return LineJuggler#IntraLine#DupRange((a:isUp ? -1 : 1), a:count, a:mapSuffix)
+    endif
+
+    call LineJuggler#DupToOffset(
+    \   a:insLnum,
+    \   repeat(getline("'<", "'>"), a:count),
+    \   a:isUp,
+    \   a:offset,
+    \   a:count,
     \   a:mapSuffix
     \)
 endfunction
