@@ -10,6 +10,8 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.30.014	30-Oct-2013	Implement normal-mode repeat behavior for
+"				intra-line dups at another line.
 "   1.30.013	29-Oct-2013	Add dedicated LineJuggler#VisualDupRange() for
 "				the special visual intra-line handling for
 "				[D / ]D.
@@ -239,24 +241,33 @@ endif
 if ! hasmapto('<Plug>(LineJugglerDupOverDown)', 'x')
     xmap ]d <Plug>(LineJugglerDupOverDown)
 endif
+" When repeating from the same position as left by a previous mapping
+" invocation, simply duplicate the same text again.
+" Elsewhere, move a same-sized selection starting from the current position.
+" Don't repeat on a closed fold; just grabbing any invisible part from it is as
+" bad as suddenly turning this into a regular, full-line dup.
 nnoremap <silent> <Plug>(LineJugglerDupIntraOverUp)   :<C-u>call setline('.', getline('.'))<Bar>
+\if foldclosed('.') != -1<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>else<Bar>
 \let g:count = v:count<Bar>
-\execute 'normal! gv'<Bar>
+\execute 'normal!' (getpos('.') == getpos("']") ? 'gv' : '1v' . (&selection ==# 'exclusive' ? 'l' : '')) . "\<lt>Esc>"<Bar>
 \call LineJuggler#VisualDup(
 \   -1,
 \   g:count,
 \   'OverUp'
 \)<Bar>
-\unlet g:count<CR>
+\unlet g:count<Bar>
+\endif<CR>
 nnoremap <silent> <Plug>(LineJugglerDupIntraOverDown) :<C-u>call setline('.', getline('.'))<Bar>
+\if foldclosed('.') != -1<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>else<Bar>
 \let g:count = v:count<Bar>
-\execute 'normal! gv'<Bar>
+\execute 'normal!' (getpos('.') == getpos("']") ? 'gv' : '1v' . (&selection ==# 'exclusive' ? 'l' : '')) . "\<lt>Esc>"<Bar>
 \call LineJuggler#VisualDup(
 \   1,
 \   g:count,
 \   'OverDown'
 \)<Bar>
-\unlet g:count<CR>
+\unlet g:count<Bar>
+\endif<CR>
 
 
 
@@ -296,24 +307,33 @@ endif
 if ! hasmapto('<Plug>(LineJugglerDupRangeDown)', 'x')
     xmap ]D <Plug>(LineJugglerDupRangeDown)
 endif
+" When repeating from the same position as left by a previous mapping
+" invocation, simply duplicate the same text again.
+" Elsewhere, move a same-sized selection starting from the current position.
+" Don't repeat on a closed fold; just grabbing any invisible part from it is as
+" bad as suddenly turning this into a regular, full-line dup.
 nnoremap <silent> <Plug>(LineJugglerDupIntraRangeUp)   :<C-u>call setline('.', getline('.'))<Bar>
+\if foldclosed('.') != -1<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>else<Bar>
 \let g:count = v:count<Bar>
-\execute 'normal! gv'<Bar>
+\execute 'normal!' (getpos('.') == getpos("']") ? 'gv' : '1v' . (&selection ==# 'exclusive' ? 'l' : '')) . "\<lt>Esc>"<Bar>
 \call LineJuggler#VisualDupRange(
 \   line("'<"),
 \   1, 1, g:count,
 \   'RangeUp'
 \)<Bar>
-\unlet g:count<CR>
+\unlet g:count<Bar>
+\endif<CR>
 nnoremap <silent> <Plug>(LineJugglerDupIntraRangeDown) :<C-u>call setline('.', getline('.'))<Bar>
+\if foldclosed('.') != -1<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>else<Bar>
 \let g:count = v:count<Bar>
-\execute 'normal! gv'<Bar>
+\execute 'normal!' (getpos('.') == getpos("']") ? 'gv' : '1v' . (&selection ==# 'exclusive' ? 'l' : '')) . "\<lt>Esc>"<Bar>
 \call LineJuggler#VisualDupRange(
 \   line("'<"),
 \   0, 1, g:count,
 \   'RangeDown'
 \)<Bar>
-\unlet g:count<CR>
+\unlet g:count<Bar>
+\endif<CR>
 
 
 
