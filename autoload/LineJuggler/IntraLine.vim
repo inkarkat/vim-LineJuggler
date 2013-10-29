@@ -78,8 +78,11 @@ function! LineJuggler#IntraLine#DupRange( direction, repeat, mapSuffix )
     call s:Dup(a:direction, 0, a:repeat, a:repeat, a:mapSuffix)
 endfunction
 
-function! LineJuggler#IntraLine#Move( direction, targetLnum, count, mapSuffix )
-    let l:positioning = printf('%dG%d|', a:targetLnum, virtcol("'<"))
+function! LineJuggler#IntraLine#Move( direction, address, count, mapSuffix )
+    let l:address = LineJuggler#ClipAddress(a:address, a:direction, 1)
+    if l:address == -1 | return | endif
+
+    let l:positioning = printf('%dG%d|', l:address, virtcol("'<"))
     let l:save_virtualedit = &virtualedit
     set virtualedit=all
     try
