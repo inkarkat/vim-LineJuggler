@@ -18,6 +18,7 @@
 "   1.30.018	29-Oct-2013	Add dedicated LineJuggler#VisualDupRange() for
 "				the special visual intra-line handling for
 "				[D / ]D.
+"				Factor out s:RepeatSet() to avoid repetition.
 "   1.30.017	27-Oct-2013	Explicitly pass v:count1 everywhere, it saves a
 "				variable assignment inside the functions.
 "				ENH: Implement special DWIM behavior for
@@ -129,6 +130,10 @@ function! s:VisualReselect()
     " [count] would be lost. So do this now to get the current line.
     execute "normal! gv\<C-\>\<C-n>"
 endfunction
+function! s:RepeatSet( what, count, mapSuffix )
+    silent! call       repeat#set("\<Plug>(LineJuggler" . a:what . a:mapSuffix . ')', a:count)
+    silent! call visualrepeat#set("\<Plug>(LineJuggler" . a:what . a:mapSuffix . ')', a:count)
+endfunction
 
 function! LineJuggler#FoldClosed( ... )
     let l:lnum = (a:0 ? a:1 : line('.'))
@@ -169,8 +174,7 @@ function! LineJuggler#Blank( address, count, direction, mapSuffix )
 	call ingo#lines#PutWrapper(a:address, 'put' . (a:direction == -1 ? '!' : ''), repeat(nr2char(10), a:count))
     execute (l:original_lnum + (a:direction == -1 ? a:count : 0))
 
-    silent! call       repeat#set("\<Plug>(LineJugglerBlank" . a:mapSuffix . ')', a:count)
-    silent! call visualrepeat#set("\<Plug>(LineJugglerBlank" . a:mapSuffix . ')', a:count)
+    call s:RepeatSet('Blank', a:count, a:mapSuffix)
 endfunction
 function! LineJuggler#VisualBlank( address, direction, count, mapSuffix )
     call s:VisualReselect()
@@ -193,12 +197,16 @@ function! LineJuggler#Move( range, address, count, direction, mapSuffix )
     finally
 	keepjumps call setpos("''", l:save_mark)
 
-	silent! call       repeat#set("\<Plug>(LineJugglerMove" . a:mapSuffix . ')', a:count)
-	silent! call visualrepeat#set("\<Plug>(LineJugglerMove" . a:mapSuffix . ')', a:count)
+	call s:RepeatSet('Move', a:count, a:mapSuffix)
     endtry
 endfunction
 function! LineJuggler#VisualMove( direction, count, mapSuffix )
     call s:VisualReselect()
+
+    if s:IsSingleLineCharacterwiseSelection()
+	let l:targetLnum = ingo#folds#RelativeWindowLine(line('.'), a:count, a:direction, -1 * a:direction)
+	return LineJuggler#IntraLine#Move(a:direction, l:targetLnum, a:count, a:mapSuffix)
+    endif
 
     let l:targetLnum = ingo#folds#RelativeWindowLine(line('.'), a:count, a:direction) - (a:direction == -1 ? 1 : 0)
     call LineJuggler#Move(
@@ -257,8 +265,7 @@ function! LineJuggler#Swap( startLnum, endLnum, address, count, direction, mapSu
 	call ingo#msg#CustomExceptionMsg('LineJuggler')
     endtry
 
-    silent! call       repeat#set("\<Plug>(LineJugglerSwap" . a:mapSuffix . ')', a:count)
-    silent! call visualrepeat#set("\<Plug>(LineJugglerSwap" . a:mapSuffix . ')', a:count)
+    call s:RepeatSet('Swap', a:count, a:mapSuffix)
 endfunction
 function! LineJuggler#VisualSwap( direction, count, mapSuffix )
     let l:visibleSelectedLineCnt = ingo#window#dimensions#NetVisibleLines(line("'<"), line("'>"))
@@ -284,8 +291,7 @@ function! LineJuggler#DupToOffset( insLnum, lines, isUp, offset, count, mapSuffi
 	call ingo#lines#PutWrapper(l:lnum, 'put', a:lines)
     endif
 
-    silent! call       repeat#set("\<Plug>(LineJugglerDup" . a:mapSuffix . ')', a:count)
-    silent! call visualrepeat#set("\<Plug>(LineJugglerDup" . a:mapSuffix . ')', a:count)
+    call s:RepeatSet('Dup', a:count, a:mapSuffix)
 endfunction
 function! LineJuggler#Dup( direction, count, mapSuffix )
     if a:count
@@ -421,8 +427,7 @@ function! s:RepFetch( startLnum, endLnum, lines, count, mapSuffix )
 	\   )
     endif
 
-    silent! call       repeat#set("\<Plug>(LineJugglerRepFetch" . a:mapSuffix . ')', a:count)
-    silent! call visualrepeat#set("\<Plug>(LineJugglerRepFetch" . a:mapSuffix . ')', a:count)
+    call s:RepeatSet('RepFetch', a:count, a:mapSuffix)
 endfunction
 function! LineJuggler#RepFetch( count, direction, mapSuffix )
     if a:direction == -1
