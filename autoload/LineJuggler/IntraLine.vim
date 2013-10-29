@@ -18,9 +18,16 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+function! s:RepeatSet( what, count, mapSuffix )
+    " To repeat the intra-line mappings, we need special normal mode mappings
+    " that first re-establish the previous visual selection.
+    silent! call       repeat#set("\<Plug>(LineJuggler" . a:what . 'Intra' . a:mapSuffix . ')', a:count)
+    silent! call visualrepeat#set("\<Plug>(LineJuggler" . a:what           . a:mapSuffix . ')', a:count)
+endfunction
 function! s:IsInclusiveSelection()
     return (&selection !=# 'exclusive' || col("'>") == col('$') && &virtualedit !~# 'all\|onemore')
 endfunction
+
 function! s:Dup( direction, offset, repeat, count, mapSuffix )
     let l:repeat = (a:repeat ? a:repeat : '')
     if a:offset
@@ -62,16 +69,26 @@ function! s:Dup( direction, offset, repeat, count, mapSuffix )
 	let &whichwrap = l:save_whichwrap
     endtry
 
-    " To repeat the intra-line mappings, we need special normal mode mappings
-    " that first re-establish the previous visual selection.
-    silent! call       repeat#set("\<Plug>(LineJugglerDupIntra" . a:mapSuffix . ')', a:count)
-    silent! call visualrepeat#set("\<Plug>(LineJugglerDup" . a:mapSuffix . ')', a:count)
+    call s:RepeatSet('Dup', a:count, a:mapSuffix)
 endfunction
 function! LineJuggler#IntraLine#Dup( direction, offset, mapSuffix )
     call s:Dup(a:direction, a:offset, 0, a:offset, a:mapSuffix)
 endfunction
 function! LineJuggler#IntraLine#DupRange( direction, repeat, mapSuffix )
     call s:Dup(a:direction, 0, a:repeat, a:repeat, a:mapSuffix)
+endfunction
+
+function! LineJuggler#IntraLine#Move( direction, targetLnum, count, mapSuffix )
+    let l:positioning = printf('%dG%d|', a:targetLnum, virtcol("'<"))
+    let l:save_virtualedit = &virtualedit
+    set virtualedit=all
+    try
+	call ingo#register#KeepRegisterExecuteOrFunc('silent keepjumps normal! gvd' . l:positioning . 'zvP')
+    finally
+	let &virtualedit = l:save_virtualedit
+    endtry
+
+    call s:RepeatSet('Move', a:count, a:mapSuffix)
 endfunction
 
 let &cpo = s:save_cpo
