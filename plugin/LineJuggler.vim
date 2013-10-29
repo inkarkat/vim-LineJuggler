@@ -154,19 +154,9 @@ endif
 " Don't repeat on a closed fold; just grabbing any invisible part from it is as
 " bad as suddenly turning this into a regular, full-line move.
 nnoremap <silent> <Plug>(LineJugglerMoveIntraUp)   :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
-\if foldclosed('.') != -1<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>else<Bar>
-\let g:count = v:count1<Bar>
-\execute 'normal!' (getpos('.') == getpos("']") ? 'g`[' : '') . '1v' . (&selection ==# 'exclusive' ? 'l' : '') . "\<lt>Esc>"<Bar>
-\call LineJuggler#VisualMove(-1, g:count, 'Up')<Bar>
-\unlet g:count<Bar>
-\endif<CR>
+\call LineJuggler#IntraLine#MoveRepeat(-1, v:count1, 'Up')<CR>
 nnoremap <silent> <Plug>(LineJugglerMoveIntraDown) :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
-\if foldclosed('.') != -1<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>else<Bar>
-\let g:count = v:count1<Bar>
-\execute 'normal!' (getpos('.') == getpos("']") ? 'g`[' : '') . '1v' . (&selection ==# 'exclusive' ? 'l' : '') . "\<lt>Esc>"<Bar>
-\call LineJuggler#VisualMove( 1, g:count, 'Down')<Bar>
-\unlet g:count<Bar>
-\endif<CR>
+\call LineJuggler#IntraLine#MoveRepeat( 1, v:count1, 'Down')<CR>
 
 
 
