@@ -16,6 +16,9 @@
 "				Add special <Plug>(LineJugglerDupIntra...)
 "				mappings for the normal mode repeat of
 "				intra-line duplications.
+"				Add special <Plug>(LineJugglerMoveIntra...)
+"				mappings for the normal mode repeat of
+"				intra-line moves.
 "   1.30.012	27-Oct-2013	Explicitly pass v:count1 everywhere, it saves a
 "				variable assignment inside the functions.
 "   1.23.011	08-Apr-2013	Move ingowindow.vim functions into ingo-library.
@@ -143,6 +146,25 @@ endif
 if ! hasmapto('<Plug>(LineJugglerMoveDown)', 'x')
     xmap ]e <Plug>(LineJugglerMoveDown)
 endif
+" When repeating from the same position as left by a previous mapping
+" invocation, re-use the same selection again, i.e. move the same text further.
+" Elsewhere, move a same-sized selection starting from the current position.
+" Don't repeat on a closed fold; just grabbing any invisible part from it is as
+" bad as suddenly turning this into a regular, full-line move.
+nnoremap <silent> <Plug>(LineJugglerMoveIntraUp)   :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
+\if foldclosed('.') != -1<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>else<Bar>
+\let g:count = v:count1<Bar>
+\execute 'normal!' (getpos('.') == getpos("']") ? 'g`[' : '') . '1v' . (&selection ==# 'exclusive' ? 'l' : '') . "\<lt>Esc>"<Bar>
+\call LineJuggler#VisualMove(-1, g:count, 'Up')<Bar>
+\unlet g:count<Bar>
+\endif<CR>
+nnoremap <silent> <Plug>(LineJugglerMoveIntraDown) :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
+\if foldclosed('.') != -1<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>else<Bar>
+\let g:count = v:count1<Bar>
+\execute 'normal!' (getpos('.') == getpos("']") ? 'g`[' : '') . '1v' . (&selection ==# 'exclusive' ? 'l' : '') . "\<lt>Esc>"<Bar>
+\call LineJuggler#VisualMove( 1, g:count, 'Down')<Bar>
+\unlet g:count<Bar>
+\endif<CR>
 
 
 
