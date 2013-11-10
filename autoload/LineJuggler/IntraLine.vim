@@ -119,6 +119,53 @@ function! LineJuggler#IntraLine#MoveRepeat( direction, count, mapSuffix )
     endif
 endfunction
 
+function! LineJuggler#IntraLine#DoSwap( positioning )
+    let l:originalSelection = [getpos("'<"), getpos("'>")]
+    execute 'silent keepjumps normal!' a:positioning . 'zv1v' . (&selection ==# 'exclusive' ? 'l': '') . 'y'
+    let l:targetSelection = [getpos("'<"), getpos("'>")]
+
+    call setpos("'<", l:originalSelection[0])
+    call setpos("'>", l:originalSelection[1])
+    silent keepjumps normal! gvp
+
+    call setpos("'<", l:targetSelection[0])
+    call setpos("'>", l:targetSelection[1])
+    silent keepjumps normal! gvp
+
+    call setpos("'<", l:originalSelection[0])
+    call setpos("'>", l:originalSelection[1])
+endfunction
+function! LineJuggler#IntraLine#Swap( direction, address, count, mapSuffix )
+    let l:address = LineJuggler#ClipAddress(a:address, a:direction, 1)
+    if l:address == -1 | return 0 | endif
+
+    let l:positioning = printf('%dG%d|', l:address, virtcol("'<"))
+    let l:save_virtualedit = &virtualedit
+    set virtualedit=all
+    try
+	call ingo#register#KeepRegisterExecuteOrFunc(function('LineJuggler#IntraLine#DoSwap'), [l:positioning])
+    finally
+	let &virtualedit = l:save_virtualedit
+    endtry
+
+    call s:RepeatSet('Swap', a:count, a:mapSuffix)
+    return 1
+endfunction
+function! LineJuggler#IntraLine#SwapRepeat( direction, count, mapSuffix )
+    if foldclosed('.') != -1
+	execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
+	return
+    endif
+
+    let l:save_cursor = getpos('.')
+    execute 'normal!' (getpos('.') == getpos("']") ? 'g`[' : '') . '1v' . (&selection ==# 'exclusive' ? 'l' : '') . "\<Esc>"
+    if ! LineJuggler#VisualSwap(a:direction, a:count, a:mapSuffix)
+	" The correction for exclusive selection must be undone when no move was
+	" possible to keep the cursor in place.
+	call setpos('.', l:save_cursor)
+    endif
+endfunction
+
 let &cpo = s:save_cpo
 unlet s:save_cpo
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
