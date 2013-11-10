@@ -54,6 +54,11 @@ USAGE							   *LineJuggler-usage*
 [e                      Move the current line / selection [count] lines above.
 								   *]e* *v_]e*
 ]e                      Move the current line / selection [count] lines below.
+			In a single-line |characterwise-visual| selection:
+			Move the selected text to the same start column
+			[count] lines above / below (regardless of whether the
+			target line is that long already; missing columns are
+			filled up with spaces).
 
 									  *[E*
 [E                      Exchange the current line with the line / closed fold
