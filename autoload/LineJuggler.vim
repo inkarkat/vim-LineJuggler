@@ -15,11 +15,13 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
-"   1.30.018	29-Oct-2013	Add dedicated LineJuggler#VisualDupRange() for
+"   2.00.019	11-Nov-2013	Implement characterwise selection swap with [E,
+"				]E.
+"   2.00.018	29-Oct-2013	Add dedicated LineJuggler#VisualDupRange() for
 "				the special visual intra-line handling for
 "				[D / ]D.
 "				Factor out s:RepeatSet() to avoid repetition.
-"   1.30.017	27-Oct-2013	Explicitly pass v:count1 everywhere, it saves a
+"   2.00.017	27-Oct-2013	Explicitly pass v:count1 everywhere, it saves a
 "				variable assignment inside the functions.
 "				ENH: Implement special DWIM behavior for
 "				duplication of characterwise single-line
@@ -270,6 +272,11 @@ endfunction
 function! LineJuggler#VisualSwap( direction, count, mapSuffix )
     let l:visibleSelectedLineCnt = ingo#window#dimensions#NetVisibleLines(line("'<"), line("'>"))
     call s:VisualReselect()
+
+    if s:IsSingleLineCharacterwiseSelection()
+	let l:targetLnum = ingo#folds#RelativeWindowLine(line('.'), a:count, a:direction, -1 * a:direction)
+	return LineJuggler#IntraLine#Swap(a:direction, l:targetLnum, a:count, a:mapSuffix)
+    endif
 
     let l:targetLnum = ingo#folds#RelativeWindowLine(line('.'), a:count, a:direction)
     call LineJuggler#Swap(
