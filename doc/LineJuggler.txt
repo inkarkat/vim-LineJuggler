@@ -68,6 +68,9 @@ USAGE							   *LineJuggler-usage*
 			above.						*v_[E*
 {Visual}[E		Exchange the selection with the same amount of visible
 			lines located [count] lines above.		  *]E*
+			In a single-line |characterwise-visual| selection:
+			Exchange the selected text with the same-sized
+			area [count] lines above.
 ]E                      Exchange the current line with the line / closed fold
 			[count] lines below.
 			Exchange the current closed fold with the same amount
@@ -75,6 +78,9 @@ USAGE							   *LineJuggler-usage*
 			below.						*v_]E*
 {Visual}]E		Exchange the selection with the same amount of visible
 			lines located [count] lines below.
+			In a single-line |characterwise-visual| selection:
+			Exchange the selected text with the same-sized
+			area [count] lines below.
 								   *[d* *v_[d*
 [d			Duplicate the current line / selection directly
 			above / across [count] lines above the current line /
@@ -180,12 +186,14 @@ IDEAS							   *LineJuggler-ideas*
 ==============================================================================
 HISTORY							 *LineJuggler-history*
 
-1.30	RELEASEME
+2.00	RELEASEME
 - ENH: Implement special DWIM behavior for duplication of characterwise
-  single-line selection: Duplicate before / after the selection in the same
-  line, either with [count] as character offset ([d / ]d) or repeat count ([D
-  / ]D). *** You need to update to ingo-library (vimscript #4433) version
-  1.014! ***
+  single-line selection:
+  Duplicate before / after the selection in the same line, either with [count]
+  as character offset ([d / ]d) or repeat count ([D / ]D).
+  Move only selection above / below ([e / ]e).
+  Exchange only selection above / below ([E / ]E).
+  *** You need to update to ingo-library (vimscript #4433) version 1.014! ***
 
 1.23	26-Oct-2013
 - Add message "N lines swapped with M lines" on [E / ]E.
