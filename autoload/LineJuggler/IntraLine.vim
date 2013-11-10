@@ -9,6 +9,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.30.004	30-Oct-2013	Move the repeated normal mode repeat logic here.
 "   1.30.003	29-Oct-2013	Extract generic s:Dup() and implement
 "				LineJuggler#IntraLine#DupRange() with it, too.
 "				Implement repeat of intra-line mappings.
@@ -77,10 +78,19 @@ endfunction
 function! LineJuggler#IntraLine#DupRange( direction, repeat, mapSuffix )
     call s:Dup(a:direction, 0, a:repeat, a:repeat, a:mapSuffix)
 endfunction
+function! LineJuggler#IntraLine#DupRepeat( DupFunc, ... )
+    if foldclosed('.') != -1
+	execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
+	return
+    endif
+
+    execute 'normal!' (getpos('.') == getpos("']") ? 'gv' : '1v' . (&selection ==# 'exclusive' ? 'l' : '')) . "\<Esc>"
+    call call(a:DupFunc, a:000)
+endfunction
 
 function! LineJuggler#IntraLine#Move( direction, address, count, mapSuffix )
     let l:address = LineJuggler#ClipAddress(a:address, a:direction, 1)
-    if l:address == -1 | return | endif
+    if l:address == -1 | return 0 | endif
 
     let l:positioning = printf('%dG%d|', l:address, virtcol("'<"))
     let l:save_virtualedit = &virtualedit
@@ -92,6 +102,21 @@ function! LineJuggler#IntraLine#Move( direction, address, count, mapSuffix )
     endtry
 
     call s:RepeatSet('Move', a:count, a:mapSuffix)
+    return 1
+endfunction
+function! LineJuggler#IntraLine#MoveRepeat( direction, count, mapSuffix )
+    if foldclosed('.') != -1
+	execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
+	return
+    endif
+
+    let l:save_cursor = getpos('.')
+    execute 'normal!' (getpos('.') == getpos("']") ? 'g`[' : '') . '1v' . (&selection ==# 'exclusive' ? 'l' : '') . "\<Esc>"
+    if ! LineJuggler#VisualMove(a:direction, a:count, a:mapSuffix)
+	" The correction for exclusive selection must be undone when no move was
+	" possible to keep the cursor in place.
+	call setpos('.', l:save_cursor)
+    endif
 endfunction
 
 let &cpo = s:save_cpo
