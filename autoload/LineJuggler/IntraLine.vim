@@ -120,9 +120,16 @@ function! LineJuggler#IntraLine#MoveRepeat( direction, count, mapSuffix )
     call s:Repeat('g`[1v', function('LineJuggler#VisualMove'), a:direction, a:count, a:mapSuffix)
 endfunction
 
+function! s:YankSource( positioning )
+    execute 'silent keepjumps normal!' a:positioning . 'zv1v'
+    if &selection ==# 'exclusive' && col('.') < col('$')
+	normal! l
+    endif
+    normal! y
+endfunction
 function! LineJuggler#IntraLine#DoSwap( positioning )
     let l:originalSelection = [getpos("'<"), getpos("'>")]
-    execute 'silent keepjumps normal!' a:positioning . 'zv1v' . (&selection ==# 'exclusive' ? 'l': '') . 'y'
+    call s:YankSource(a:positioning)
     let l:targetSelection = [getpos("'<"), getpos("'>")]
 
     call setpos("'<", l:originalSelection[0])
@@ -154,6 +161,33 @@ function! LineJuggler#IntraLine#Swap( direction, address, count, mapSuffix )
 endfunction
 function! LineJuggler#IntraLine#SwapRepeat( direction, count, mapSuffix )
     call s:Repeat('g`[1v', function('LineJuggler#VisualSwap'), a:direction, a:count, a:mapSuffix)
+endfunction
+
+function! LineJuggler#IntraLine#DoRepFetch( positioning )
+    let l:originalSelection = [getpos("'<"), getpos("'>")]
+    call s:YankSource(a:positioning)
+
+    " When the source line is shorter than the selection, we may have captured
+    " the newline, too.
+    let @" = substitute(@", '\n$', '', '')
+
+    call setpos("'<", l:originalSelection[0])
+    call setpos("'>", l:originalSelection[1])
+    silent keepjumps normal! gvp
+    call setpos("'>", l:originalSelection[1])   " With selection=exclusive, the paste moves the selection end one left.
+endfunction
+function! LineJuggler#IntraLine#RepFetch( direction, address, count, mapSuffix )
+    let l:address = LineJuggler#ClipAddress(a:address, a:direction, 1)
+    if l:address == -1 | return 0 | endif
+
+    let l:positioning = printf('%dG%d|', l:address, virtcol("'<"))
+    call ingo#register#KeepRegisterExecuteOrFunc(function('LineJuggler#IntraLine#DoRepFetch'), [l:positioning])
+
+    call s:RepeatSet('RepFetch', a:count, a:mapSuffix)
+    return 1
+endfunction
+function! LineJuggler#IntraLine#RepFetchRepeat( direction, count, mapSuffix )
+    call s:Repeat('1v', function('LineJuggler#VisualRepFetch'), a:direction, a:count, a:mapSuffix)
 endfunction
 
 let &cpo = s:save_cpo
