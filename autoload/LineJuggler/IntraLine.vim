@@ -9,16 +9,33 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
-"   1.30.004	30-Oct-2013	Move the repeated normal mode repeat logic here.
-"   1.30.003	29-Oct-2013	Extract generic s:Dup() and implement
+"   2.00.005	11-Nov-2013	Implement characterwise selection swap with [E,
+"				]E.
+"				Factor out intra-repeat into s:Repeat().
+"   2.00.004	30-Oct-2013	Move the repeated normal mode repeat logic here.
+"   2.00.003	29-Oct-2013	Extract generic s:Dup() and implement
 "				LineJuggler#IntraLine#DupRange() with it, too.
 "				Implement repeat of intra-line mappings.
-"   1.30.002	28-Oct-2013	Finish implementation of
+"   2.00.002	28-Oct-2013	Finish implementation of
 "				LineJuggler#IntraLine#Dup().
-"   1.30.001	27-Oct-2013	file creation
+"   2.00.001	27-Oct-2013	file creation
 let s:save_cpo = &cpo
 set cpo&vim
 
+function! s:Repeat( samePositionReselectCommand, Func, ... )
+    if foldclosed('.') != -1
+	execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
+	return
+    endif
+
+    let l:save_cursor = getpos('.')
+    execute 'normal!' (getpos('.') == getpos("']") ? a:samePositionReselectCommand : '1v') . (&selection ==# 'exclusive' ? 'l' : '') . "\<Esc>"
+    if ! call(a:Func, a:000)
+	" The correction for exclusive selection must be undone when no move was
+	" possible to keep the cursor in place.
+	call setpos('.', l:save_cursor)
+    endif
+endfunction
 function! s:RepeatSet( what, count, mapSuffix )
     " To repeat the intra-line mappings, we need special normal mode mappings
     " that first re-establish the previous visual selection.
@@ -71,21 +88,16 @@ function! s:Dup( direction, offset, repeat, count, mapSuffix )
     endtry
 
     call s:RepeatSet('Dup', a:count, a:mapSuffix)
+    return 1
 endfunction
 function! LineJuggler#IntraLine#Dup( direction, offset, mapSuffix )
-    call s:Dup(a:direction, a:offset, 0, a:offset, a:mapSuffix)
+    return s:Dup(a:direction, a:offset, 0, a:offset, a:mapSuffix)
 endfunction
 function! LineJuggler#IntraLine#DupRange( direction, repeat, mapSuffix )
-    call s:Dup(a:direction, 0, a:repeat, a:repeat, a:mapSuffix)
+    return s:Dup(a:direction, 0, a:repeat, a:repeat, a:mapSuffix)
 endfunction
 function! LineJuggler#IntraLine#DupRepeat( DupFunc, ... )
-    if foldclosed('.') != -1
-	execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
-	return
-    endif
-
-    execute 'normal!' (getpos('.') == getpos("']") ? 'gv' : '1v' . (&selection ==# 'exclusive' ? 'l' : '')) . "\<Esc>"
-    call call(a:DupFunc, a:000)
+    call call('s:Repeat', ['gv', a:DupFunc] + a:000)
 endfunction
 
 function! LineJuggler#IntraLine#Move( direction, address, count, mapSuffix )
@@ -105,18 +117,7 @@ function! LineJuggler#IntraLine#Move( direction, address, count, mapSuffix )
     return 1
 endfunction
 function! LineJuggler#IntraLine#MoveRepeat( direction, count, mapSuffix )
-    if foldclosed('.') != -1
-	execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
-	return
-    endif
-
-    let l:save_cursor = getpos('.')
-    execute 'normal!' (getpos('.') == getpos("']") ? 'g`[' : '') . '1v' . (&selection ==# 'exclusive' ? 'l' : '') . "\<Esc>"
-    if ! LineJuggler#VisualMove(a:direction, a:count, a:mapSuffix)
-	" The correction for exclusive selection must be undone when no move was
-	" possible to keep the cursor in place.
-	call setpos('.', l:save_cursor)
-    endif
+    call s:Repeat('g`[1v', function('LineJuggler#VisualMove'), a:direction, a:count, a:mapSuffix)
 endfunction
 
 function! LineJuggler#IntraLine#DoSwap( positioning )
@@ -152,18 +153,7 @@ function! LineJuggler#IntraLine#Swap( direction, address, count, mapSuffix )
     return 1
 endfunction
 function! LineJuggler#IntraLine#SwapRepeat( direction, count, mapSuffix )
-    if foldclosed('.') != -1
-	execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
-	return
-    endif
-
-    let l:save_cursor = getpos('.')
-    execute 'normal!' (getpos('.') == getpos("']") ? 'g`[' : '') . '1v' . (&selection ==# 'exclusive' ? 'l' : '') . "\<Esc>"
-    if ! LineJuggler#VisualSwap(a:direction, a:count, a:mapSuffix)
-	" The correction for exclusive selection must be undone when no move was
-	" possible to keep the cursor in place.
-	call setpos('.', l:save_cursor)
-    endif
+    call s:Repeat('g`[1v', function('LineJuggler#VisualSwap'), a:direction, a:count, a:mapSuffix)
 endfunction
 
 let &cpo = s:save_cpo
