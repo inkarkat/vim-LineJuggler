@@ -17,6 +17,8 @@
 " REVISION	DATE		REMARKS
 "   2.00.019	11-Nov-2013	Implement characterwise selection swap with [E,
 "				]E.
+"				Implement characterwise selection fetch and
+"				replace with [r, ]r.
 "   2.00.018	29-Oct-2013	Add dedicated LineJuggler#VisualDupRange() for
 "				the special visual intra-line handling for
 "				[D / ]D.
@@ -453,6 +455,11 @@ endfunction
 function! LineJuggler#VisualRepFetch( direction, count, mapSuffix )
     let l:visibleSelectedLineCnt = ingo#window#dimensions#NetVisibleLines(line("'<"), line("'>"))
     call s:VisualReselect()
+
+    if s:IsSingleLineCharacterwiseSelection()
+	let l:targetLnum = ingo#folds#RelativeWindowLine(line('.'), a:count, a:direction, -1 * a:direction)
+	return LineJuggler#IntraLine#RepFetch(a:direction, l:targetLnum, a:count, a:mapSuffix)
+    endif
 
     let l:targetStartLnum = LineJuggler#ClipAddress(
     \   ingo#folds#RelativeWindowLine(line('.'), a:count, a:direction, -1),
