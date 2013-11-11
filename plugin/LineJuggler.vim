@@ -10,11 +10,15 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
-"   1.30.014	30-Oct-2013	Implement normal-mode repeat behavior for
+"   2.00.015	11-Nov-2013	Implement characterwise selection swap with [E,
+"				]E.
+"				Implement characterwise selection fetch and
+"				replace with [r, ]r.
+"   2.00.014	30-Oct-2013	Implement normal-mode repeat behavior for
 "				intra-line dups at another line.
 "   			    	Move the repeated normal mode repeat logic to
 "   			    	the autoload script.
-"   1.30.013	29-Oct-2013	Add dedicated LineJuggler#VisualDupRange() for
+"   2.00.013	29-Oct-2013	Add dedicated LineJuggler#VisualDupRange() for
 "				the special visual intra-line handling for
 "				[D / ]D.
 "				Add special <Plug>(LineJugglerDupIntra...)
@@ -194,6 +198,15 @@ endif
 if ! hasmapto('<Plug>(LineJugglerSwapDown)', 'x')
     xmap ]E <Plug>(LineJugglerSwapDown)
 endif
+" When repeating from the same position as left by a previous mapping
+" invocation, re-use the same selection again, i.e. swap the same text further.
+" Elsewhere, swap a same-sized selection starting from the current position.
+" Don't repeat on a closed fold; just grabbing any invisible part from it is as
+" bad as suddenly turning this into a regular, full-line move.
+nnoremap <silent> <Plug>(LineJugglerSwapIntraUp)   :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
+\call LineJuggler#IntraLine#SwapRepeat(-1, v:count1, 'Up')<CR>
+nnoremap <silent> <Plug>(LineJugglerSwapIntraDown) :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
+\call LineJuggler#IntraLine#SwapRepeat( 1, v:count1, 'Down')<CR>
 
 
 
@@ -354,6 +367,14 @@ endif
 if ! hasmapto('<Plug>(LineJugglerRepFetchBelow)', 'x')
     xmap [r <Plug>(LineJugglerRepFetchBelow)
 endif
+" When repeating, replace a same-sized selection starting from the current
+" position.
+" Don't repeat on a closed fold; just grabbing any invisible part from it is as
+" bad as suddenly turning this into a regular, full-line move.
+nnoremap <silent> <Plug>(LineJugglerRepFetchIntraAbove) :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
+\call LineJuggler#IntraLine#RepFetchRepeat(-1, v:count1, 'Above')<CR>
+nnoremap <silent> <Plug>(LineJugglerRepFetchIntraBelow) :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
+\call LineJuggler#IntraLine#RepFetchRepeat( 1, v:count1, 'Below')<CR>
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
