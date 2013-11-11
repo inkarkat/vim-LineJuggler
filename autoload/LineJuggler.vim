@@ -15,6 +15,8 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   2.00.020	12-Nov-2013	Implement characterwise selection blank with
+"				[<Space>, ]<Space>.
 "   2.00.019	11-Nov-2013	Implement characterwise selection swap with [E,
 "				]E.
 "				Implement characterwise selection fetch and
@@ -182,6 +184,10 @@ function! LineJuggler#Blank( address, count, direction, mapSuffix )
 endfunction
 function! LineJuggler#VisualBlank( address, direction, count, mapSuffix )
     call s:VisualReselect()
+
+    if s:IsSingleLineCharacterwiseSelection()
+	return LineJuggler#IntraLine#Blank(a:direction, a:count, a:mapSuffix)
+    endif
 
     call LineJuggler#Blank(a:address, a:count, a:direction, a:mapSuffix)
 endfunction
