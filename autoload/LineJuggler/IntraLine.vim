@@ -11,6 +11,8 @@
 " REVISION	DATE		REMARKS
 "   2.00.005	11-Nov-2013	Implement characterwise selection swap with [E,
 "				]E.
+"				Implement characterwise selection fetch and
+"				replace with [r, ]r.
 "				Factor out intra-repeat into s:Repeat().
 "   2.00.004	30-Oct-2013	Move the repeated normal mode repeat logic here.
 "   2.00.003	29-Oct-2013	Extract generic s:Dup() and implement
@@ -120,16 +122,39 @@ function! LineJuggler#IntraLine#MoveRepeat( direction, count, mapSuffix )
     call s:Repeat('g`[1v', function('LineJuggler#VisualMove'), a:direction, a:count, a:mapSuffix)
 endfunction
 
-function! s:YankSource( positioning )
-    execute 'silent keepjumps normal!' a:positioning . 'zv1v'
-    if &selection ==# 'exclusive' && col('.') < col('$')
+function! s:RestoreOriginalSelection( originalSelection )
+    execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
+
+    call setpos("'<", a:originalSelection[0])
+    call setpos("'>", a:originalSelection[1])
+    call setpos('.', a:originalSelection[2])
+endfunction
+function! s:YankSource( address, originalSelection )
+    let @" = ''
+    let l:virtcol = virtcol("'<")
+    let l:positioning = printf('%dG%d|', a:address, l:virtcol)
+    execute 'silent keepjumps normal!' l:positioning . 'zv1v'
+    if virtcol('.') < l:virtcol
+	" Not enough text to make a selection.
+	call s:RestoreOriginalSelection(a:originalSelection)
+	return 0
+    elseif &selection ==# 'exclusive' && col('.') < col('$')
 	normal! l
     endif
     normal! y
+    if empty(@")
+	" Nothing yanked.
+	call s:RestoreOriginalSelection(a:originalSelection)
+	return 0
+    else
+	return 1
+    endif
 endfunction
-function! LineJuggler#IntraLine#DoSwap( positioning )
-    let l:originalSelection = [getpos("'<"), getpos("'>")]
-    call s:YankSource(a:positioning)
+function! LineJuggler#IntraLine#DoSwap( address )
+    let l:originalSelection = [getpos("'<"), getpos("'>"), getpos('.')]
+    if ! s:YankSource(a:address, l:originalSelection)
+	return
+    endif
     let l:targetSelection = [getpos("'<"), getpos("'>")]
 
     call setpos("'<", l:originalSelection[0])
@@ -147,11 +172,10 @@ function! LineJuggler#IntraLine#Swap( direction, address, count, mapSuffix )
     let l:address = LineJuggler#ClipAddress(a:address, a:direction, 1)
     if l:address == -1 | return 0 | endif
 
-    let l:positioning = printf('%dG%d|', l:address, virtcol("'<"))
     let l:save_virtualedit = &virtualedit
     set virtualedit=all
     try
-	call ingo#register#KeepRegisterExecuteOrFunc(function('LineJuggler#IntraLine#DoSwap'), [l:positioning])
+	call ingo#register#KeepRegisterExecuteOrFunc(function('LineJuggler#IntraLine#DoSwap'), [l:address])
     finally
 	let &virtualedit = l:save_virtualedit
     endtry
@@ -163,9 +187,11 @@ function! LineJuggler#IntraLine#SwapRepeat( direction, count, mapSuffix )
     call s:Repeat('g`[1v', function('LineJuggler#VisualSwap'), a:direction, a:count, a:mapSuffix)
 endfunction
 
-function! LineJuggler#IntraLine#DoRepFetch( positioning )
-    let l:originalSelection = [getpos("'<"), getpos("'>")]
-    call s:YankSource(a:positioning)
+function! LineJuggler#IntraLine#DoRepFetch( address )
+    let l:originalSelection = [getpos("'<"), getpos("'>"), getpos('.')]
+    if ! s:YankSource(a:address, l:originalSelection)
+	return
+    endif
 
     " When the source line is shorter than the selection, we may have captured
     " the newline, too.
@@ -181,7 +207,7 @@ function! LineJuggler#IntraLine#RepFetch( direction, address, count, mapSuffix )
     if l:address == -1 | return 0 | endif
 
     let l:positioning = printf('%dG%d|', l:address, virtcol("'<"))
-    call ingo#register#KeepRegisterExecuteOrFunc(function('LineJuggler#IntraLine#DoRepFetch'), [l:positioning])
+    call ingo#register#KeepRegisterExecuteOrFunc(function('LineJuggler#IntraLine#DoRepFetch'), [l:address])
 
     call s:RepeatSet('RepFetch', a:count, a:mapSuffix)
     return 1
