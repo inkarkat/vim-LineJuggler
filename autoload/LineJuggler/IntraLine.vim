@@ -9,6 +9,8 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   2.00.006	12-Nov-2013	Implement characterwise selection blank with
+"				[<Space>, ]<Space>.
 "   2.00.005	11-Nov-2013	Implement characterwise selection swap with [E,
 "				]E.
 "				Implement characterwise selection fetch and
@@ -46,6 +48,34 @@ function! s:RepeatSet( what, count, mapSuffix )
 endfunction
 function! s:IsInclusiveSelection()
     return (&selection !=# 'exclusive' || col("'>") == col('$') && &virtualedit !~# 'all\|onemore')
+endfunction
+
+function! LineJuggler#IntraLine#Blank( direction, count, mapSuffix )
+    let l:command = (a:direction == -1 ? 'g`<P' : 'g`>' . (&selection ==# 'exclusive' ? 'P' : 'p'))
+    let l:save_virtualedit = &virtualedit
+    set virtualedit=onemore
+    try
+	call ingo#register#KeepRegisterExecuteOrFunc(printf('let @" = repeat(" ", %d) | normal! %s', (a:count ? a:count : 1), l:command))
+    finally
+	let &virtualedit = l:save_virtualedit
+    endtry
+
+    call s:RepeatSet('Blank', a:count, a:mapSuffix)
+    return 1
+endfunction
+function! LineJuggler#IntraLine#BlankRepeat( direction, count, mapSuffix )
+    if foldclosed('.') != -1
+	execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
+	return
+    endif
+
+    " Don't clobber the existing visual selection; just add the blanks at the
+    " current cursor position.
+    let l:command = (a:direction == -1 ? 'P' : 'p')
+    call ingo#register#KeepRegisterExecuteOrFunc(printf('let @" = repeat(" ", %d) | normal! %s', (a:count ? a:count : 1), l:command))
+
+    call s:RepeatSet('Blank', a:count, a:mapSuffix)
+    return 1
 endfunction
 
 function! s:Dup( direction, offset, repeat, count, mapSuffix )
