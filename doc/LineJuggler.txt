@@ -46,9 +46,13 @@ USAGE							   *LineJuggler-usage*
 						       *[<Space>* *v_[<Space>*
 [<Space>                Add [count] blank lines above the current line / above
 			the start of the selection.
+			In a single-line |characterwise-visual| selection:
+			Add [count] spaces before the start of the selection.
 						       *]<Space>* *v_]<Space>*
 ]<Space>                Add [count] blank lines below the current line / below
 			the end of the selection.
+			In a single-line |characterwise-visual| selection:
+			Add [count] spaces after the end of the selection.
 
 								   *[e* *v_[e*
 [e                      Move the current line / selection [count] lines above.
@@ -192,6 +196,7 @@ HISTORY							 *LineJuggler-history*
 2.00	RELEASEME
 - ENH: Implement special DWIM behavior for duplication of characterwise
   single-line selection:
+  Add spaces before / after the selection ([<Space> / ]<Space>).
   Duplicate before / after the selection in the same line, either with [count]
   as character offset ([d / ]d) or repeat count ([D / ]D).
   Move only selection above / below ([e / ]e).
