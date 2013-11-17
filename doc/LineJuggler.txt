@@ -193,7 +193,7 @@ IDEAS							   *LineJuggler-ideas*
 ==============================================================================
 HISTORY							 *LineJuggler-history*
 
-2.00	RELEASEME
+2.00	14-Nov-2013
 - ENH: Implement special DWIM behavior for duplication of characterwise
   single-line selection:
   Add spaces before / after the selection ([<Space> / ]<Space>).
