@@ -11,6 +11,10 @@
 " REVISION	DATE		REMARKS
 "   2.00.006	12-Nov-2013	Implement characterwise selection blank with
 "				[<Space>, ]<Space>.
+"				FIX: Must not apply "l" correction for "gv".
+"				Factor out s:NeedSelectionCorrection() and split
+"				the command sequence in s:Repeat() into
+"				individual steps.
 "   2.00.005	11-Nov-2013	Implement characterwise selection swap with [E,
 "				]E.
 "				Implement characterwise selection fetch and
@@ -26,6 +30,9 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+function! s:NeedSelectionCorrection()
+    return (&selection ==# 'exclusive' && col('.') < col('$'))
+endfunction
 function! s:Repeat( samePositionReselectCommand, Func, ... )
     if foldclosed('.') != -1
 	execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
@@ -33,7 +40,13 @@ function! s:Repeat( samePositionReselectCommand, Func, ... )
     endif
 
     let l:save_cursor = getpos('.')
-    execute 'normal!' (getpos('.') == getpos("']") ? a:samePositionReselectCommand : '1v') . (&selection ==# 'exclusive' ? 'l' : '') . "\<Esc>"
+    let l:reselectCommand = (getpos('.') == getpos("']") ? a:samePositionReselectCommand : '1v')
+    execute 'normal!' l:reselectCommand
+    if l:reselectCommand =~# '1v$' && s:NeedSelectionCorrection()
+	normal! l
+    endif
+    execute "normal! \<Esc>"
+
     if ! call(a:Func, a:000)
 	" The correction for exclusive selection must be undone when no move was
 	" possible to keep the cursor in place.
@@ -168,7 +181,7 @@ function! s:YankSource( address, originalSelection )
 	" Not enough text to make a selection.
 	call s:RestoreOriginalSelection(a:originalSelection)
 	return 0
-    elseif &selection ==# 'exclusive' && col('.') < col('$')
+    elseif s:NeedSelectionCorrection()
 	normal! l
     endif
     normal! y
