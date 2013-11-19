@@ -1,6 +1,7 @@
 " LineJuggler/IntraLine.vim: Duplicate and move inside a single line.
 "
 " DEPENDENCIES:
+"   - ingo/compat.vim autoload script
 "   - ingo/register.vim autoload script
 "
 " Copyright: (C) 2013 Ingo Karkat
@@ -9,6 +10,9 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   2.01.008	20-Nov-2013	FIX: Intra-line ]r and ]E do not work in Vim
+"				versions before 7.3.590; need to use
+"				ingo#compat#setpos().
 "   2.01.007	18-Nov-2013	Adapt to changed
 "				ingo#register#KeepRegisterExecuteOrFunc() interface.
 "   2.00.006	12-Nov-2013	Implement characterwise selection blank with
@@ -170,8 +174,8 @@ endfunction
 function! s:RestoreOriginalSelection( originalSelection )
     execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
 
-    call setpos("'<", a:originalSelection[0])
-    call setpos("'>", a:originalSelection[1])
+    call ingo#compat#setpos("'<", a:originalSelection[0])
+    call ingo#compat#setpos("'>", a:originalSelection[1])
     call setpos('.', a:originalSelection[2])
 endfunction
 function! s:YankSource( address, originalSelection )
@@ -202,16 +206,16 @@ function! LineJuggler#IntraLine#DoSwap( address )
     endif
     let l:targetSelection = [getpos("'<"), getpos("'>")]
 
-    call setpos("'<", l:originalSelection[0])
-    call setpos("'>", l:originalSelection[1])
+    call ingo#compat#setpos("'<", l:originalSelection[0])
+    call ingo#compat#setpos("'>", l:originalSelection[1])
     silent keepjumps normal! gvp
 
-    call setpos("'<", l:targetSelection[0])
-    call setpos("'>", l:targetSelection[1])
+    call ingo#compat#setpos("'<", l:targetSelection[0])
+    call ingo#compat#setpos("'>", l:targetSelection[1])
     silent keepjumps normal! gvp
 
-    call setpos("'<", l:originalSelection[0])
-    call setpos("'>", l:originalSelection[1])
+    call ingo#compat#setpos("'<", l:originalSelection[0])
+    call ingo#compat#setpos("'>", l:originalSelection[1])
 endfunction
 function! LineJuggler#IntraLine#Swap( direction, address, count, mapSuffix )
     let l:address = LineJuggler#ClipAddress(a:address, a:direction, 1)
@@ -242,10 +246,10 @@ function! LineJuggler#IntraLine#DoRepFetch( address )
     " the newline, too.
     let @" = substitute(@", '\n$', '', '')
 
-    call setpos("'<", l:originalSelection[0])
-    call setpos("'>", l:originalSelection[1])
+    call ingo#compat#setpos("'<", l:originalSelection[0])
+    call ingo#compat#setpos("'>", l:originalSelection[1])
     silent keepjumps normal! gvp
-    call setpos("'>", l:originalSelection[1])   " With selection=exclusive, the paste moves the selection end one left.
+    call ingo#compat#setpos("'>", l:originalSelection[1])   " With selection=exclusive, the paste moves the selection end one left.
 endfunction
 function! LineJuggler#IntraLine#RepFetch( direction, address, count, mapSuffix )
     let l:address = LineJuggler#ClipAddress(a:address, a:direction, 1)
