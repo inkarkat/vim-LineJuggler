@@ -9,6 +9,8 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   2.01.007	18-Nov-2013	Adapt to changed
+"				ingo#register#KeepRegisterExecuteOrFunc() interface.
 "   2.00.006	12-Nov-2013	Implement characterwise selection blank with
 "				[<Space>, ]<Space>.
 "				FIX: Must not apply "l" correction for "gv".
@@ -218,7 +220,7 @@ function! LineJuggler#IntraLine#Swap( direction, address, count, mapSuffix )
     let l:save_virtualedit = &virtualedit
     set virtualedit=all
     try
-	call ingo#register#KeepRegisterExecuteOrFunc(function('LineJuggler#IntraLine#DoSwap'), [l:address])
+	call ingo#register#KeepRegisterExecuteOrFunc(function('LineJuggler#IntraLine#DoSwap'), l:address)
     finally
 	let &virtualedit = l:save_virtualedit
     endtry
@@ -250,7 +252,7 @@ function! LineJuggler#IntraLine#RepFetch( direction, address, count, mapSuffix )
     if l:address == -1 | return 0 | endif
 
     let l:positioning = printf('%dG%d|', l:address, virtcol("'<"))
-    call ingo#register#KeepRegisterExecuteOrFunc(function('LineJuggler#IntraLine#DoRepFetch'), [l:address])
+    call ingo#register#KeepRegisterExecuteOrFunc(function('LineJuggler#IntraLine#DoRepFetch'), l:address)
 
     call s:RepeatSet('RepFetch', a:count, a:mapSuffix)
     return 1
