@@ -165,7 +165,7 @@ To uninstall, use the |:RmVimball| command.
 DEPENDENCIES					    *LineJuggler-dependencies*
 
 - Requires Vim 7.0 or higher.
-- Requires the |ingo-library.vim| plugin (vimscript #4433), version 1.014 or
+- Requires the |ingo-library.vim| plugin (vimscript #4433), version 1.015 or
   higher.
 - repeat.vim (vimscript #2136) plugin (optional)
 - visualrepeat.vim (vimscript #3848) plugin (optional)
@@ -192,6 +192,15 @@ IDEAS							   *LineJuggler-ideas*
 
 ==============================================================================
 HISTORY							 *LineJuggler-history*
+
+2.01	RELEASEME
+- Adapt to changed ingo#register#KeepRegisterExecuteOrFunc() interface.
+- FIX: Intra-line ]r and ]E do not work in Vim versions before 7.3.590; need
+  to use ingo#compat#setpos().
+- XXX: Include workaround for wrong cursor position at the beginning, not the
+  end of an intra-line swap to the end of the line, starting with Vim 7.4.034.
+  *** You need to update to ingo-library (vimscript #4433) version 1.015! ***
+
 
 2.00	14-Nov-2013
 - ENH: Implement special DWIM behavior for duplication of characterwise
