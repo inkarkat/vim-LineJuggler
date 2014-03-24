@@ -193,7 +193,7 @@ IDEAS							   *LineJuggler-ideas*
 ==============================================================================
 HISTORY							 *LineJuggler-history*
 
-2.01	RELEASEME
+2.01	19-Dec-2013
 - Adapt to changed ingo#register#KeepRegisterExecuteOrFunc() interface.
 - FIX: Intra-line ]r and ]E do not work in Vim versions before 7.3.590; need
   to use ingo#compat#setpos().
