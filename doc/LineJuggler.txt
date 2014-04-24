@@ -30,6 +30,11 @@ SEE ALSO								     *
 - The swap functionality of the plugin's |[E| / |]E| mappings are also
   available as an Ex |:Swap| command, provided by the companion
   |LineJugglerCommands.vim| plugin (vimscript #4465).
+- http://vim.wikia.com/wiki/Quickly_adding_and_deleting_empty_lines has
+  a simple implementation of the |[<Space>| mapping; it also offers mappings
+  that delete blank empty lines above / below the current line / selection
+  without changing the current position; these can complement the mappings
+  provided by this plugin.
 
 RELATED WORKS								     *
 
@@ -253,7 +258,7 @@ Initial release.
 Started development.
 
 ==============================================================================
-Copyright: (C) 2012-2013 Ingo Karkat
+Copyright: (C) 2012-2014 Ingo Karkat
 The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>
