@@ -17,6 +17,8 @@
 " REVISION	DATE		REMARKS
 "   2.00.020	12-Nov-2013	Implement characterwise selection blank with
 "				[<Space>, ]<Space>.
+"				FIX: Don't use the (potentially adapted) fetch
+"				count for a visual mode repeat.
 "   2.00.019	11-Nov-2013	Implement characterwise selection swap with [E,
 "				]E.
 "				Implement characterwise selection fetch and
@@ -387,12 +389,13 @@ function! LineJuggler#DupFetch( count, direction, mapSuffix )
 	let l:address = LineJuggler#ClipAddress(ingo#folds#RelativeWindowLine(line('.'), a:count, -1), a:direction, 1)
 	if l:address == -1 | return | endif
 	let l:endAddress = LineJuggler#ClipAddress(ingo#folds#RelativeWindowLine(line('.'), a:count, -1, 1), a:direction, 1)
-	let l:count = a:count
+	" Note: To repeat with the following line, we need to increase the count by one less than the number of fetched lines, so usually nothing.
+	let l:count = a:count + (l:endAddress - l:address)
     else
 	let l:address = LineJuggler#ClipAddress(ingo#folds#RelativeWindowLine(line('.'), a:count, 1, -1), a:direction, 1)
 	if l:address == -1 | return | endif
 	let l:endAddress = LineJuggler#ClipAddress(ingo#folds#RelativeWindowLine(line('.'), a:count, 1), a:direction, 1)
-	" Note: To repeat with the following line, we need to increase v:count by one.
+	" Note: To repeat with the following line, we need to increase the count by one.
 	let l:count = a:count + 1
     endif
     call LineJuggler#DupToOffset(
@@ -401,6 +404,10 @@ function! LineJuggler#DupFetch( count, direction, mapSuffix )
     \   0, 1, l:count,
     \   a:mapSuffix
     \)
+
+    " Don't use the (potentially adapted) l:count for a visual mode repeat; the
+    " increase is meant for normal mode repeat only!
+    silent! call visualrepeat#set("\<Plug>(LineJuggler" . 'Dup' . a:mapSuffix . ')', a:count)
 endfunction
 function! LineJuggler#VisualDupFetch( direction, count, mapSuffix )
     let l:visibleSelectedLineCnt = ingo#window#dimensions#NetVisibleLines(line("'<"), line("'>"))
