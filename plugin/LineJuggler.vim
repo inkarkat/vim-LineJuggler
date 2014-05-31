@@ -10,6 +10,8 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   2.00.016	12-Nov-2013	Implement characterwise selection blank with
+"				[<Space>, ]<Space>.
 "   2.00.015	11-Nov-2013	Implement characterwise selection swap with [E,
 "				]E.
 "				Implement characterwise selection fetch and
@@ -119,6 +121,12 @@ endif
 if ! hasmapto('<Plug>(LineJugglerBlankDown)', 'x')
     xmap ]<Space> <Plug>(LineJugglerBlankDown)
 endif
+" When repeating, add the same-sized blank area from the current position.
+" Don't repeat on a closed fold.
+nnoremap <silent> <Plug>(LineJugglerBlankIntraUp)   :<C-u>call setline('.', getline('.'))<Bar>
+\call LineJuggler#IntraLine#BlankRepeat(-1, v:count1, 'Up')<CR>
+nnoremap <silent> <Plug>(LineJugglerBlankIntraDown) :<C-u>call setline('.', getline('.'))<Bar>
+\call LineJuggler#IntraLine#BlankRepeat( 1, v:count1, 'Down')<CR>
 
 
 
