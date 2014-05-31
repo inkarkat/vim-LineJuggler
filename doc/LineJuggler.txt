@@ -44,6 +44,10 @@ RELATED WORKS								     *
   doesn't offer customization of the mappings.
 - textmanip.vim (vimscript #3491) provides mappings to move and duplicate
   (selected / current) line(s).
+- upAndDown (vimscript #2586) provides mappings to move line(s) / selection up
+  or down.
+- move (vimscript #4687) also provides mappings to move lines / selection
+  around.
 
 ==============================================================================
 USAGE							   *LineJuggler-usage*
