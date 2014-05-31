@@ -9,7 +9,7 @@
 "   - repeat.vim (vimscript #2136) autoload script (optional)
 "   - visualrepeat.vim (vimscript #3848) autoload script (optional)
 "
-" Copyright: (C) 2012-2013 Ingo Karkat
+" Copyright: (C) 2012-2014 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -203,7 +203,7 @@ function! LineJuggler#Move( range, address, count, direction, mapSuffix )
 	    keepjumps call setpos("''", getpos('.'))
 		execute a:range . 'move' l:address
 	    execute line("'`")
-    catch /^Vim\%((\a\+)\)\=:E/
+    catch /^Vim\%((\a\+)\)\=:/
 	execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
 	call ingo#msg#VimExceptionMsg()
     finally
