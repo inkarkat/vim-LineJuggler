@@ -107,6 +107,8 @@ USAGE							   *LineJuggler-usage*
 			In a single-line |characterwise-visual| selection:
 			Duplicate after the selection (to [count] characters
 			after the end of the selection).
+[N][d{M}, [N]]d{M}	Duplicate {M} lines across [N] lines. A combination
+			of |[d| and |[D|.
 
 									  *[D*
 [D			Duplicate the current  / [count] lines to above the
@@ -121,6 +123,9 @@ USAGE							   *LineJuggler-usage*
 			selection.
 			In a single-line |characterwise-visual| selection:
 			Duplicate after the selection [count] times.
+[N][D{M}, [N]]D{M}	Duplicate [N] lines across {M} lines. A combination
+			of |[d| and |[D|. Equivalent to [N][d{M}, but with
+			reverse order of the numbers.
 
 									  *[f*
 [f			Fetch the line [count] visible lines below the current
@@ -182,6 +187,8 @@ DEPENDENCIES					    *LineJuggler-dependencies*
 ==============================================================================
 CONFIGURATION					   *LineJuggler-configuration*
 
+For a permanent configuration, put the following commands into your |vimrc|:
+							   *LineJuggler-remap*
 If you want to use different mappings, map your keys to the
 <Plug>(LineJuggler...) mapping targets _before_ sourcing the script (e.g. in
 your |vimrc|): >
@@ -189,7 +196,15 @@ your |vimrc|): >
     nmap <C-Down> <Plug>(LineJugglerBlankDown)
     vmap <C-Up>   <Plug>(LineJugglerBlankUp)
     vmap <C-Down> <Plug>(LineJugglerBlankDown)
-<
+    ...
+The |[d||[D| combination mappings are only defined for low values of {M}. For
+how many (and the default mapping keys) are configured via two variables: >
+    let g:LineJuggler_DupRangeOver= [9, '[%dD', ']%dD']
+    let g:LineJuggler_DupOverRange= [9, '[%dd', ']%dd']
+The first number specifies the upper limit of {M}; with 0, no combination
+mappings are defined. The second and third argument represent the mapping
+keys, with the {M} number inserted at the %d.
+
 ==============================================================================
 LIMITATIONS					     *LineJuggler-limitations*
 
@@ -201,6 +216,12 @@ IDEAS							   *LineJuggler-ideas*
 
 ==============================================================================
 HISTORY							 *LineJuggler-history*
+
+2.10	RELEASEME
+- ENH: Add combination mappings of ]d and ]D that can specify both a number of
+  lines and number of skipped lines (one limited to a small range of 1..9) to
+  handle the often-needed use case of duplicating a few lines with a little
+  offset, without having to go through visual mode and ]D.
 
 2.01	19-Dec-2013
 - Adapt to changed ingo#register#KeepRegisterExecuteOrFunc() interface.
