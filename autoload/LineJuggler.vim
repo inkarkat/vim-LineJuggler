@@ -15,6 +15,12 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   2.10.022	02-Jun-2014	Need to pass separate a:repeatCount to
+"				LineJuggler#DupRangeOver() to get correct repeat
+"				value for [N][d{M}.
+"   2.10.021	01-Jun-2014	Add LineJuggler#DupRangeOver(), a combination of
+"				LineJuggler#Dup() and LineJuggler#DupRange()
+"				that takes both line count and offset.
 "   2.00.020	12-Nov-2013	Implement characterwise selection blank with
 "				[<Space>, ]<Space>.
 "				FIX: Don't use the (potentially adapted) fetch
@@ -380,6 +386,27 @@ function! LineJuggler#VisualDupRange( insLnum, isUp, offset, count, mapSuffix )
     \   a:isUp,
     \   a:offset,
     \   a:count,
+    \   a:mapSuffix
+    \)
+endfunction
+
+function! LineJuggler#DupRangeOver( lineCount, skipCount, direction, mapSuffix, repeatCount )
+    let l:address = LineJuggler#FoldClosed()
+    let l:endAddress = LineJuggler#ClipAddress(ingo#folds#RelativeWindowLine(line('.'), a:lineCount - 1, 1), a:direction, 1)
+    if l:endAddress == -1 | return | endif
+
+    if a:direction == -1
+	let l:insLnum = LineJuggler#ClipAddress(ingo#folds#RelativeWindowLine(l:address, a:skipCount, a:direction, -1), a:direction, 1)
+	let l:isUp = 1
+    else
+	let l:insLnum = LineJuggler#ClipAddress(ingo#folds#RelativeWindowLine(l:endAddress, a:skipCount, a:direction, -1), a:direction, 1)
+	let l:isUp = 0
+    endif
+
+    call LineJuggler#DupToOffset(
+    \   l:insLnum,
+    \   getline(l:address, l:endAddress),
+    \   l:isUp, 1, a:repeatCount,
     \   a:mapSuffix
     \)
 endfunction
