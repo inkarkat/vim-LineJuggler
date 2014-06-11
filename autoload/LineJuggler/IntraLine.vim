@@ -13,6 +13,11 @@
 "   2.01.008	20-Nov-2013	FIX: Intra-line ]r and ]E do not work in Vim
 "				versions before 7.3.590; need to use
 "				ingo#compat#setpos().
+"				XXX: Include workaround for wrong cursor
+"				position at the beginning, not the end of an
+"				intra-line swap to the end of the line, starting
+"				with Vim 7.4.034. This was caught by test
+"				swapIntraRepeat003incl.vim.
 "   2.01.007	18-Nov-2013	Adapt to changed
 "				ingo#register#KeepRegisterExecuteOrFunc() interface.
 "   2.00.006	12-Nov-2013	Implement characterwise selection blank with
@@ -227,6 +232,12 @@ function! LineJuggler#IntraLine#Swap( direction, address, count, mapSuffix )
 	call ingo#register#KeepRegisterExecuteOrFunc(function('LineJuggler#IntraLine#DoSwap'), l:address)
     finally
 	let &virtualedit = l:save_virtualedit
+	if v:version == 704 && has('patch034') || v:version > 704
+	    " XXX: With 7.4.034, clearing the 'virtualedit' option when at the
+	    " end of the line somehow moves the cursor to the beginning of the
+	    " paste.
+	    call setpos('.', getpos("']"))
+	endif
     endtry
 
     call s:RepeatSet('Swap', a:count, a:mapSuffix)
