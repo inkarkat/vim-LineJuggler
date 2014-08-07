@@ -217,11 +217,13 @@ IDEAS							   *LineJuggler-ideas*
 ==============================================================================
 HISTORY							 *LineJuggler-history*
 
-2.10	RELEASEME
+2.10	11-Jun-2014
 - ENH: Add combination mappings of ]d and ]D that can specify both a number of
   lines and number of skipped lines (one limited to a small range of 1..9) to
   handle the often-needed use case of duplicating a few lines with a little
   offset, without having to go through visual mode and ]D.
+- Expose (most of) s:RepFetch() as LineJuggler#ReplaceRanges() for use with
+  the companion LineJugglerCommands.vim plugin.
 
 2.01	19-Dec-2013
 - Adapt to changed ingo#register#KeepRegisterExecuteOrFunc() interface.
