@@ -3,6 +3,6 @@
 
 set selection=inclusive
 
-execute '10normal wwve1[d'
+10normal wwve1[d
 
 call Quit(1)
