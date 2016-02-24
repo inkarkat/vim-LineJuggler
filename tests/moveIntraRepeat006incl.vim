@@ -1,4 +1,6 @@
-" Test normal mode repeat of moving characterwise selection over a closed fold.
+" Test normal mode repeat of moving characterwise selection from a closed fold.
+" Tests that nothing happens (except for a beep).
+" Tests that the cursor stays.
 
 set selection=inclusive
 
