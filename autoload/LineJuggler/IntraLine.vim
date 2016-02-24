@@ -2,9 +2,10 @@
 "
 " DEPENDENCIES:
 "   - ingo/compat.vim autoload script
+"   - ingo/option.vim autoload script
 "   - ingo/register.vim autoload script
 "
-" Copyright: (C) 2013 Ingo Karkat
+" Copyright: (C) 2013-2014 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -71,7 +72,7 @@ function! s:RepeatSet( what, count, mapSuffix )
     silent! call visualrepeat#set("\<Plug>(LineJuggler" . a:what           . a:mapSuffix . ')', a:count)
 endfunction
 function! s:IsInclusiveSelection()
-    return (&selection !=# 'exclusive' || col("'>") == col('$') && &virtualedit !~# 'all\|onemore')
+    return (&selection !=# 'exclusive' || col("'>") == col('$') && ! ingo#option#ContainsOneOf(&virtualedit, ['all', 'onemore']))
 endfunction
 
 function! LineJuggler#IntraLine#Blank( direction, count, mapSuffix )
