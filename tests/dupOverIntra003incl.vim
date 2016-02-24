@@ -2,6 +2,6 @@
 
 set selection=inclusive
 
-execute '10normal $viw]d'
+10normal $viw]d
 
 call Quit(1)
