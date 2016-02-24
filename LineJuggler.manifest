@@ -1,3 +1,4 @@
 autoload/LineJuggler.vim
+autoload/LineJuggler/IntraLine.vim
 plugin/LineJuggler.vim
 doc/LineJuggler.txt
