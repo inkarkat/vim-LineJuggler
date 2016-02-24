@@ -3,6 +3,6 @@
 
 set selection=exclusive
 
-execute '10normal wwve]d'
+10normal wwve]d
 
 call Quit(1)
