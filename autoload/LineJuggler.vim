@@ -10,12 +10,16 @@
 "   - repeat.vim (vimscript #2136) autoload script (optional)
 "   - visualrepeat.vim (vimscript #3848) autoload script (optional)
 "
-" Copyright: (C) 2012-2014 Ingo Karkat
+" Copyright: (C) 2012-2016 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   2.11.025	17-Oct-2016	]e / [e cause fold update / may close all folds
+"				(e.g. in HTML) (after Vim 7.4.700). Culprit is
+"				the :move command; temporarily disable folding
+"				during its execution to avoid that.
 "   2.11.024	08-Aug-2014	Move LineJuggler#FoldClosed() and
 "				LineJuggler#FoldClosedEnd() into ingo-library as
 "				ingo#range#NetStart() and ingo#range#NetEnd().
@@ -204,6 +208,8 @@ function! LineJuggler#Move( range, address, count, direction, mapSuffix )
     let l:address = LineJuggler#ClipAddress(a:address, a:direction, 0)
     if l:address == -1 | return | endif
 
+    let l:save_foldenable = &l:foldenable
+    setlocal nofoldenable
     try
 	let l:save_mark = getpos("''")
 	    keepjumps call setpos("''", getpos('.'))
@@ -214,6 +220,7 @@ function! LineJuggler#Move( range, address, count, direction, mapSuffix )
 	call ingo#msg#VimExceptionMsg()
     finally
 	keepjumps call setpos("''", l:save_mark)
+	let &l:foldenable = l:save_foldenable
 
 	call s:RepeatSet('Move', a:count, a:mapSuffix)
     endtry
