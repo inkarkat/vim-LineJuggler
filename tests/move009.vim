@@ -1,6 +1,5 @@
 " Test moving current folded line one up.
-" Tests that the line is not inserted on the adjacent line, but on the line next
-" to the fold.
+" Tests that all folded lines are moved, not just the current line.
 " Tests that the cursor stays relative to the fold and moves to column 1.
 
 execute '22normal znwzN[e'
