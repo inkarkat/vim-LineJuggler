@@ -5,12 +5,18 @@
 "   - ingo/folds.vim autoload script
 "   - ingo/range.vim autoload script
 "
-" Copyright: (C) 2012-2014 Ingo Karkat
+" Copyright: (C) 2012-2016 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   2.11.019	07-Nov-2016	]e / [e cause fold update / may close all folds
+"				(e.g. in HTML) (after Vim 7.4.700). Culprit is
+"				the :move command; temporarily disable folding
+"				during its execution to avoid that, and instead
+"				pass the entire (folded) range to
+"				LineJuggler#Move().
 "   2.11.018	08-Aug-2014	Move LineJuggler#FoldClosed() and
 "				LineJuggler#FoldClosedEnd() into ingo-library as
 "				ingo#range#NetStart() and ingo#range#NetEnd().
@@ -152,7 +158,7 @@ nnoremap <silent> <Plug>(LineJugglerBlankIntraDown) :<C-u>call setline('.', getl
 
 nnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
 \call LineJuggler#Move(
-\   ingo#range#NetStart(),
+\   ingo#range#NetStart() . ',' . ingo#range#NetEnd(),
 \   ingo#folds#RelativeWindowLine(line('.'), v:count1, -1) - 1,
 \   v:count1,
 \   -1,
@@ -160,7 +166,7 @@ nnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-u>if !&ma<Bar><Bar>&ro<Bar>cal
 \)<CR>
 nnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
 \call LineJuggler#Move(
-\   ingo#range#NetEnd(),
+\   ingo#range#NetStart() . ',' . ingo#range#NetEnd(),
 \   ingo#folds#RelativeWindowLine(line('.'), v:count1,  1),
 \   v:count1,
 \   1,
