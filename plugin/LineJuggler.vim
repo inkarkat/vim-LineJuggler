@@ -3,6 +3,7 @@
 " DEPENDENCIES:
 "   - LineJuggler.vim autoload script
 "   - ingo/folds.vim autoload script
+"   - ingo/range.vim autoload script
 "
 " Copyright: (C) 2012-2014 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
@@ -10,6 +11,9 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   2.11.018	08-Aug-2014	Move LineJuggler#FoldClosed() and
+"				LineJuggler#FoldClosedEnd() into ingo-library as
+"				ingo#range#NetStart() and ingo#range#NetEnd().
 "   2.10.017	02-Jun-2014	ENH: Add combination mappings of ]d and ]D that
 "				can specify both a number of lines and a number
 "				of skipped lines (one limited to a small range
@@ -148,7 +152,7 @@ nnoremap <silent> <Plug>(LineJugglerBlankIntraDown) :<C-u>call setline('.', getl
 
 nnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
 \call LineJuggler#Move(
-\   LineJuggler#FoldClosed(),
+\   ingo#range#NetStart(),
 \   ingo#folds#RelativeWindowLine(line('.'), v:count1, -1) - 1,
 \   v:count1,
 \   -1,
@@ -156,7 +160,7 @@ nnoremap <silent> <Plug>(LineJugglerMoveUp)   :<C-u>if !&ma<Bar><Bar>&ro<Bar>cal
 \)<CR>
 nnoremap <silent> <Plug>(LineJugglerMoveDown) :<C-u>if !&ma<Bar><Bar>&ro<Bar>call setline('.', getline('.'))<Bar>endif<Bar>
 \call LineJuggler#Move(
-\   LineJuggler#FoldClosedEnd(),
+\   ingo#range#NetEnd(),
 \   ingo#folds#RelativeWindowLine(line('.'), v:count1,  1),
 \   v:count1,
 \   1,
@@ -192,7 +196,7 @@ nnoremap <silent> <Plug>(LineJugglerMoveIntraDown) :<C-u>if !&ma<Bar><Bar>&ro<Ba
 
 nnoremap <silent> <Plug>(LineJugglerSwapUp)   :<C-u>call setline('.', getline('.'))<Bar>
 \call LineJuggler#Swap(
-\   LineJuggler#FoldClosed(), LineJuggler#FoldClosedEnd(),
+\   ingo#range#NetStart(), ingo#range#NetEnd(),
 \   ingo#folds#RelativeWindowLine(line('.'), v:count1, -1),
 \   v:count1,
 \   -1,
@@ -200,7 +204,7 @@ nnoremap <silent> <Plug>(LineJugglerSwapUp)   :<C-u>call setline('.', getline('.
 \)<CR>
 nnoremap <silent> <Plug>(LineJugglerSwapDown)   :<C-u>call setline('.', getline('.'))<Bar>
 \call LineJuggler#Swap(
-\   LineJuggler#FoldClosed(), LineJuggler#FoldClosedEnd(),
+\   ingo#range#NetStart(), ingo#range#NetEnd(),
 \   ingo#folds#RelativeWindowLine(line('.'), v:count1,  1),
 \   v:count1,
 \   1,
