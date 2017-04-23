@@ -218,6 +218,9 @@ IDEAS							   *LineJuggler-ideas*
 HISTORY							 *LineJuggler-history*
 
 2.11	RELEASEME
+- ]e / [e cause fold update / may close all folds (e.g. in HTML) (after Vim
+  7.4.700). Culprit is the :move command; temporarily disable folding during
+  its execution to avoid that.
 - Move LineJuggler#FoldClosed() and LineJuggler#FoldClosedEnd() into
   ingo-library as ingo#range#NetStart() and ingo#range#NetEnd().
   *** You need to update to ingo-library (vimscript #4433) version 1.022! ***
@@ -290,7 +293,7 @@ Initial release.
 Started development.
 
 ==============================================================================
-Copyright: (C) 2012-2014 Ingo Karkat
+Copyright: (C) 2012-2016 Ingo Karkat
 The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>
