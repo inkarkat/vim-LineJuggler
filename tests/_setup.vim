@@ -4,7 +4,7 @@ endif
 
 runtime plugin/LineJuggler.vim
 
-function! Quit( ... )
+function! Mark( ... )
     if a:0 && a:1
 	normal! my
 	normal! g`]mzg`[r[g`zr]
@@ -12,6 +12,9 @@ function! Quit( ... )
 	normal! g`y
     endif
     normal! r*
+endfunction
+function! Quit( ... )
+    call call('Mark', a:000)
     call vimtest#SaveOut()
     call vimtest#Quit()
 endfunction
