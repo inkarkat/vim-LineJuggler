@@ -19,7 +19,9 @@
 "   2.11.025	17-Oct-2016	]e / [e cause fold update / may close all folds
 "				(e.g. in HTML) (after Vim 7.4.700). Culprit is
 "				the :move command; temporarily disable folding
-"				during its execution to avoid that.
+"				during its execution to avoid that, and instead
+"				pass the entire (folded) range to
+"				LineJuggler#Move().
 "   2.11.024	08-Aug-2014	Move LineJuggler#FoldClosed() and
 "				LineJuggler#FoldClosedEnd() into ingo-library as
 "				ingo#range#NetStart() and ingo#range#NetEnd().
