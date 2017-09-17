@@ -10,12 +10,15 @@
 "   - repeat.vim (vimscript #2136) autoload script (optional)
 "   - visualrepeat.vim (vimscript #3848) autoload script (optional)
 "
-" Copyright: (C) 2012-2016 Ingo Karkat
+" Copyright: (C) 2012-2017 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   2.11.026	18-Sep-2017	Refactoring: Extract
+"				LineJuggler#InsertBlankLine() for reuse by
+"				LineJugglerCommands.vim.
 "   2.11.025	17-Oct-2016	]e / [e cause fold update / may close all folds
 "				(e.g. in HTML) (after Vim 7.4.700). Culprit is
 "				the :move command; temporarily disable folding
@@ -188,10 +191,12 @@ function! LineJuggler#ClipAddress( address, direction, firstLineDefault, ... )
 endfunction
 
 
-
+function! LineJuggler#InsertBlankLine( address, count, direction )
+    call ingo#lines#PutWrapper(a:address, 'put' . (a:direction == -1 ? '!' : ''), repeat(nr2char(10), a:count))
+endfunction
 function! LineJuggler#Blank( address, count, direction, mapSuffix )
     let l:original_lnum = line('.')
-	call ingo#lines#PutWrapper(a:address, 'put' . (a:direction == -1 ? '!' : ''), repeat(nr2char(10), a:count))
+	call LineJuggler#InsertBlankLine(a:address, a:count, a:direction)
     execute (l:original_lnum + (a:direction == -1 ? a:count : 0))
 
     call s:RepeatSet('Blank', a:count, a:mapSuffix)
