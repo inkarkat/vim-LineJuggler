@@ -2,6 +2,8 @@ if ! vimtest#features#SupportsNormalWithCount()
     call vimtest#BailOut('All mappings of LineJuggler need support for :normal with count')
 endif
 
+call vimtest#AddDependency('vim-ingo-library')
+
 runtime plugin/LineJuggler.vim
 
 function! Mark( ... )
