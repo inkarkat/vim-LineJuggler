@@ -3,6 +3,9 @@ if ! vimtest#features#SupportsNormalWithCount()
 endif
 
 call vimtest#AddDependency('vim-ingo-library')
+if g:runVimTest =~# 'Repeat'
+    call vimtest#AddDependency('vim-repeat')
+endif
 
 runtime plugin/LineJuggler.vim
 
