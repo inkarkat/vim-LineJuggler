@@ -5,40 +5,10 @@
 "   - ingo/option.vim autoload script
 "   - ingo/register.vim autoload script
 "
-" Copyright: (C) 2013-2014 Ingo Karkat
+" Copyright: (C) 2013-2018 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
-"
-" REVISION	DATE		REMARKS
-"   2.01.008	20-Nov-2013	FIX: Intra-line ]r and ]E do not work in Vim
-"				versions before 7.3.590; need to use
-"				ingo#compat#setpos().
-"				XXX: Include workaround for wrong cursor
-"				position at the beginning, not the end of an
-"				intra-line swap to the end of the line, starting
-"				with Vim 7.4.034. This was caught by test
-"				swapIntraRepeat003incl.vim.
-"   2.01.007	18-Nov-2013	Adapt to changed
-"				ingo#register#KeepRegisterExecuteOrFunc() interface.
-"   2.00.006	12-Nov-2013	Implement characterwise selection blank with
-"				[<Space>, ]<Space>.
-"				FIX: Must not apply "l" correction for "gv".
-"				Factor out s:NeedSelectionCorrection() and split
-"				the command sequence in s:Repeat() into
-"				individual steps.
-"   2.00.005	11-Nov-2013	Implement characterwise selection swap with [E,
-"				]E.
-"				Implement characterwise selection fetch and
-"				replace with [r, ]r.
-"				Factor out intra-repeat into s:Repeat().
-"   2.00.004	30-Oct-2013	Move the repeated normal mode repeat logic here.
-"   2.00.003	29-Oct-2013	Extract generic s:Dup() and implement
-"				LineJuggler#IntraLine#DupRange() with it, too.
-"				Implement repeat of intra-line mappings.
-"   2.00.002	28-Oct-2013	Finish implementation of
-"				LineJuggler#IntraLine#Dup().
-"   2.00.001	27-Oct-2013	file creation
 let s:save_cpo = &cpo
 set cpo&vim
 
