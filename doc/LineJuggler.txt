@@ -229,7 +229,7 @@ https://github.com/inkarkat/vim-LineJuggler/issues or email (address below).
 ==============================================================================
 HISTORY							 *LineJuggler-history*
 
-2.11	RELEASEME
+2.11	04-Nov-2018
 - ]e / [e cause fold update / may close all folds (e.g. in HTML) (after Vim
   7.4.700). Culprit is the :move command; temporarily disable folding during
   its execution to avoid that.
