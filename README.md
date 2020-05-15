@@ -1,4 +1,4 @@
-LINE JUGGLER   
+LINE JUGGLER
 ===============================================================================
 _by Ingo Karkat_
 
@@ -22,14 +22,14 @@ responsibly ;-)
   available as an Ex :Swap command, provided by the companion
   LineJugglerCommands.vim plugin ([vimscript #4465](http://www.vim.org/scripts/script.php?script_id=4465)).
 - http://vim.wikia.com/wiki/Quickly_adding_and_deleting_empty_lines has
-  a simple implementation of the [<Space> mapping; it also offers mappings
+  a simple implementation of the [&lt;Space&gt; mapping; it also offers mappings
   that delete blank empty lines above / below the current line / selection
   without changing the current position; these can complement the mappings
   provided by this plugin.
 
 ### RELATED WORKS
 
-- Idea, design and implementation of the [<Space> and [e mappings are based on
+- Idea, design and implementation of the [&lt;Space&gt; and [e mappings are based on
   Tim Pope's unimpaired.vim plugin ([vimscript #1590](http://www.vim.org/scripts/script.php?script_id=1590)). In addition, unimpaired
   provides other, unrelated functionality (all via [... / ]... mappings), but
   doesn't offer customization of the mappings.
@@ -184,7 +184,7 @@ CONFIGURATION
 For a permanent configuration, put the following commands into your vimrc:
 
 If you want to use different mappings, map your keys to the
-<Plug>(LineJuggler...) mapping targets _before_ sourcing the script (e.g. in
+&lt;Plug&gt;(LineJuggler...) mapping targets _before_ sourcing the script (e.g. in
 your vimrc):
 
     nmap <C-Up>   <Plug>(LineJugglerBlankUp)
@@ -212,13 +212,19 @@ https://github.com/inkarkat/vim-LineJuggler/issues or email (address below).
 HISTORY
 ------------------------------------------------------------------------------
 
+##### 2.12    RELEASEME
+- BUG: Exchange via [E sometimes loses lines when folding happens in between
+  the two range swaps. Temporarily disable folding during the second
+  replacement. Thanks to Ilya Tumaykin for reporting this.
+
 ##### 2.11    04-Nov-2018
 - ]e / [e cause fold update / may close all folds (e.g. in HTML) (after Vim
   7.4.700). Culprit is the :move command; temporarily disable folding during
   its execution to avoid that.
 - Move LineJuggler#FoldClosed() and LineJuggler#FoldClosedEnd() into
   ingo-library as ingo#range#NetStart() and ingo#range#NetEnd().
-  __You need to update to ingo-library ([vimscript #4433](http://www.vim.org/scripts/script.php?script_id=4433)) version 1.022!__
+
+__You need to update to ingo-library ([vimscript #4433](http://www.vim.org/scripts/script.php?script_id=4433)) version 1.022!__
 
 ##### 2.10    11-Jun-2014
 - ENH: Add combination mappings of ]d and ]D that can specify both a number of
@@ -234,23 +240,27 @@ HISTORY
   to use ingo#compat#setpos().
 - XXX: Include workaround for wrong cursor position at the beginning, not the
   end of an intra-line swap to the end of the line, starting with Vim 7.4.034.
-  __You need to update to ingo-library ([vimscript #4433](http://www.vim.org/scripts/script.php?script_id=4433)) version 1.015!__
+
+__You need to update to ingo-library ([vimscript #4433](http://www.vim.org/scripts/script.php?script_id=4433)) version 1.015!__
 
 ##### 2.00    14-Nov-2013
 - ENH: Implement special DWIM behavior for duplication of characterwise
   single-line selection:
-  Add spaces before / after the selection ([<Space> / ]<Space>).
+  Add spaces before / after the selection ([&lt;Space&gt; / ]&lt;Space&gt;).
   Duplicate before / after the selection in the same line, either with [count]
   as character offset ([d / ]d) or repeat count ([D / ]D).
   Move only selection above / below ([e / ]e).
   Exchange only selection above / below ([E / ]E).
   Replace selection with text from above / below (]r / [r).
-  __You need to update to ingo-library ([vimscript #4433](http://www.vim.org/scripts/script.php?script_id=4433)) version 1.014!__
+
+__You need to update to ingo-library ([vimscript #4433](http://www.vim.org/scripts/script.php?script_id=4433)) version 1.014!__
 
 ##### 1.23    26-Oct-2013
 - Add message "N lines swapped with M lines" on [E / ]E.
 - Add message "Replaced N lines" for [r / ]r.
-- Add dependency to ingo-library ([vimscript #4433](http://www.vim.org/scripts/script.php?script_id=4433)). __You need to separately
+- Add dependency to ingo-library ([vimscript #4433](http://www.vim.org/scripts/script.php?script_id=4433)).
+
+__You need to separately
   install ingo-library ([vimscript #4433](http://www.vim.org/scripts/script.php?script_id=4433)) version 1.004 (or higher)!__
 
 ##### 1.22    08-Mar-2013
@@ -287,7 +297,7 @@ b) [r to fetch and replace current line / selection.
 - Started development.
 
 ------------------------------------------------------------------------------
-Copyright: (C) 2012-2018 Ingo Karkat -
+Copyright: (C) 2012-2020 Ingo Karkat -
 The [VIM LICENSE](http://vimdoc.sourceforge.net/htmldoc/uganda.html#license) applies to this plugin.
 
-Maintainer:     Ingo Karkat <ingo@karkat.de>
+Maintainer:     Ingo Karkat &lt;ingo@karkat.de&gt;

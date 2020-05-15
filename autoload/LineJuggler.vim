@@ -10,7 +10,7 @@
 "   - repeat.vim (vimscript #2136) autoload script (optional)
 "   - visualrepeat.vim (vimscript #3848) autoload script (optional)
 "
-" Copyright: (C) 2012-2018 Ingo Karkat
+" Copyright: (C) 2012-2020 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -127,7 +127,16 @@ function! LineJuggler#SwapRanges( sourceStartLnum, sourceEndLnum, targetStartLnu
     call ingo#lines#Replace(a:sourceStartLnum, a:sourceEndLnum, l:targetLines)
 
     let l:offset = (a:sourceEndLnum <= a:targetStartLnum ? len(l:targetLines) - len(l:sourceLines) : 0)
-    call ingo#lines#Replace(a:targetStartLnum + l:offset, a:targetEndLnum + l:offset, l:sourceLines)
+    " Replacing the first range may have affected folding; as the second range
+    " already represents effective lines, we can simply disable folding during
+    " replacement of the second range.
+    let l:save_foldenable = &l:foldenable
+    setlocal nofoldenable
+    try
+	call ingo#lines#Replace(a:targetStartLnum + l:offset, a:targetEndLnum + l:offset, l:sourceLines)
+    finally
+	let &l:foldenable = l:save_foldenable
+    endtry
 
     let l:sourceLineNum = a:sourceEndLnum - a:sourceStartLnum + 1
     let l:targetLineNum = a:targetEndLnum - a:targetStartLnum + 1
