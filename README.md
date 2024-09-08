@@ -48,11 +48,15 @@ USAGE
                             the start of the selection.
                             In a single-line characterwise-visual selection:
                             Add [count] spaces before the start of the selection.
+    "x[<Space>              Prepend [count] blank lines to the contents in
+                            register x. Does not work for the default register.
 
     ]<Space>                Add [count] blank lines below the current line / below
                             the end of the selection.
                             In a single-line characterwise-visual selection:
                             Add [count] spaces after the end of the selection.
+    "x]<Space>              Append [count] blank lines to the contents in
+                            register x. Does not work for the default register.
 
     [e                      Move the current line / selection [count] lines above.
 
@@ -216,6 +220,8 @@ HISTORY
 - BUG: Exchange via [E sometimes loses lines when folding happens in between
   the two range swaps. Temporarily disable folding during the second
   replacement. Thanks to Ilya Tumaykin for reporting this.
+- ENH: Overload [&lt;Space&gt; and ]&lt;Space&gt; to prepend / append blank line(s) to the
+  given non-default register.
 
 ##### 2.11    04-Nov-2018
 - ]e / [e cause fold update / may close all folds (e.g. in HTML) (after Vim
@@ -297,7 +303,7 @@ b) [r to fetch and replace current line / selection.
 - Started development.
 
 ------------------------------------------------------------------------------
-Copyright: (C) 2012-2020 Ingo Karkat -
+Copyright: (C) 2012-2024 Ingo Karkat -
 The [VIM LICENSE](http://vimdoc.sourceforge.net/htmldoc/uganda.html#license) applies to this plugin.
 
 Maintainer:     Ingo Karkat &lt;ingo@karkat.de&gt;
