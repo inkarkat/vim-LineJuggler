@@ -216,7 +216,7 @@ https://github.com/inkarkat/vim-LineJuggler/issues or email (address below).
 HISTORY
 ------------------------------------------------------------------------------
 
-##### 2.12    RELEASEME
+##### 2.12    10-Nov-2024
 - BUG: Exchange via [E sometimes loses lines when folding happens in between
   the two range swaps. Temporarily disable folding during the second
   replacement. Thanks to Ilya Tumaykin for reporting this.
