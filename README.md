@@ -222,6 +222,8 @@ HISTORY
   replacement. Thanks to Ilya Tumaykin for reporting this.
 - ENH: Overload [&lt;Space&gt; and ]&lt;Space&gt; to prepend / append blank line(s) to the
   given non-default register.
+- Adapt: Compatibility: Adding one character to previous exclusive selection
+  not needed since Vim 9.0.1172
 
 ##### 2.11    04-Nov-2018
 - ]e / [e cause fold update / may close all folds (e.g. in HTML) (after Vim
