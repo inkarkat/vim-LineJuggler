@@ -5,6 +5,7 @@ endif
 call vimtest#AddDependency('vim-ingo-library')
 if g:runVimTest =~# 'Repeat'
     call vimtest#AddDependency('vim-repeat')
+    call vimtest#AddDependency('vim-visualrepeat')
 endif
 
 runtime plugin/LineJuggler.vim

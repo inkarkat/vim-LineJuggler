@@ -5,7 +5,7 @@
 "   - ingo/option.vim autoload script
 "   - ingo/register.vim autoload script
 "
-" Copyright: (C) 2013-2018 Ingo Karkat
+" Copyright: (C) 2013-2024 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -13,7 +13,10 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 function! s:NeedSelectionCorrection()
-    return (&selection ==# 'exclusive' && col('.') < col('$'))
+    return (&selection ==# 'exclusive'
+    \   && (v:version < 900 || v:version == 900 && ! has('patch1172'))
+    \   && col('.') < col('$')
+    \)
 endfunction
 function! s:Repeat( samePositionReselectCommand, Func, ... )
     if foldclosed('.') != -1

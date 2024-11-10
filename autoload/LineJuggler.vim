@@ -10,7 +10,7 @@
 "   - repeat.vim (vimscript #2136) autoload script (optional)
 "   - visualrepeat.vim (vimscript #3848) autoload script (optional)
 "
-" Copyright: (C) 2012-2018 Ingo Karkat
+" Copyright: (C) 2012-2024 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -59,21 +59,30 @@ endfunction
 function! LineJuggler#InsertBlankLine( address, count, direction )
     call ingo#lines#PutWrapper(a:address, 'put' . (a:direction == -1 ? '!' : ''), repeat(nr2char(10), a:count))
 endfunction
-function! LineJuggler#Blank( address, count, direction, mapSuffix )
+function! LineJuggler#Blank( address, count, direction, register, mapSuffix )
+    if a:register !=# ingo#register#Default() && ingo#register#IsWritable(a:register)
+	if a:direction == -1
+	    call setreg(a:register, repeat("\n", a:count) . getreg(a:register), '')
+	else
+	    call setreg(a:register, repeat("\n", a:count), 'a')
+	endif
+	return 0
+    endif
+
     let l:original_lnum = line('.')
 	call LineJuggler#InsertBlankLine(a:address, a:count, a:direction)
     execute (l:original_lnum + (a:direction == -1 ? a:count : 0))
 
     call s:RepeatSet('Blank', a:count, a:mapSuffix)
 endfunction
-function! LineJuggler#VisualBlank( address, direction, count, mapSuffix )
+function! LineJuggler#VisualBlank( address, direction, count, register, mapSuffix )
     call s:VisualReselect()
 
     if s:IsSingleLineCharacterwiseSelection()
 	return LineJuggler#IntraLine#Blank(a:direction, a:count, a:mapSuffix)
     endif
 
-    call LineJuggler#Blank(a:address, a:count, a:direction, a:mapSuffix)
+    call LineJuggler#Blank(a:address, a:count, a:direction, a:register, a:mapSuffix)
 endfunction
 
 function! LineJuggler#Move( range, address, count, direction, mapSuffix )
@@ -127,7 +136,16 @@ function! LineJuggler#SwapRanges( sourceStartLnum, sourceEndLnum, targetStartLnu
     call ingo#lines#Replace(a:sourceStartLnum, a:sourceEndLnum, l:targetLines)
 
     let l:offset = (a:sourceEndLnum <= a:targetStartLnum ? len(l:targetLines) - len(l:sourceLines) : 0)
-    call ingo#lines#Replace(a:targetStartLnum + l:offset, a:targetEndLnum + l:offset, l:sourceLines)
+    " Replacing the first range may have affected folding; as the second range
+    " already represents effective lines, we can simply disable folding during
+    " replacement of the second range.
+    let l:save_foldenable = &l:foldenable
+    setlocal nofoldenable
+    try
+	call ingo#lines#Replace(a:targetStartLnum + l:offset, a:targetEndLnum + l:offset, l:sourceLines)
+    finally
+	let &l:foldenable = l:save_foldenable
+    endtry
 
     let l:sourceLineNum = a:sourceEndLnum - a:sourceStartLnum + 1
     let l:targetLineNum = a:targetEndLnum - a:targetStartLnum + 1
