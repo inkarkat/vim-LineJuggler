@@ -1,36 +1,25 @@
 " LineJuggler/IntraLine.vim: Duplicate and move inside a single line.
 "
 " DEPENDENCIES:
-"   - ingo/compat.vim autoload script
-"   - ingo/option.vim autoload script
-"   - ingo/register.vim autoload script
+"   - ingo-library.vim plugin
+"   - repeat.vim (vimscript #2136) plugin (optional)
+"   - visualrepeat.vim (vimscript #3848) plugin (optional)
 "
-" Copyright: (C) 2013-2024 Ingo Karkat
+" Copyright: (C) 2013-2026 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! s:NeedSelectionCorrection()
-    return (&selection ==# 'exclusive'
-    \   && (v:version < 900 || v:version == 900 && ! has('patch1172'))
-    \   && col('.') < col('$')
-    \)
-endfunction
-function! s:Repeat( samePositionReselectCommand, Func, ... )
+function! s:Repeat( samePositionReselectPrefix, Func, ... )
     if foldclosed('.') != -1
 	execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
 	return
     endif
 
     let l:save_cursor = getpos('.')
-    let l:reselectCommand = (getpos('.') == getpos("']") ? a:samePositionReselectCommand : '1v')
-    execute 'normal!' l:reselectCommand
-    if l:reselectCommand =~# '1v$' && s:NeedSelectionCorrection()
-	normal! l
-    endif
-    execute "normal! \<Esc>"
+    call ingo#selection#VisualReselect({'prefix': (getpos('.') == getpos("']") ? a:samePositionReselectPrefix : ''), 'suffix': "\<Esc>"})
 
     if ! call(a:Func, a:000)
 	" The correction for exclusive selection must be undone when no move was
@@ -147,7 +136,7 @@ function! LineJuggler#IntraLine#Move( direction, address, count, mapSuffix )
     return 1
 endfunction
 function! LineJuggler#IntraLine#MoveRepeat( direction, count, mapSuffix )
-    call s:Repeat('g`[1v', function('LineJuggler#VisualMove'), a:direction, a:count, a:mapSuffix)
+    call s:Repeat('g`[', function('LineJuggler#VisualMove'), a:direction, a:count, a:mapSuffix)
 endfunction
 
 function! s:RestoreOriginalSelection( originalSelection )
@@ -161,22 +150,21 @@ function! s:YankSource( address, originalSelection )
     let @" = ''
     let l:virtcol = virtcol("'<")
     let l:positioning = printf('%dG%d|', a:address, l:virtcol)
-    execute 'silent keepjumps normal!' l:positioning . 'zv1v'
+    call ingo#selection#VisualReselect({'prefixCommands': 'silent keepjumps', 'prefix': l:positioning . 'zv'})
     if virtcol('.') < l:virtcol
 	" Not enough text to make a selection.
 	call s:RestoreOriginalSelection(a:originalSelection)
 	return 0
-    elseif s:NeedSelectionCorrection()
-	normal! l
     endif
+
     normal! y
     if empty(@")
 	" Nothing yanked.
 	call s:RestoreOriginalSelection(a:originalSelection)
 	return 0
-    else
-	return 1
     endif
+
+    return 1
 endfunction
 function! LineJuggler#IntraLine#DoSwap( address )
     let l:originalSelection = [getpos("'<"), getpos("'>"), getpos('.')]
@@ -218,7 +206,7 @@ function! LineJuggler#IntraLine#Swap( direction, address, count, mapSuffix )
     return 1
 endfunction
 function! LineJuggler#IntraLine#SwapRepeat( direction, count, mapSuffix )
-    call s:Repeat('g`[1v', function('LineJuggler#VisualSwap'), a:direction, a:count, a:mapSuffix)
+    call s:Repeat('g`[', function('LineJuggler#VisualSwap'), a:direction, a:count, a:mapSuffix)
 endfunction
 
 function! LineJuggler#IntraLine#DoRepFetch( address )
@@ -247,7 +235,7 @@ function! LineJuggler#IntraLine#RepFetch( direction, address, count, mapSuffix )
     return 1
 endfunction
 function! LineJuggler#IntraLine#RepFetchRepeat( direction, count, mapSuffix )
-    call s:Repeat('1v', function('LineJuggler#VisualRepFetch'), a:direction, a:count, a:mapSuffix)
+    call s:Repeat('', function('LineJuggler#VisualRepFetch'), a:direction, a:count, a:mapSuffix)
 endfunction
 
 let &cpo = s:save_cpo
